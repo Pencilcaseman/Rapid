@@ -8,3 +8,12 @@ else()
 endif()
 
 target_include_directories(rapid INTERFACE ./include)
+
+include(FetchContent) 
+FetchContent_Declare(mahi-gui GIT_REPOSITORY https://github.com/mahilab/mahi-gui.git) 
+FetchContent_MakeAvailable(mahi-gui)
+
+target_link_libraries(rapid
+    INTERFACE
+	mahi::gui
+)

@@ -38,8 +38,6 @@ int main()
 {
 	std::cout << "Hello, World!\n";
 
-	std::cout << rapid::ndarray::Array<double, rapid::ndarray::CPU>::fromData({{1, 2, 3}, {4, 5, 6}}) << "\n";
-
 	MyApp app;
 	app.run();
 
