@@ -6,4 +6,4 @@ set(MODERN_CMAKE_BUILD_TESTING ON)
 include(CTest)
 
 add_subdirectory("rapid")
-add_subdirectory ("tests")
+# add_subdirectory ("tests")
