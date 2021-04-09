@@ -1,5 +1,4 @@
-﻿// #define RAPID_NO_BLAS
-// #define RAPID_NO_AMP
+﻿#define MAHI_GUI_NO_CONSOLE
 
 #include <iostream>
 #include <rapid.h>
@@ -19,7 +18,7 @@ public:
 
 		if (plotMetrics)
 			ImGui::ShowMetricsWindow(&plotMetrics);
-		
+
 		if (showStyleEditor_imGui)
 		{
 			ImGui::SetNextWindowSize(ImVec2(415, 762), ImGuiCond_Appearing);
@@ -51,6 +50,18 @@ public:
 		}
 		ImGui::EndMenuBar();
 
+		if (ImGui::CollapsingHeader("Framerate Settings"))
+		{
+			static int fps = 120;
+			static bool limit = false;
+
+			ImGui::SliderInt("Framerate", &fps, 1, 200, "%iHz"); ImGui::SameLine();
+			ImGui::Checkbox("Limit FPS", &limit);
+
+			if (limit) set_frame_limit(mahi::util::hertz(fps));
+			else set_frame_limit(mahi::util::hertz(0));
+		}
+
 		if (ImGui::CollapsingHeader("There should be a graph under here!"))
 		{
 			static double x[2000]{};
@@ -78,13 +89,13 @@ public:
 
 		if (ImGui::CollapsingHeader("Views"))
 		{
-			// mimic's soulthread's imgui_plot demo
-			static float x_data[512];
-			static float y_data1[512];
-			static float y_data2[512];
-			static float y_data3[512];
+			static float x_data[512]{};
+			static float y_data1[512]{};
+			static float y_data2[512]{};
+			static float y_data3[512]{};
 			static float sampling_freq = 44100;
 			static float freq = 500;
+
 			for (size_t i = 0; i < 512; ++i)
 			{
 				const float t = i / sampling_freq;
@@ -94,11 +105,13 @@ public:
 				y_data2[i] = y_data1[i] * -0.6f + sinf(2 * arg) * 0.4f;
 				y_data3[i] = y_data2[i] * -0.6f + sinf(3 * arg) * 0.4f;
 			}
-			ImGui::BulletText("Query the first plot to render a subview in the second plot (see above for controls).");
+
+
 			ImPlot::SetNextPlotLimits(0, 0.01, -1, 1);
 			ImPlotAxisFlags flags = 0; //  ImPlotAxisFlags_NoTickLabels;
 			ImPlotLimits query;
-			if (ImPlot::BeginPlot("##View1", NULL, NULL, ImVec2(-1, 300), ImPlotFlags_Query, flags, flags))
+
+			if (ImPlot::BeginPlot("##View1", nullptr, nullptr, ImVec2(-1, 300), ImPlotFlags_Query, flags, flags))
 			{
 				ImPlot::PlotLine("Signal 1", x_data, y_data1, 512);
 				ImPlot::PlotLine("Signal 2", x_data, y_data2, 512);
@@ -106,8 +119,9 @@ public:
 				query = ImPlot::GetPlotQuery();
 				ImPlot::EndPlot();
 			}
+
 			ImPlot::SetNextPlotLimits(query.X.Min, query.X.Max, query.Y.Min, query.Y.Max, ImGuiCond_Always);
-			if (ImPlot::BeginPlot("##View2", NULL, NULL, ImVec2(-1, 300), ImPlotFlags_CanvasOnly, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations))
+			if (ImPlot::BeginPlot("##View2", nullptr, nullptr, ImVec2(-1, 300), ImPlotFlags_CanvasOnly, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations))
 			{
 				ImPlot::PlotLine("Signal 1", x_data, y_data1, 512);
 				ImPlot::PlotLine("Signal 2", x_data, y_data2, 512);
@@ -125,8 +139,6 @@ public:
 
 int main()
 {
-	std::cout << "Hello, World!\n";
-
 	MyApp app;
 	app.run();
 
