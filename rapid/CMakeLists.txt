@@ -1,4 +1,5 @@
 add_library(rapid INTERFACE)
+add_library(rapid::lib ALIAS rapid)
 
 if (EXISTS C:/opt/openblas)
 	target_include_directories(rapid INTERFACE C:/opt/openblas/include)
