@@ -3,7 +3,8 @@
 
 int main()
 {
-	std::cout << "Hello, World!\n";
+	std::cout << rapid::math::pi << "\n";
+	std::cout << "COOL!\n";
 
 	return 0;
 }

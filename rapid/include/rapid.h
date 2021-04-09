@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef RAPID_CUDA
+#error CUDA support currently doesn't work. Fix this!
+#endif
+
 #include <atlstr.h>
 #include "./internal.h"
 #include "./units.h"
