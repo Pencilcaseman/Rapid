@@ -4217,7 +4217,7 @@ namespace rapid
 		/// <param name="end"></param>
 		/// <param name="inc"></param>
 		/// <returns></returns>
-		template<ArrayLocation loc = CPU, typename s, typename e, typename iT = s>
+		template<typename s, typename e, typename iT = s, ArrayLocation loc = CPU>
 		inline Array<typename std::common_type<s, e>::type, loc> arange(s start, e end, iT inc = 1)
 		{
 			using ct = typename std::common_type<s, e>::type;
@@ -4237,7 +4237,7 @@ namespace rapid
 		/// <typeparam name="e"></typeparam>
 		/// <param name="end"></param>
 		/// <returns></returns>
-		template<ArrayLocation loc = CPU, typename e>
+		template<typename e, ArrayLocation loc = CPU>
 		inline Array<e, loc> arange(e end)
 		{
 			return arange((e) 0, end, (e) 1);
@@ -4252,7 +4252,7 @@ namespace rapid
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
-		template<typename t, ArrayLocation loc>
+		template<typename t, ArrayLocation loc = CPU>
 		inline Array<t, loc> meshgrid(const Array<t, loc> &a, const Array<t, loc> &b)
 		{
 			rapidAssert(a.shape.size() == 1 && b.shape.size() == 1, "Invalid size for meshgrid. Must be a 1D array");
@@ -4293,7 +4293,7 @@ namespace rapid
 		/// <param name="c"></param>
 		/// <param name="sigma"></param>
 		/// <returns></returns>
-		template<typename t, ArrayLocation loc>
+		template<typename t, ArrayLocation loc = CPU>
 		inline Array<t, loc> gaussian(size_t r, size_t c, t sigma)
 		{
 			t rows = (t) r;
@@ -4318,7 +4318,7 @@ namespace rapid
 		/// <typeparam name="src"></typeparam>
 		/// <param name="src"></param>
 		/// <returns></returns>
-		template<typename resT, ArrayLocation loc = CPU, typename srcT, ArrayLocation srcL>
+		template<typename resT, typename srcT, ArrayLocation srcL, ArrayLocation loc = CPU>
 		inline Array<resT, loc> cast(const Array<srcT, srcL> &src)
 		{
 			Array<resT, loc> res(src.shape);
