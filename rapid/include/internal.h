@@ -429,3 +429,10 @@ namespace rapid
 		return (double) atof(in.c_str());
 	}
 }
+
+using uint64 = uint64_t;
+using int64 = uint64_t;
+using uint32 = uint32_t;
+using int32 = uint32_t;
+using float32 = float;
+using float64 = double;

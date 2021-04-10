@@ -10,16 +10,16 @@ namespace rapid
 		{
 			std::vector<std::string> res;
 
-			uint64_t start = 0;
-			uint64_t end = 0;
+			uint64 start = 0;
+			uint64 end = 0;
 
 			while (end != std::string::npos)
 			{
 				// Find the nearest delimiter
-				uint64_t nearest = (uint64_t) -1;
-				uint64_t index = 0;
+				uint64 nearest = (uint64) -1;
+				uint64 index = 0;
 
-				for (uint64_t i = 0; i < delimiters.size(); i++)
+				for (uint64 i = 0; i < delimiters.size(); i++)
 				{
 					auto pos = string.find(delimiters[i], start);
 					if (pos != std::string::npos && pos < nearest)
@@ -29,7 +29,7 @@ namespace rapid
 					}
 				}
 
-				if (nearest == (uint64_t) -1) // Nothing else was found
+				if (nearest == (uint64) -1) // Nothing else was found
 					break;
 
 				end = nearest;
@@ -45,7 +45,7 @@ namespace rapid
 
 		inline bool isalphanum(const std::string &string)
 		{
-			uint64_t i = 0;
+			uint64 i = 0;
 			for (const auto &c : string)
 			{
 				if (!((i == 0 && (c == '-' || c == '+') && string.length() > 1) || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '.')))
@@ -65,7 +65,7 @@ namespace rapid
 
 		inline bool isnum(const std::string &string)
 		{
-			uint64_t i = 0;
+			uint64 i = 0;
 			for (const auto &c : string)
 			{
 				if (!((i == 0 && (c == '-' || c == '+') && string.length() > 1) || (c >= '0' && c <= '9') || (c == '.')))

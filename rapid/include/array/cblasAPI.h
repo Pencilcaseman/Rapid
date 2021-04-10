@@ -17,17 +17,17 @@ namespace rapid
 			}
 
 			template<>
-			inline double rapid_dot(uint64_t len,
-									const double *__restrict a,
-									const double *__restrict b)
+			inline float64 rapid_dot(uint64_t len,
+									const float64 *__restrict a,
+									const float64 *__restrict b)
 			{
 				return cblas_ddot((blasint) len, a, (blasint) 1, b, (blasint) 1);
 			}
 
 			template<>
-			inline float rapid_dot(uint64_t len,
-								   const float *__restrict a,
-								   const float *__restrict b)
+			inline float32 rapid_dot(uint64_t len,
+								   const float32 *__restrict a,
+								   const float32 *__restrict b)
 			{
 				return cblas_sdot((blasint) len, a, (blasint) 1, b, (blasint) 1);
 			}
@@ -43,9 +43,9 @@ namespace rapid
 
 			template<>
 			inline void rapid_gemm(uint64_t M, uint64_t N, uint64_t K,
-								   const double *__restrict a,
-								   const double *__restrict b,
-								   double *__restrict c)
+								   const float64 *__restrict a,
+								   const float64 *__restrict b,
+								   float64 *__restrict c)
 			{
 				cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, (blasint) M, (blasint) K, (blasint) N,
 							1., a, (blasint) N, b, (blasint) K, 0., c, (blasint) K);
@@ -53,9 +53,9 @@ namespace rapid
 
 			template<>
 			inline void rapid_gemm(uint64_t M, uint64_t N, uint64_t K,
-								   const float *__restrict a,
-								   const float *__restrict b,
-								   float *__restrict c)
+								   const float32 *__restrict a,
+								   const float32 *__restrict b,
+								   float32 *__restrict c)
 			{
 				cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, (blasint) M, (blasint) K, (blasint) N, 1., a, (blasint) N, b, (blasint) K, 0., c, (blasint) K);
 			}

@@ -157,11 +157,11 @@ namespace rapid
 				}
 			}
 
-			inline bool incArr(std::vector<uint64_t> &arr, const std::vector<uint64_t> &m)
+			inline bool incArr(std::vector<uint64> &arr, const std::vector<uint64> &m)
 			{
 				arr[arr.size() - 1]++;
 
-				for (uint64_t i = 0; i < arr.size(); i++)
+				for (uint64 i = 0; i < arr.size(); i++)
 				{
 					if (arr[arr.size() - i - 1] >= m[m.size() - i - 1])
 					{
@@ -178,8 +178,11 @@ namespace rapid
 		}
 
 		template<typename t, ArrayLocation loc>
-		std::string Array<t, loc>::toString(uint64_t startDepth) const
+		std::string Array<t, loc>::toString(uint64 startDepth) const
 		{
+			if (!isInitialized())
+				return "[NONE]";
+
 			if (isZeroDim)
 			{
 				if (loc == CPU)
@@ -207,8 +210,8 @@ namespace rapid
 			if (shape.size() == 2 && shape[1] == 1)
 				stripMiddle = false;
 
-			std::vector<uint64_t> currentIndex(shape.size(), 0);
-			currentIndex[currentIndex.size() - 1] = (uint64_t) -1;
+			std::vector<uint64> currentIndex(shape.size(), 0);
+			currentIndex[currentIndex.size() - 1] = (uint64) -1;
 
 			t *arrayData = nullptr;
 			if (loc == CPU)
@@ -230,7 +233,7 @@ namespace rapid
 
 			while (utils::incArr(currentIndex, shape))
 			{
-				uint64_t index = utils::ndToScalar(currentIndex, shape);
+				uint64 index = utils::ndToScalar(currentIndex, shape);
 				bool skip = false;
 				for (int i = 0; i < currentIndex.size(); i++)
 				{

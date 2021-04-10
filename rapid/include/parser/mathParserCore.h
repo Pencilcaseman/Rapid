@@ -13,18 +13,18 @@ namespace rapid
 			std::string expression;
 			std::vector<std::string> infix;
 			std::vector<std::string> postfix;
-			std::vector<std::pair<double, std::string>> processed;
+			std::vector<std::pair<float64, std::string>> processed;
 
 			// std::vector<std::string> splitBy = {" ", "(", ")", "+", "-", "*", "/", "^", "%"};
 			std::vector<std::string> splitBy = {" ", "(", ")", ">", "<", "=", "!", "+", "-", "*", "/", "^", "%"};
-			std::unordered_map<std::string, double> variables;
+			std::unordered_map<std::string, float64> variables;
 
 			// Basic math operations
 			std::vector<std::string> operators = {"^", "*", "/", "%", "-", "+"};
 
 			// Functions and their definitions
 			std::vector<std::string> functionNames;
-			std::vector<std::function<double(double)>> functionDefinitions;
+			std::vector<std::function<float64(float64)>> functionDefinitions;
 
 			// Error tracking
 			bool errorOccured = false;
@@ -38,37 +38,37 @@ namespace rapid
 				operators.insert(operators.begin(), functionNames.begin(), functionNames.end());
 
 				// Register common functions
-				registerFunction("sin", [](double x)
+				registerFunction("sin", [](float64 x)
 				{
 					return std::sin(x);
 				});
 
-				registerFunction("cos", [](double x)
+				registerFunction("cos", [](float64 x)
 				{
 					return std::cos(x);
 				});
 
-				registerFunction("tan", [](double x)
+				registerFunction("tan", [](float64 x)
 				{
 					return std::tan(x);
 				});
 
-				registerFunction("asin", [](double x)
+				registerFunction("asin", [](float64 x)
 				{
 					return std::asin(x);
 				});
 
-				registerFunction("acos", [](double x)
+				registerFunction("acos", [](float64 x)
 				{
 					return std::acos(x);
 				});
 
-				registerFunction("atan", [](double x)
+				registerFunction("atan", [](float64 x)
 				{
 					return std::atan(x);
 				});
 
-				registerFunction("exp", [](double x)
+				registerFunction("exp", [](float64 x)
 				{
 					return std::exp(x);
 				});
@@ -76,7 +76,7 @@ namespace rapid
 
 			inline void expressionToInfix()
 			{
-				uint64_t i = 0;
+				uint64 i = 0;
 				bool append = false;
 				for (const auto &term : splitString(expression, splitBy))
 				{
@@ -104,7 +104,7 @@ namespace rapid
 			{
 				std::vector<std::string> newInfix;
 
-				for (uint64_t i = 0; i < infix.size(); i++)
+				for (uint64 i = 0; i < infix.size(); i++)
 				{
 					bool modified = false;
 
@@ -202,9 +202,9 @@ namespace rapid
 				}
 			}
 
-			inline double postfixEval()
+			inline float64 postfixEval()
 			{
-				std::stack<double> stack;
+				std::stack<float64> stack;
 
 				for (const auto &term : processed)
 				{
@@ -219,7 +219,7 @@ namespace rapid
 					if (!evaluated)
 					{
 						std::string varname;
-						double mult = 1;
+						float64 mult = 1;
 
 						if (term.second[0] == '-')
 						{
@@ -248,11 +248,11 @@ namespace rapid
 
 					if (!evaluated)
 					{
-						double a = 0;
-						double b = stack.top(); stack.pop();
+						float64 a = 0;
+						float64 b = stack.top(); stack.pop();
 
 						// Function
-						for (uint64_t i = 0; i < functionDefinitions.size(); i++)
+						for (uint64 i = 0; i < functionDefinitions.size(); i++)
 						{
 							if (term.second == functionNames[i])
 							{
@@ -336,7 +336,7 @@ namespace rapid
 			inline void registerFunction(const std::string &name, const lambda &func)
 			{
 				functionNames.emplace_back(name);
-				functionDefinitions.emplace_back(std::function<double(double)>(func));
+				functionDefinitions.emplace_back(std::function<float64(float64)>(func));
 
 				operators.insert(operators.begin(), name);
 			}
@@ -349,7 +349,7 @@ namespace rapid
 				postfixProcess();
 			}
 
-			inline double eval()
+			inline float64 eval()
 			{
 				return postfixEval();
 			}

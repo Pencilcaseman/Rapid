@@ -18,7 +18,7 @@ namespace rapid
 			namespace kernel
 			{
 				__global__
-					void printStuff_float(unsigned int size, const float *arr)
+					void printStuff_float(unsigned int size, const float32 *arr)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -30,7 +30,7 @@ namespace rapid
 				}
 
 				__global__
-					void rowToColumnOrdering_float(const unsigned int rows, const unsigned int cols, const float *__restrict arr, float *__restrict res)
+					void rowToColumnOrdering_float(const unsigned int rows, const unsigned int cols, const float32 *__restrict arr, float32 *__restrict res)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -45,7 +45,7 @@ namespace rapid
 				}
 
 				__global__
-					void rowToColumnOrdering_double(const unsigned int rows, const unsigned int cols, const double *__restrict arr, double *__restrict res)
+					void rowToColumnOrdering_double(const unsigned int rows, const unsigned int cols, const float64 *__restrict arr, float64 *__restrict res)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -60,7 +60,7 @@ namespace rapid
 				}
 
 				__global__
-					void columnToRowOrdering_float(const unsigned int rows, const unsigned int cols, const float *__restrict arr, float *__restrict res)
+					void columnToRowOrdering_float(const unsigned int rows, const unsigned int cols, const float32 *__restrict arr, float32 *__restrict res)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -75,7 +75,7 @@ namespace rapid
 				}
 
 				__global__
-					void columnToRowOrdering_double(const unsigned int rows, const unsigned int cols, const double *__restrict arr, double *__restrict res)
+					void columnToRowOrdering_double(const unsigned int rows, const unsigned int cols, const float64 *__restrict arr, float64 *__restrict res)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -90,7 +90,7 @@ namespace rapid
 				}
 
 				__global__
-					void fill_float(unsigned int size, float *arr, const unsigned int M, float val)
+					void fill_float(unsigned int size, float32 *arr, const unsigned int M, float32 val)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -102,7 +102,7 @@ namespace rapid
 				}
 
 				__global__
-					void fill_double(unsigned int size, double *arr, const unsigned int M, double val)
+					void fill_double(unsigned int size, float64 *arr, const unsigned int M, float64 val)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -114,7 +114,7 @@ namespace rapid
 				}
 
 				__global__
-					void add_array_array_float(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void add_array_array_float(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -126,7 +126,7 @@ namespace rapid
 				}
 
 				__global__
-					void add_array_array_double(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void add_array_array_double(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -138,7 +138,7 @@ namespace rapid
 				}
 
 				__global__
-					void sub_array_array_float(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void sub_array_array_float(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -150,7 +150,7 @@ namespace rapid
 				}
 
 				__global__
-					void sub_array_array_double(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void sub_array_array_double(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -162,7 +162,7 @@ namespace rapid
 				}
 
 				__global__
-					void mul_array_array_float(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void mul_array_array_float(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -174,7 +174,7 @@ namespace rapid
 				}
 
 				__global__
-					void mul_array_array_double(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void mul_array_array_double(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -186,7 +186,7 @@ namespace rapid
 				}
 
 				__global__
-					void div_array_array_float(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void div_array_array_float(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -198,7 +198,7 @@ namespace rapid
 				}
 
 				__global__
-					void div_array_array_double(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void div_array_array_double(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -210,7 +210,7 @@ namespace rapid
 				}
 
 				__global__
-					void add_array_scalar_float(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int K)
+					void add_array_scalar_float(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -222,7 +222,7 @@ namespace rapid
 				}
 
 				__global__
-					void add_array_scalar_double(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int K)
+					void add_array_scalar_double(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -234,7 +234,7 @@ namespace rapid
 				}
 
 				__global__
-					void sub_array_scalar_float(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int K)
+					void sub_array_scalar_float(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -246,7 +246,7 @@ namespace rapid
 				}
 
 				__global__
-					void sub_array_scalar_double(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int K)
+					void sub_array_scalar_double(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -258,7 +258,7 @@ namespace rapid
 				}
 
 				__global__
-					void mul_array_scalar_float(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int K)
+					void mul_array_scalar_float(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -270,7 +270,7 @@ namespace rapid
 				}
 
 				__global__
-					void mul_array_scalar_double(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int K)
+					void mul_array_scalar_double(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -282,7 +282,7 @@ namespace rapid
 				}
 
 				__global__
-					void div_array_scalar_float(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int K)
+					void div_array_scalar_float(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -294,7 +294,7 @@ namespace rapid
 				}
 
 				__global__
-					void div_array_scalar_double(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int K)
+					void div_array_scalar_double(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -306,7 +306,7 @@ namespace rapid
 				}
 
 				__global__
-					void add_scalar_array_float(unsigned int size, const float a, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void add_scalar_array_float(unsigned int size, const float32 a, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -318,7 +318,7 @@ namespace rapid
 				}
 
 				__global__
-					void add_scalar_array_double(unsigned int size, const double a, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void add_scalar_array_double(unsigned int size, const float64 a, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -330,7 +330,7 @@ namespace rapid
 				}
 
 				__global__
-					void sub_scalar_array_float(unsigned int size, const float a, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void sub_scalar_array_float(unsigned int size, const float32 a, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -342,7 +342,7 @@ namespace rapid
 				}
 
 				__global__
-					void sub_scalar_array_double(unsigned int size, const double a, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void sub_scalar_array_double(unsigned int size, const float64 a, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -354,7 +354,7 @@ namespace rapid
 				}
 
 				__global__
-					void mul_scalar_array_float(unsigned int size, const float a, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void mul_scalar_array_float(unsigned int size, const float32 a, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -366,7 +366,7 @@ namespace rapid
 				}
 
 				__global__
-					void mul_scalar_array_double(unsigned int size, const double a, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void mul_scalar_array_double(unsigned int size, const float64 a, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -378,7 +378,7 @@ namespace rapid
 				}
 
 				__global__
-					void div_scalar_array_float(unsigned int size, const float a, const float *b, const unsigned int N, float *res, const unsigned int K)
+					void div_scalar_array_float(unsigned int size, const float32 a, const float32 *b, const unsigned int N, float32 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -390,7 +390,7 @@ namespace rapid
 				}
 
 				__global__
-					void div_scalar_array_double(unsigned int size, const double a, const double *b, const unsigned int N, double *res, const unsigned int K)
+					void div_scalar_array_double(unsigned int size, const float64 a, const float64 *b, const unsigned int N, float64 *res, const unsigned int K)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -433,7 +433,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_minimum_float(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N)
+					void array_minimum_float(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -445,7 +445,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_minimum_double(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N)
+					void array_minimum_double(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -457,7 +457,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_maximum_float(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N)
+					void array_maximum_float(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -469,7 +469,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_maximum_double(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N)
+					void array_maximum_double(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -481,7 +481,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_less_float(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N)
+					void array_less_float(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -493,7 +493,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_less_double(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N)
+					void array_less_double(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -505,7 +505,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_greater_float(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N)
+					void array_greater_float(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -517,7 +517,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_greater_double(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N)
+					void array_greater_double(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -529,7 +529,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_exp_float(unsigned int size, const float *arr, const unsigned int M, float *res, const unsigned int N)
+					void array_exp_float(unsigned int size, const float32 *arr, const unsigned int M, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -541,7 +541,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_exp_double(unsigned int size, const double *arr, const unsigned int M, double *res, const unsigned int N)
+					void array_exp_double(unsigned int size, const float64 *arr, const unsigned int M, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -553,7 +553,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_square_float(unsigned int size, const float *arr, const unsigned int M, float *res, const unsigned int N)
+					void array_square_float(unsigned int size, const float32 *arr, const unsigned int M, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -565,7 +565,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_square_double(unsigned int size, const double *arr, const unsigned int M, double *res, const unsigned int N)
+					void array_square_double(unsigned int size, const float64 *arr, const unsigned int M, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -577,7 +577,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_pow_float(unsigned int size, const float *arr, const unsigned int M, const float n, float *res, const unsigned int N)
+					void array_pow_float(unsigned int size, const float32 *arr, const unsigned int M, const float32 n, float32 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -589,7 +589,7 @@ namespace rapid
 				}
 
 				__global__
-					void array_pow_double(unsigned int size, const double *arr, const unsigned int M, const double n, double *res, const unsigned int N)
+					void array_pow_double(unsigned int size, const float64 *arr, const unsigned int M, const float64 n, float64 *res, const unsigned int N)
 				{
 					unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 					unsigned int stride = blockDim.x * gridDim.x;
@@ -628,36 +628,36 @@ namespace rapid
 
 				template<typename t>
 				__global__
-					void array_transpose(const uint64_t dims, const uint64_t *shape, const uint64_t *newDims, const uint64_t *axes, const uint64_t shapeProd, const t *data, t *res)
+					void array_transpose(const uint64 dims, const uint64 *shape, const uint64 *newDims, const uint64 *axes, const uint64 shapeProd, const t *data, t *res)
 				{
-					uint64_t *indices = new uint64_t[dims];
-					uint64_t *indicesRes = new uint64_t[dims];
+					uint64 *indices = new uint64[dims];
+					uint64 *indicesRes = new uint64[dims];
 
-					for (uint64_t i = 0; i < dims; i++)
+					for (uint64 i = 0; i < dims; i++)
 					{
 						indices[i] = 0;
 						indicesRes[i] = 0;
 					}
 
-					for (uint64_t i = 0; i < shapeProd; i++)
+					for (uint64 i = 0; i < shapeProd; i++)
 					{
 						for (int64_t j = 0; j < dims; j++)
 							indicesRes[j] = indices[axes[j]];
 
-						uint64_t resIndex = 0;
+						uint64 resIndex = 0;
 						for (long int i = 0; i < dims; i++)
 						{
-							uint64_t sub = indicesRes[i];
-							for (uint64_t j = i; j < dims - 1; j++)
+							uint64 sub = indicesRes[i];
+							for (uint64 j = i; j < dims - 1; j++)
 								sub *= newDims[j + 1];
 							resIndex += sub;
 						}
 
-						uint64_t dataIndex = 0;
+						uint64 dataIndex = 0;
 						for (long int i = 0; i < dims; i++)
 						{
-							uint64_t sub = indices[i];
-							for (uint64_t j = i; j < dims - 1; j++)
+							uint64 sub = indices[i];
+							for (uint64 j = i; j < dims - 1; j++)
 								sub *= shape[j + 1];
 							dataIndex += sub;
 						}
@@ -665,7 +665,7 @@ namespace rapid
 						res[resIndex] = data[dataIndex];
 
 						indices[dims - 1]++;
-						uint64_t index = dims - 1;
+						uint64 index = dims - 1;
 
 						while (indices[index] >= shape[index] && index > 0)
 						{
@@ -680,7 +680,7 @@ namespace rapid
 				}
 			}
 
-			inline void printStuff(unsigned int size, const float *arr, int sync = 1)
+			inline void printStuff(unsigned int size, const float32 *arr, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -692,7 +692,7 @@ namespace rapid
 				kernel::printStuff_float << <numBlocks, blockSize >> > (size, arr);
 			}
 
-			inline void rowToColumnOrdering(unsigned int rows, unsigned int cols, float *arr, float *res, int sync = 1)
+			inline void rowToColumnOrdering(unsigned int rows, unsigned int cols, float32 *arr, float32 *res, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -704,7 +704,7 @@ namespace rapid
 				kernel::rowToColumnOrdering_float << <numBlocks, blockSize >> > (rows, cols, arr, res);
 			}
 
-			inline void rowToColumnOrdering(unsigned int rows, unsigned int cols, double *arr, double *res, int sync = 1)
+			inline void rowToColumnOrdering(unsigned int rows, unsigned int cols, float64 *arr, float64 *res, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -716,7 +716,7 @@ namespace rapid
 				kernel::rowToColumnOrdering_double << <numBlocks, blockSize >> > (rows, cols, arr, res);
 			}
 
-			inline void columnToRowOrdering(unsigned int rows, unsigned int cols, float *arr, float *res, int sync = 1)
+			inline void columnToRowOrdering(unsigned int rows, unsigned int cols, float32 *arr, float32 *res, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -728,7 +728,7 @@ namespace rapid
 				kernel::columnToRowOrdering_float << <numBlocks, blockSize >> > (rows, cols, arr, res);
 			}
 
-			inline void columnToRowOrdering(unsigned int rows, unsigned int cols, double *arr, double *res, int sync = 1)
+			inline void columnToRowOrdering(unsigned int rows, unsigned int cols, float64 *arr, float64 *res, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -740,7 +740,7 @@ namespace rapid
 				kernel::columnToRowOrdering_double << <numBlocks, blockSize >> > (rows, cols, arr, res);
 			}
 
-			inline void fill(unsigned int size, float *arr, const unsigned int M, float val, int sync = 1)
+			inline void fill(unsigned int size, float32 *arr, const unsigned int M, float32 val, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -752,7 +752,7 @@ namespace rapid
 				kernel::fill_float << <numBlocks, blockSize >> > (size, arr, M, val);
 			}
 
-			inline void fill(unsigned int size, double *arr, const unsigned int M, double val, int sync = 1)
+			inline void fill(unsigned int size, float64 *arr, const unsigned int M, float64 val, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -764,7 +764,7 @@ namespace rapid
 				kernel::fill_double << <numBlocks, blockSize >> > (size, arr, M, val);
 			}
 
-			inline void add_array_array(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K, int sync = 1)
+			inline void add_array_array(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -776,7 +776,7 @@ namespace rapid
 				kernel::add_array_array_float << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void add_array_array(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K, int sync = 1)
+			inline void add_array_array(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -788,7 +788,7 @@ namespace rapid
 				kernel::add_array_array_double << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void sub_array_array(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K, int sync = 1)
+			inline void sub_array_array(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -800,7 +800,7 @@ namespace rapid
 				kernel::sub_array_array_float << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void sub_array_array(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K, int sync = 1)
+			inline void sub_array_array(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -812,7 +812,7 @@ namespace rapid
 				kernel::sub_array_array_double << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void mul_array_array(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K, int sync = 1)
+			inline void mul_array_array(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -824,7 +824,7 @@ namespace rapid
 				kernel::mul_array_array_float << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void mul_array_array(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K, int sync = 1)
+			inline void mul_array_array(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -836,7 +836,7 @@ namespace rapid
 				kernel::mul_array_array_double << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void div_array_array(unsigned int size, const float *a, const unsigned int M, const float *b, const unsigned int N, float *res, const unsigned int K, int sync = 1)
+			inline void div_array_array(unsigned int size, const float32 *a, const unsigned int M, const float32 *b, const unsigned int N, float32 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -848,7 +848,7 @@ namespace rapid
 				kernel::div_array_array_float << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void div_array_array(unsigned int size, const double *a, const unsigned int M, const double *b, const unsigned int N, double *res, const unsigned int K, int sync = 1)
+			inline void div_array_array(unsigned int size, const float64 *a, const unsigned int M, const float64 *b, const unsigned int N, float64 *res, const unsigned int K, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -860,7 +860,7 @@ namespace rapid
 				kernel::div_array_array_double << <numBlocks, blockSize >> > (size, a, M, b, N, res, K);
 			}
 
-			inline void add_array_scalar(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int N, int sync = 1)
+			inline void add_array_scalar(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -872,7 +872,7 @@ namespace rapid
 				kernel::add_array_scalar_float << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void add_array_scalar(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int N, int sync = 1)
+			inline void add_array_scalar(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -884,7 +884,7 @@ namespace rapid
 				kernel::add_array_scalar_double << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void sub_array_scalar(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int N, int sync = 1)
+			inline void sub_array_scalar(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -896,7 +896,7 @@ namespace rapid
 				kernel::sub_array_scalar_float << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void sub_array_scalar(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int N, int sync = 1)
+			inline void sub_array_scalar(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -908,7 +908,7 @@ namespace rapid
 				kernel::sub_array_scalar_double << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void mul_array_scalar(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int N, int sync = 1)
+			inline void mul_array_scalar(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -920,7 +920,7 @@ namespace rapid
 				kernel::mul_array_scalar_float << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void mul_array_scalar(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int N, int sync = 1)
+			inline void mul_array_scalar(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -932,7 +932,7 @@ namespace rapid
 				kernel::mul_array_scalar_double << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void div_array_scalar(unsigned int size, const float *a, const unsigned int M, const float b, float *res, const unsigned int N, int sync = 1)
+			inline void div_array_scalar(unsigned int size, const float32 *a, const unsigned int M, const float32 b, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -944,7 +944,7 @@ namespace rapid
 				kernel::div_array_scalar_float << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void div_array_scalar(unsigned int size, const double *a, const unsigned int M, const double b, double *res, const unsigned int N, int sync = 1)
+			inline void div_array_scalar(unsigned int size, const float64 *a, const unsigned int M, const float64 b, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -956,7 +956,7 @@ namespace rapid
 				kernel::div_array_scalar_double << <numBlocks, blockSize >> > (size, a, M, b, res, N);
 			}
 
-			inline void add_scalar_array(unsigned int size, const float a, const float *b, const unsigned int M, float *res, const unsigned int N, int sync = 1)
+			inline void add_scalar_array(unsigned int size, const float32 a, const float32 *b, const unsigned int M, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -968,7 +968,7 @@ namespace rapid
 				kernel::add_scalar_array_float << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void add_scalar_array(unsigned int size, const double a, const double *b, const unsigned int M, double *res, const unsigned int N, int sync = 1)
+			inline void add_scalar_array(unsigned int size, const float64 a, const float64 *b, const unsigned int M, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -980,7 +980,7 @@ namespace rapid
 				kernel::add_scalar_array_double << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void sub_scalar_array(unsigned int size, const float a, const float *b, const unsigned int M, float *res, const unsigned int N, int sync = 1)
+			inline void sub_scalar_array(unsigned int size, const float32 a, const float32 *b, const unsigned int M, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -992,7 +992,7 @@ namespace rapid
 				kernel::sub_scalar_array_float << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void sub_scalar_array(unsigned int size, const double a, const double *b, const unsigned int M, double *res, const unsigned int N, int sync = 1)
+			inline void sub_scalar_array(unsigned int size, const float64 a, const float64 *b, const unsigned int M, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1004,7 +1004,7 @@ namespace rapid
 				kernel::sub_scalar_array_double << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void mul_scalar_array(unsigned int size, const float a, const float *b, const unsigned int M, float *res, const unsigned int N, int sync = 1)
+			inline void mul_scalar_array(unsigned int size, const float32 a, const float32 *b, const unsigned int M, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1016,7 +1016,7 @@ namespace rapid
 				kernel::mul_scalar_array_float << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void mul_scalar_array(unsigned int size, const double a, const double *b, const unsigned int M, double *res, const unsigned int N, int sync = 1)
+			inline void mul_scalar_array(unsigned int size, const float64 a, const float64 *b, const unsigned int M, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1028,7 +1028,7 @@ namespace rapid
 				kernel::mul_scalar_array_double << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void div_scalar_array(unsigned int size, const float a, const float *b, const unsigned int M, float *res, const unsigned int N, int sync = 1)
+			inline void div_scalar_array(unsigned int size, const float32 a, const float32 *b, const unsigned int M, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1040,7 +1040,7 @@ namespace rapid
 				kernel::div_scalar_array_float << <numBlocks, blockSize >> > (size, a, b, M, res, N);
 			}
 
-			inline void div_scalar_array(unsigned int size, const double a, const double *b, const unsigned int M, double *res, const unsigned int N, int sync = 1)
+			inline void div_scalar_array(unsigned int size, const float64 a, const float64 *b, const unsigned int M, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1055,11 +1055,11 @@ namespace rapid
 			inline void gemm(cublasHandle_t handle,
 							 cublasOperation_t transa, cublasOperation_t transb,
 							 unsigned int m, unsigned int n, unsigned int k,
-							 const float *alpha,
-							 const float *A, unsigned int lda,
-							 const float *B, unsigned int ldb,
-							 const float *beta,
-							 float *C, unsigned int ldc)
+							 const float32 *alpha,
+							 const float32 *A, unsigned int lda,
+							 const float32 *B, unsigned int ldb,
+							 const float32 *beta,
+							 float32 *C, unsigned int ldc)
 			{
 				cublasSafeCall(cublasSgemm(handle, transa, transb,
 							   m, n, k,
@@ -1073,11 +1073,11 @@ namespace rapid
 			inline void gemm(cublasHandle_t handle,
 							 cublasOperation_t transa, cublasOperation_t transb,
 							 unsigned int m, unsigned int n, unsigned int k,
-							 const double *alpha,
-							 const double *A, unsigned int lda,
-							 const double *B, unsigned int ldb,
-							 const double *beta,
-							 double *C, unsigned int ldc)
+							 const float64 *alpha,
+							 const float64 *A, unsigned int lda,
+							 const float64 *B, unsigned int ldb,
+							 const float64 *beta,
+							 float64 *C, unsigned int ldc)
 			{
 				cublasSafeCall(cublasDgemm(handle, transa, transb,
 							   m, n, k,
@@ -1091,11 +1091,11 @@ namespace rapid
 			inline void geam(cublasHandle_t handle,
 							 cublasOperation_t transa, cublasOperation_t transb,
 							 unsigned int m, unsigned int n,
-							 const float *alpha,
-							 const float *A, unsigned int lda,
-							 const float *beta,
-							 const float *B, unsigned int ldb,
-							 float *C, unsigned int ldc)
+							 const float32 *alpha,
+							 const float32 *A, unsigned int lda,
+							 const float32 *beta,
+							 const float32 *B, unsigned int ldb,
+							 float32 *C, unsigned int ldc)
 			{
 				cublasSafeCall(cublasSgeam(handle,
 							   transa, transb,
@@ -1110,11 +1110,11 @@ namespace rapid
 			inline void geam(cublasHandle_t handle,
 							 cublasOperation_t transa, cublasOperation_t transb,
 							 unsigned int m, unsigned int n,
-							 const double *alpha,
-							 const double *A, unsigned int lda,
-							 const double *beta,
-							 const double *B, unsigned int ldb,
-							 double *C, unsigned int ldc)
+							 const float64 *alpha,
+							 const float64 *A, unsigned int lda,
+							 const float64 *beta,
+							 const float64 *B, unsigned int ldb,
+							 float64 *C, unsigned int ldc)
 			{
 				cublasSafeCall(cublasDgeam(handle,
 							   transa, transb,
@@ -1134,7 +1134,7 @@ namespace rapid
 				kernel::matrixProduct << <dimGrid, dimBlock >> > (a, b, res, m, k, n);
 			}
 
-			inline void array_minimum(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N, int sync = 1)
+			inline void array_minimum(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1146,7 +1146,7 @@ namespace rapid
 				kernel::array_minimum_float << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_minimum(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N, int sync = 1)
+			inline void array_minimum(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1158,7 +1158,7 @@ namespace rapid
 				kernel::array_minimum_double << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_maximum(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N, int sync = 1)
+			inline void array_maximum(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1170,7 +1170,7 @@ namespace rapid
 				kernel::array_maximum_float << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_maximum(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N, int sync = 1)
+			inline void array_maximum(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1182,7 +1182,7 @@ namespace rapid
 				kernel::array_maximum_double << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_less(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N, int sync = 1)
+			inline void array_less(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1194,7 +1194,7 @@ namespace rapid
 				kernel::array_less_float << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_less(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N, int sync = 1)
+			inline void array_less(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1206,7 +1206,7 @@ namespace rapid
 				kernel::array_less_double << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_greater(unsigned int size, const float *arr, const unsigned int M, const float val, float *res, const unsigned int N, int sync = 1)
+			inline void array_greater(unsigned int size, const float32 *arr, const unsigned int M, const float32 val, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1218,7 +1218,7 @@ namespace rapid
 				kernel::array_greater_float << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_greater(unsigned int size, const double *arr, const unsigned int M, const double val, double *res, const unsigned int N, int sync = 1)
+			inline void array_greater(unsigned int size, const float64 *arr, const unsigned int M, const float64 val, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1230,7 +1230,7 @@ namespace rapid
 				kernel::array_greater_double << <numBlocks, blockSize >> > (size, arr, M, val, res, N);
 			}
 
-			inline void array_exp(unsigned int size, const float *arr, const unsigned int M, float *res, const unsigned int N, int sync = 1)
+			inline void array_exp(unsigned int size, const float32 *arr, const unsigned int M, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1242,7 +1242,7 @@ namespace rapid
 				kernel::array_exp_float << <numBlocks, blockSize >> > (size, arr, M, res, N);
 			}
 
-			inline void array_exp(unsigned int size, const double *arr, const unsigned int M, double *res, const unsigned int N, int sync = 1)
+			inline void array_exp(unsigned int size, const float64 *arr, const unsigned int M, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1254,7 +1254,7 @@ namespace rapid
 				kernel::array_exp_double << <numBlocks, blockSize >> > (size, arr, M, res, N);
 			}
 
-			inline void array_square(unsigned int size, const float *arr, const unsigned int M, float *res, const unsigned int N, int sync = 1)
+			inline void array_square(unsigned int size, const float32 *arr, const unsigned int M, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1266,7 +1266,7 @@ namespace rapid
 				kernel::array_square_float << <numBlocks, blockSize >> > (size, arr, M, res, N);
 			}
 
-			inline void array_square(unsigned int size, const double *arr, const unsigned int M, double *res, const unsigned int N, int sync = 1)
+			inline void array_square(unsigned int size, const float64 *arr, const unsigned int M, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1278,7 +1278,7 @@ namespace rapid
 				kernel::array_square_double << <numBlocks, blockSize >> > (size, arr, M, res, N);
 			}
 
-			inline void array_pow(unsigned int size, const float *arr, const unsigned int M, const float p, float *res, const unsigned int N, int sync = 1)
+			inline void array_pow(unsigned int size, const float32 *arr, const unsigned int M, const float32 p, float32 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1290,7 +1290,7 @@ namespace rapid
 				kernel::array_pow_float << <numBlocks, blockSize >> > (size, arr, M, p, res, N);
 			}
 
-			inline void array_pow(unsigned int size, const double *arr, const unsigned int M, const float p, double *res, const unsigned int N, int sync = 1)
+			inline void array_pow(unsigned int size, const float64 *arr, const unsigned int M, const float32 p, float64 *res, const unsigned int N, int sync = 1)
 			{
 				// Perform calculation
 				unsigned int blockSize = BLOCK_SIZE;
@@ -1329,19 +1329,19 @@ namespace rapid
 			}
 
 			template<typename t>
-			inline void array_transpose(const std::vector<uint64_t> &shape, const std::vector<uint64_t> &newDims, const std::vector<uint64_t> &axes, const t *data, t *res, int sync = 1)
+			inline void array_transpose(const std::vector<uint64> &shape, const std::vector<uint64> &newDims, const std::vector<uint64> &axes, const t *data, t *res, int sync = 1)
 			{
-				const uint64_t dims = shape.size();
-				uint64_t *deviceShape, *deviceNewDims, *deviceAxes;
-				const uint64_t shapeProd = math::prod(shape);
+				const uint64 dims = shape.size();
+				uint64 *deviceShape, *deviceNewDims, *deviceAxes;
+				const uint64 shapeProd = math::prod(shape);
 
-				cudaSafeCall(cudaMalloc(&deviceShape, sizeof(uint64_t) * dims));
-				cudaSafeCall(cudaMalloc(&deviceNewDims, sizeof(uint64_t) * dims));
-				cudaSafeCall(cudaMalloc(&deviceAxes, sizeof(uint64_t) * dims));
+				cudaSafeCall(cudaMalloc(&deviceShape, sizeof(uint64) * dims));
+				cudaSafeCall(cudaMalloc(&deviceNewDims, sizeof(uint64) * dims));
+				cudaSafeCall(cudaMalloc(&deviceAxes, sizeof(uint64) * dims));
 				
-				cudaSafeCall(cudaMemcpy(deviceShape, shape.data(), sizeof(uint64_t) * dims, cudaMemcpyHostToDevice));
-				cudaSafeCall(cudaMemcpy(deviceNewDims, newDims.data(), sizeof(uint64_t) * dims, cudaMemcpyHostToDevice));
-				cudaSafeCall(cudaMemcpy(deviceAxes, axes.data(), sizeof(uint64_t) * dims, cudaMemcpyHostToDevice));
+				cudaSafeCall(cudaMemcpy(deviceShape, shape.data(), sizeof(uint64) * dims, cudaMemcpyHostToDevice));
+				cudaSafeCall(cudaMemcpy(deviceNewDims, newDims.data(), sizeof(uint64) * dims, cudaMemcpyHostToDevice));
+				cudaSafeCall(cudaMemcpy(deviceAxes, axes.data(), sizeof(uint64) * dims, cudaMemcpyHostToDevice));
 
 				if (sync)
 					cudaSafeCall(cudaDeviceSynchronize());

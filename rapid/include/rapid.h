@@ -4,7 +4,6 @@
 #error CUDA support currently doesn't work. Fix this!
 #endif
 
-// #include <atlstr.h>
 #include "./internal.h"
 #include "./units.h"
 #include "./rapid_math.h"
