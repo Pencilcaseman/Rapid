@@ -7,9 +7,6 @@ else()
 	add_compile_definitions(RAPID_NO_BLAS 1)
 endif()
 
-
-add_compile_definitions(RAPID_CXX 1)
-
 target_include_directories(rapid INTERFACE ./include)
 
 include(FetchContent) 

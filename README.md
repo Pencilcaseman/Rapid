@@ -47,3 +47,13 @@ mkdir build && cd build
 cmake ..
 cmake --build . --config "Release"
 ```
+
+---
+
+## Does Rapid work with CUDA?
+
+Unfortunately, due to the way Mahi-Gui, CMake and NVCC work, it is not possible to build Rapid with support for CUDA, though the raw header files will support CUDA, so long as you ```#define RAPID_CUDA``` before you include Rapid. Due to the way Mahi-Gui is built, it will not build when compiling with the NVCC CUDA compiler, so the graphical side of Rapid will not function.
+
+Most notably, the N-Dimensional Array library has nearly full CUDA support, and most calculations can be performed on the GPU, and casting between CPU and GPU arrays is possible.
+
+*If anyone is aware of a workaround for this, please create a pull request or equivalent*
