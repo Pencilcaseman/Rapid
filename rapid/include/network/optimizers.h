@@ -6,7 +6,7 @@
 
 namespace rapid
 {
-	namespace network
+	namespace neural
 	{
 		namespace optimizers
 		{
