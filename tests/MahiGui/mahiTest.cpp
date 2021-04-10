@@ -1,4 +1,4 @@
-﻿#define MAHI_GUI_NO_CONSOLE
+﻿// #define MAHI_GUI_NO_CONSOLE
 
 #include <iostream>
 #include <rapid.h>
@@ -149,6 +149,33 @@ public:
 				ImPlot::PlotLine("Signal 1", x_data, y_data1, 512);
 				ImPlot::PlotLine("Signal 2", x_data, y_data2, 512);
 				ImPlot::PlotLine("Signal 3", x_data, y_data3, 512);
+				ImPlot::EndPlot();
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Random Number Generation"))
+		{
+			// static std::random_device randomNumberGenerator;
+			static std::mt19937 randomNumberGenerator;
+			static std::uniform_real_distribution<double> realDistribution(0, 10);
+
+			static double x[100000]{};
+			static double y[100000]{};
+
+			static int points = 10;
+
+			// ImGui::Text("Entropy: %f", randomNumberGenerator.entropy());
+			ImGui::SliderInt("Points", &points, 1, 100000, "%i points");
+
+			for (uint64_t i = 0; i < points; i++)
+			{
+				x[i] = (double) i / ((double) points / 10);
+				y[i] = realDistribution(randomNumberGenerator);
+			}
+
+			if (ImPlot::BeginPlot("Random Noise Generators", nullptr, nullptr, ImVec2(-1, 400)))
+			{
+				ImPlot::PlotScatter("Random Noise", x, y, points, 0, sizeof(double) * 2);
 				ImPlot::EndPlot();
 			}
 		}

@@ -138,27 +138,17 @@ namespace rapid
 
 			MessageBoxType display()
 			{
-				std::wstring wideMessage;
-				wideMessage.assign(message.begin(), message.end());
+				const auto m = (LPCSTR) message.c_str();
+				const auto t = (LPCSTR) title.c_str();
 
-				std::wstring wideTitle;
-				wideTitle.assign(title.begin(), title.end());
+				std::cout << "Info: " << m << "\n";
 
-			// #ifdef __CUDACC_VER__
 				int msgBoxID = MessageBox(
 					nullptr,
-					(LPCSTR) wideMessage.c_str(),
-					(LPCSTR) wideTitle.c_str(),
+					m,
+					t,
 					(int) ((int) icon | (int) buttons | (int) defaultButton)
 				);
-				// #else
-				// 	int msgBoxID = MessageBox(
-				// 		nullptr,
-				// 		wideMessage.c_str(),
-				// 		wideTitle.c_str(),
-				// 		(int) ((int) icon | (int) buttons | (int) defaultButton)
-				// 	);
-				// #endif
 
 				bool errorOccured = false;
 

@@ -991,11 +991,14 @@ namespace rapid
 			/// Cast a zero-dimensional array to a scalar value
 			/// </summary>
 			/// <typeparam name="t"></typeparam>
-			template<typename t>
+			template<typename t, typename std::enable_if<std::is_floating_point<t>::value || std::is_integral<t>::value>::type = 0>
 			inline operator t() const
 			{
+			#ifdef RAPID_DEBUG
 				if (!isZeroDim)
 					rapidAssert(isZeroDim, "Cannot cast multidimensional array to scalar value");
+			#endif
+
 				if (location == CPU)
 					return (t) (dataStart[0]);
 
@@ -1008,6 +1011,11 @@ namespace rapid
 					return res;
 				}
 			#endif
+			}
+
+			inline bool isInitialized() const
+			{
+				return originCount == nullptr;
 			}
 
 			/// <summary>
@@ -3496,6 +3504,34 @@ namespace rapid
 		std::ostream &operator<<(std::ostream &os, const Array<t, loc> &arr)
 		{
 			return os << arr.toString();
+		}
+
+		template<typename t, ArrayLocation loc = CPU>
+		inline Array<t, loc> fromScalar(const t &val)
+		{
+			Array<t, loc> res;
+
+			res.isZeroDim = true;
+			res.shape = {1};
+
+			if (loc == CPU)
+			{
+				res.dataStart = new t[1];
+				res.dataStart[0] = val;
+			}
+		#ifdef RAPID_CUDA
+			else
+			{
+				cudaSafeCall(cudaMalloc(&res.dataStart, sizeof(t)));
+				cudaSafeCall(cudaMemcpy(res.dataStart, &val, sizeof(t), cudaMemcpyHostToDevice));
+			}
+		#endif
+
+			res.dataOrigin = res.dataStart;
+			res.originCount = new size_t;
+			(*res.originCount) = 1;
+
+			return res;
 		}
 
 		template<typename t, ArrayLocation loc = CPU>
