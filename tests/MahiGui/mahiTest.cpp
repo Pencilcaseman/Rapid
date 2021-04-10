@@ -50,8 +50,15 @@ public:
 		}
 		ImGui::EndMenuBar();
 
+		ImGui::BulletText("This is an ImGui window being used from Rapid");
+		ImGui::BulletText("In the menu above are some tools you can use");
+		ImGui::BulletText("Try the dropdown menus below");
+
 		if (ImGui::CollapsingHeader("Framerate Settings"))
 		{
+			ImGui::BulletText("Change whether the framerate is limited with the checkbox");
+			ImGui::BulletText("Adjust the limiting framerate with the slider");
+
 			static int fps = 120;
 			static bool limit = false;
 
@@ -64,6 +71,11 @@ public:
 
 		if (ImGui::CollapsingHeader("There should be a graph under here!"))
 		{
+			ImGui::BulletText("Double click the graph below to rescale the axes and focus the graph");
+			ImGui::BulletText("Click and drag to pan around the plot");
+			ImGui::BulletText("Use the scroll wheel to zoom in and out");
+			ImGui::BulletText("You can also drag the axes to move horizontally or vertically");
+
 			static double x[2000]{};
 			static double y[2000]{};
 
@@ -89,6 +101,18 @@ public:
 
 		if (ImGui::CollapsingHeader("Views"))
 		{
+			ImGui::BulletText("Click and drag with the right mouse button to select an area of the graph to zoom into");
+			ImGui::BulletText("Click and drag with the middle mouse button to enlarge a portion of the plot");
+
+			ImGui::Indent(50);
+			{
+				ImGui::BulletText("Hold shift to select only on the X axis");
+				ImGui::BulletText("Hold alt to select only on the Y axis");
+			}
+			ImGui::Unindent(50);
+
+			ImGui::BulletText("Click and drag the box to move the selected area around");
+
 			static float x_data[512]{};
 			static float y_data1[512]{};
 			static float y_data2[512]{};
@@ -105,7 +129,6 @@ public:
 				y_data2[i] = y_data1[i] * -0.6f + sinf(2 * arg) * 0.4f;
 				y_data3[i] = y_data2[i] * -0.6f + sinf(3 * arg) * 0.4f;
 			}
-
 
 			ImPlot::SetNextPlotLimits(0, 0.01, -1, 1);
 			ImPlotAxisFlags flags = 0; //  ImPlotAxisFlags_NoTickLabels;
