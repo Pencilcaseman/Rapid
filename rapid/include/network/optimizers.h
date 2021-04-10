@@ -36,7 +36,7 @@ namespace rapid
 					return m_LearningRate * dw;
 				}
 
-				inline void setParam(const std::string &name, const t val)
+				inline void setParam(const std::string &name, const t val) override
 				{
 					if (name == "learningRate")
 					{
@@ -47,7 +47,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val)
+				inline void setParam(const std::string &name, const ndarray::Array<t> val) override
 				{
 					if (name == "learningRate")
 					{
@@ -58,7 +58,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline const ndarray::Array<t> getParam(const std::string &name) const
+				inline const ndarray::Array<t> getParam(const std::string &name) const override
 				{
 					if (name == "learningRate")
 						return ndarray::fromScalar<t>(m_LearningRate);
@@ -75,10 +75,11 @@ namespace rapid
 			class SDGMomentum : public Optimizer<t>
 			{
 			public:
-				SDGMomentum(t learningRate = 1e-2, t momentum = 0.9, const ndarray::Array<t> &velocity = ndarray::Array<t>()) : m_LearningRate(learningRate), m_Momentum(momentum), m_Velocity(velocity)
+				SDGMomentum(t learningRate = 1e-2, t momentum = 0.9, const ndarray::Array<t> &velocity = ndarray::Array<t>())
+					: m_LearningRate(learningRate), m_Momentum(momentum), m_Velocity(velocity)
 				{}
 
-				inline ndarray::Array<t> apply(const ndarray::Array<t> &w, const ndarray::Array<t> &dw)
+				inline ndarray::Array<t> apply(const ndarray::Array<t> &w, const ndarray::Array<t> &dw) override
 				{
 					if (!m_Velocity.isInitialized())
 						m_Velocity = ndarray::zerosLike(w);
@@ -88,7 +89,7 @@ namespace rapid
 					return w + m_Velocity;
 				}
 
-				inline void setParam(const std::string &name, const t val)
+				inline void setParam(const std::string &name, const t val) override
 				{
 					if (name == "learningRate")
 					{
@@ -111,7 +112,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent with Momentum' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val)
+				inline void setParam(const std::string &name, const ndarray::Array<t> val) override
 				{
 					if (name == "learningRate")
 					{
@@ -134,7 +135,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent with Momentum' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline const ndarray::Array<t> getParam(const std::string &name) const
+				inline const ndarray::Array<t> getParam(const std::string &name) const override
 				{
 					if (name == "learningRate")
 						return ndarray::fromScalar<t>(m_LearningRate);
@@ -157,10 +158,11 @@ namespace rapid
 			class RMSProp : public Optimizer<t>
 			{
 			public:
-				RMSProp(t learningRate = 1e-2, t decayRate = 0.99, t epsilon = 0.99, const ndarray::Array<t> &cache = ndarray::Array<t>()) : m_LearningRate(learningRate), m_DecayRate(decayRate), m_Epsilon(epsilon), m_Cache(cache)
+				RMSProp(t learningRate = 1e-2, t decayRate = 0.99, t epsilon = 0.99, const ndarray::Array<t> &cache = ndarray::Array<t>()) 
+					: m_LearningRate(learningRate), m_DecayRate(decayRate), m_Epsilon(epsilon), m_Cache(cache)
 				{}
 
-				inline ndarray::Array<t> apply(const ndarray::Array<t> &x, const ndarray::Array<t> &dx)
+				inline ndarray::Array<t> apply(const ndarray::Array<t> &x, const ndarray::Array<t> &dx) override
 				{
 					if (!m_Cache.isInitialized())
 						m_Cache.set(ndarray::zerosLike(x));
@@ -171,7 +173,7 @@ namespace rapid
 					return nextX;
 				}
 
-				inline void setParam(const std::string &name, const t val)
+				inline void setParam(const std::string &name, const t val) override
 				{
 					if (name == "learningRate")
 					{
@@ -200,7 +202,7 @@ namespace rapid
 					rapidAssert(false, "'RMS Prop' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val)
+				inline void setParam(const std::string &name, const ndarray::Array<t> val) override
 				{
 					if (name == "learningRate")
 					{
@@ -229,7 +231,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent with Momentum' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline const ndarray::Array<t> getParam(const std::string &name) const
+				inline const ndarray::Array<t> getParam(const std::string &name) const override
 				{
 					if (name == "learningRate")
 						return ndarray::fromScalar<t>(m_LearningRate);
@@ -255,11 +257,11 @@ namespace rapid
 			class ADAM : public Optimizer<t>
 			{
 			public:
-				ADAM(t learningRate = 1e-3, t beta1 = 0.9, t beta2 = 0.999, t epsilon = 1e-8, const ndarray::Array<t> &m = ndarray::Array<t>(), const ndarray::Array<t> &v = ndarray::Array<t>(), int64 time = 0) :
-					m_LearningRate(learningRate), m_Beta1(beta1), m_Beta2(beta2), m_Epsilon(epsilon), m_M(m), m_V(v), m_Time(time)
+				ADAM(t learningRate = 1e-3, t beta1 = 0.9, t beta2 = 0.999, t epsilon = 1e-8, const ndarray::Array<t> &m = ndarray::Array<t>(), const ndarray::Array<t> &v = ndarray::Array<t>(), int64 time = 0) 
+					: m_LearningRate(learningRate), m_Beta1(beta1), m_Beta2(beta2), m_Epsilon(epsilon), m_M(m), m_V(v), m_Time(time)
 				{}
 
-				inline ndarray::Array<t> apply(const ndarray::Array<t> &x, const ndarray::Array<t> &dx)
+				inline ndarray::Array<t> apply(const ndarray::Array<t> &x, const ndarray::Array<t> &dx) override
 				{
 					if (!m_M.isInitialized())
 						m_M = ndarray::zerosLike(x);
@@ -277,7 +279,7 @@ namespace rapid
 					return nextX;
 				}
 
-				inline void setParam(const std::string &name, const t val)
+				inline void setParam(const std::string &name, const t val) override
 				{
 					if (name == "learningRate")
 					{
@@ -324,7 +326,7 @@ namespace rapid
 					rapidAssert(false, "'ADAM' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val)
+				inline void setParam(const std::string &name, const ndarray::Array<t> &val) override
 				{
 					if (name == "learningRate")
 					{
@@ -352,7 +354,7 @@ namespace rapid
 
 					if (name == "m")
 					{
-						m_M. = val;
+						m_M = val;
 						return;
 					}
 
@@ -371,7 +373,7 @@ namespace rapid
 					rapidAssert(false, "'ADAM' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline const ndarray::Array<t> getParam(const std::string &name) const
+				inline const ndarray::Array<t> getParam(const std::string &name) const override
 				{
 					if (name == "learningRate")
 						return ndarray::fromScalar<t>(m_LearningRate);

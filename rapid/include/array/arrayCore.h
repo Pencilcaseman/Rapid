@@ -991,7 +991,7 @@ namespace rapid
 			/// Cast a zero-dimensional array to a scalar value
 			/// </summary>
 			/// <typeparam name="t"></typeparam>
-			template<typename t, typename std::enable_if<std::is_floating_point<t>::value || std::is_integral<t>::value>::type = 0>
+			template<typename t> //, typename std::enable_if<std::is_floating_point<t>::value || std::is_integral<t>::value>::type = 0>
 			inline operator t() const
 			{
 			#ifdef RAPID_DEBUG
