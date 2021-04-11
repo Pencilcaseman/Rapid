@@ -238,6 +238,8 @@ using float64 = double;
 #warning AMP cannot be used in CUDA mode
 #endif // _MSC_VER
 #endif // RAPID_CPP
+#else
+#define RAPID_NO_AMP
 #endif // RAPID_OS_WINDOWS
 
 #ifdef RAPID_OS_WINDOWS

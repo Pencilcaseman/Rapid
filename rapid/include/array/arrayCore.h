@@ -2964,12 +2964,12 @@ namespace rapid
 									// Tile size
 									static const int TS = 32;
 
-									const auto resizedThis = internal_resized({rapid::roundUp(shape[0], (uint64) TS),
-																			  rapid::roundUp(shape[1], (uint64) TS)});
-									const auto resizedOther = internal_resized({rapid::roundUp(other.shape[0], (uint64) TS),
-																			   rapid::roundUp(other.shape[1], (uint64) TS)});
-									res.internal_resize({rapid::roundUp(shape[0], (uint64) TS),
-														rapid::roundUp(other.shape[1], (uint64) TS)});
+									const auto resizedThis = internal_resized({math::roundUp(shape[0], (uint64) TS),
+																			  math::roundUp(shape[1], (uint64) TS)});
+									const auto resizedOther = internal_resized({math::roundUp(other.shape[0], (uint64) TS),
+																			   math::roundUp(other.shape[1], (uint64) TS)});
+									res.internal_resize({math::roundUp(shape[0], (uint64) TS),
+														math::roundUp(other.shape[1], (uint64) TS)});
 
 									auto M = (unsigned int) resizedThis.shape[0];
 									auto N = (unsigned int) resizedThis.shape[1];
