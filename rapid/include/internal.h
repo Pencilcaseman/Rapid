@@ -466,6 +466,3 @@ namespace rapid
 		return (float64) atof(in.c_str());
 	}
 }
-
-#include "setup.h"
-static auto _internalSetupInstance = rapid::setup::Setup();
