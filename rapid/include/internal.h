@@ -26,13 +26,6 @@
 #include <stack>
 #include <unordered_map>
 
-#include <conio.h>
-#include <sys/stat.h>
-
-#include <intrin.h>
-
-#include <omp.h>
-
 #ifdef _DEBUG
 #define RAPID_DEBUG
 #else
@@ -231,6 +224,11 @@ using float64 = float64;
 
 // OS dependent options
 #ifdef RAPID_OS_WINDOWS
+
+#include <conio.h>
+#include <intrin.h>
+#include <omp.h>
+
 #if defined(RAPID_CPP) && !defined(RAPID_NO_AMP)
 #include <amp.h>		// Optional AMP include
 #else
@@ -238,9 +236,9 @@ using float64 = float64;
 #pragma message ("AMP cannot be used in CUDA mode")
 #else
 #warning AMP cannot be used in CUDA mode
-#endif
-#endif
-#endif
+#endif // _MSC_VER
+#endif // RAPID_CPP
+#endif // RAPID_OS_WINDOWS
 
 #ifdef RAPID_OS_WINDOWS
 #include <direct.h>
