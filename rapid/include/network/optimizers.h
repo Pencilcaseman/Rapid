@@ -8,7 +8,7 @@ namespace rapid
 {
 	namespace neural
 	{
-		namespace optimizers
+		namespace optim
 		{
 			template<typename t>
 			class Optimizer

@@ -26,7 +26,7 @@ namespace rapid
 			strContainer formatNumerical(const t &val)
 			{
 				std::stringstream stream;
-				stream.precision(std::log((int64_t) val) + 10);
+				stream.precision(std::log(math::max((int64_t) val, 1)) + 10);
 				stream << val;
 
 				auto lastDecimal = stream.str().find_last_of('.');

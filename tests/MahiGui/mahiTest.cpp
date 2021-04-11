@@ -163,19 +163,24 @@ public:
 			static double y[100000]{};
 
 			static int points = 10;
+			static bool randomize = true;
 
 			// ImGui::Text("Entropy: %f", randomNumberGenerator.entropy());
 			ImGui::SliderInt("Points", &points, 1, 100000, "%i points");
+			ImGui::SameLine(); ImGui::Checkbox("Randomize", &randomize);
 
-			for (uint64_t i = 0; i < points; i++)
+			if (randomize)
 			{
-				x[i] = (double) i / ((double) points / 10);
-				y[i] = realDistribution(randomNumberGenerator);
+				for (uint64_t i = 0; i < points; i++)
+				{
+					x[i] = (double) i / ((double) points / 10);
+					y[i] = realDistribution(randomNumberGenerator);
+				}
 			}
 
-			if (ImPlot::BeginPlot("Random Noise Generators", nullptr, nullptr, ImVec2(-1, 400)))
+			if (ImPlot::BeginPlot("Random Noise Generators", nullptr, nullptr, ImVec2(-1, 400), ImPlotAxisFlags_NoDecorations))
 			{
-				ImPlot::PlotScatter("Random Noise", x, y, points, 0, sizeof(double) * 2);
+				ImPlot::PlotScatter("Random Noise", x, y, points);
 				ImPlot::EndPlot();
 			}
 		}
