@@ -1159,7 +1159,7 @@ namespace rapid
 				{
 					if (verbose)
 					{
-						double prog = double(i) / double(rows);
+						float64 prog = float64(i) / float64(rows);
 						for (unsigned int j = 0; j < 20; j++)
 						{
 							if (j < prog * 20)
@@ -1207,7 +1207,7 @@ namespace rapid
 				{
 					if (verbose)
 					{
-						double prog = double(i) / double(rows);
+						float64 prog = float64(i) / float64(rows);
 						for (unsigned int j = 0; j < 20; j++)
 						{
 							if (j < prog * 20)
@@ -1248,19 +1248,19 @@ namespace rapid
 		};
 
 	#ifndef RAPID_NO_BLAS
-		inline Matrix<double> Matrix<double>::dot(const Matrix<double> &other) const
+		inline Matrix<float64> Matrix<float64>::dot(const Matrix<float64> &other) const
 		{
 			rapidAssert(cols == other.rows, "Invalid size for matrix dot product");
 
-			Matrix<double> res(rows, other.cols);
+			Matrix<float64> res(rows, other.cols);
 
 			size_t M = rows;
 			size_t N = cols;
 			size_t K = other.cols;
 
-			const double *__restrict a = data.data();
-			const double *__restrict b = other.data.data();
-			double *__restrict c = res.data.data();
+			const float64 *__restrict a = data.data();
+			const float64 *__restrict b = other.data.data();
+			float64 *__restrict c = res.data.data();
 
 			cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, M, K, N, 1., a, N, b, K, 0., c, K);
 
@@ -1271,19 +1271,19 @@ namespace rapid
 			return res;
 		}
 
-		inline Matrix<float> Matrix<float>::dot(const Matrix<float> &other) const
+		inline Matrix<float32> Matrix<float32>::dot(const Matrix<float32> &other) const
 		{
 			rapidAssert(cols == other.rows, "Invalid size for matrix dot product");
 
-			Matrix<float> res(rows, other.cols);
+			Matrix<float32> res(rows, other.cols);
 
 			size_t M = rows;
 			size_t N = cols;
 			size_t K = other.cols;
 
-			const float *__restrict a = data.data();
-			const float *__restrict b = other.data.data();
-			float *__restrict c = res.data.data();
+			const float32 *__restrict a = data.data();
+			const float32 *__restrict b = other.data.data();
+			float32 *__restrict c = res.data.data();
 
 			cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, M, K, N, 1., a, N, b, K, 0., c, K);
 

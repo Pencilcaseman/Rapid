@@ -75,7 +75,7 @@ namespace rapid
 			{
 				indexT sig = 1;
 				indexT pos = 0;
-				int64 off;
+				uint64 off;
 
 				for (indexT i = shape.size(); i > 0; i--)
 				{
@@ -87,29 +87,29 @@ namespace rapid
 				return pos;
 			}
 
-			inline std::vector<int64> transposedShape(const std::vector<int64> &shape, const std::vector<int64> &order)
+			inline std::vector<uint64> transposedShape(const std::vector<uint64> &shape, const std::vector<uint64> &order)
 			{
-				std::vector<int64> newDims;
+				std::vector<uint64> newDims;
 
-				newDims = std::vector<int64>(shape.size());
+				newDims = std::vector<uint64>(shape.size());
 				if (order.empty())
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						newDims[i] = shape[shape.size() - i - 1];
 				else
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						newDims[i] = shape[order[i]];
 
 				return newDims;
 			}
 
 			template<typename _Ty>
-			inline std::vector<_Ty> subVector(const std::vector<_Ty> &vec, int64 start = (int64) -1, int64 end = (int64) -1)
+			inline std::vector<_Ty> subVector(const std::vector<_Ty> &vec, uint64 start = (uint64) -1, uint64 end = (uint64) -1)
 			{
 				auto s = vec.begin();
 				auto e = vec.end();
 
-				if (start != (int64) -1) s += start;
-				if (end != (int64) -1) e -= end;
+				if (start != (uint64) -1) s += start;
+				if (end != (uint64) -1) e -= end;
 
 				return std::vector<_Ty>(s, e);
 			}
@@ -123,13 +123,13 @@ namespace rapid
 			/// <param name="dims"></param>
 			/// <param name="pos"></param>
 			/// <returns></returns>
-			int64 dimsToIndex(const std::vector<int64> &dims, const std::vector<int64> &pos)
+			uint64 dimsToIndex(const std::vector<uint64> &dims, const std::vector<uint64> &pos)
 			{
-				int64 index = 0;
+				uint64 index = 0;
 				for (long int i = 0; i < dims.size(); i++)
 				{
-					int64 sub = pos[i];
-					for (int64 j = i; j < dims.size() - 1; j++)
+					uint64 sub = pos[i];
+					for (uint64 j = i; j < dims.size() - 1; j++)
 						sub *= dims[j + 1];
 					index += sub;
 				}
@@ -175,8 +175,8 @@ namespace rapid
 
 			// #ifdef RAPID_CUDA
 			// 	bool useMatrixData = false;
-			// 	int64 matrixRows = 0;
-			// 	int64 matrixAccess = 0;
+			// 	uint64 matrixRows = 0;
+			// 	uint64 matrixAccess = 0;
 			// #endif
 
 				/// <summary>
@@ -393,7 +393,7 @@ namespace rapid
 			/// </summary>
 			/// <param name="newShape"></param>
 			/// <returns></returns>
-			inline Array<arrayType, location> internal_resized(const std::vector<int64> &newShape) const
+			inline Array<arrayType, location> internal_resized(const std::vector<uint64> &newShape) const
 			{
 				rapidAssert(newShape.size() == 2, "Resizing currently only supports 2D array");
 
@@ -426,7 +426,7 @@ namespace rapid
 			/// </summary>
 			/// <param name="newShape"></param>
 			/// <returns></returns>
-			inline void internal_resize(const std::vector<int64> &newShape)
+			inline void internal_resize(const std::vector<uint64> &newShape)
 			{
 				auto newThis = internal_resized(newShape);
 
@@ -441,16 +441,16 @@ namespace rapid
 				shape = newShape;
 			}
 
-			static int calculateArithmeticMode(const std::vector<int64> &a, const std::vector<int64> &b)
+			static int calculateArithmeticMode(const std::vector<uint64> &a, const std::vector<uint64> &b)
 			{
 				// Check for direct or indirect shape match
 				int mode = -1; // Addition mode
 
-				int64 aSize = a.size();
-				int64 bSize = b.size();
+				uint64 aSize = a.size();
+				uint64 bSize = b.size();
 
-				int64 prodA = math::prod(a);
-				int64 prodB = math::prod(b);
+				uint64 prodA = math::prod(a);
+				uint64 prodB = math::prod(b);
 
 				if (a == b)
 				{
@@ -605,7 +605,7 @@ namespace rapid
 				else
 				{
 					isZeroDim = false;
-					shape = std::vector<int64>(arrShape.begin(), arrShape.end());
+					shape = std::vector<uint64>(arrShape.begin(), arrShape.end());
 
 					if (location == CPU)
 						dataStart = new arrayType[math::prod(arrShape)];
@@ -674,12 +674,12 @@ namespace rapid
 			/// <returns></returns>
 			Array<arrayType, location> &operator=(const Array<arrayType, location> &other)
 			{
+				if (!other.originCount)
+					return *this;
+
 				if (originCount != nullptr)
 				{
 					rapidAssert(shape == other.shape, "Invalid shape for array setting");
-
-					if (!other.originCount)
-						return *this;
 
 					if (location == CPU)
 						memcpy(dataStart, other.dataStart, math::prod(shape) * sizeof(arrayType));
@@ -692,8 +692,7 @@ namespace rapid
 				}
 				else
 				{
-					if (!other.originCount)
-						return *this;
+					shape = std::vector<uint64>(other.shape.begin(), other.shape.end());
 
 					if (location == CPU)
 					{
@@ -708,7 +707,7 @@ namespace rapid
 					}
 				#endif
 						dataOrigin = dataStart;
-						originCount = new int64;
+						originCount = new uint64;
 						(*originCount) = 1;
 				}
 
@@ -746,7 +745,7 @@ namespace rapid
 				}
 				else if (shape.size() > 2)
 				{
-					for (int64 i = 0; i < shape[0]; i++)
+					for (uint64 i = 0; i < shape[0]; i++)
 					{
 						res[i] = (*this)[i].toRowMajor();
 					}
@@ -772,7 +771,7 @@ namespace rapid
 				}
 				else if (shape.size() > 2)
 				{
-					for (int64 i = 0; i < shape[0]; i++)
+					for (uint64 i = 0; i < shape[0]; i++)
 					{
 						(*this)[i].toRowMajor_inplace();
 					}
@@ -792,7 +791,7 @@ namespace rapid
 				}
 				else if (shape.size() > 2)
 				{
-					for (int64 i = 0; i < shape[0]; i++)
+					for (uint64 i = 0; i < shape[0]; i++)
 					{
 						(*this)[i].toColumMajor_inplace();
 					}
@@ -822,7 +821,7 @@ namespace rapid
 
 				Array<arrayType, location> res;
 				res.isZeroDim = isZeroDim;
-				res.shape = std::vector<int64>(arrDims.begin(), arrDims.end());
+				res.shape = std::vector<uint64>(arrDims.begin(), arrDims.end());
 				res.dataOrigin = newDataOrigin;
 				res.dataStart = dataStart;
 				res.originCount = originCount;
@@ -863,7 +862,7 @@ namespace rapid
 		#define imp_temp template<typename t>
 		#define imp_func_def(x) static inline Array<arrayType, location> fromData(const x &data)
 		#define imp_func_body	auto res = Array<arrayType, location>(imp::extractShape(data)); \
-							    int64 index = 0; \
+							    uint64 index = 0; \
 								for (const auto &val : data) res[index++] = Array<arrayType, location>::fromData(val); \
 									return res;
 		#define L std::initializer_list
@@ -873,7 +872,7 @@ namespace rapid
 			{
 				auto res = Array<arrayType, location>(imp::extractShape(data));
 
-				int64 index = 0;
+				uint64 index = 0;
 				for (const auto &val : data)
 					res[index++] = Array<arrayType, location>::fromData(val);
 
@@ -1159,10 +1158,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(mode != -1, "Cannot add arrays with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -1283,7 +1282,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								res[i] = (*this)[i] + other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1296,7 +1295,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < other.shape[0]; i++)
+							for (uint64 i = 0; i < other.shape[0]; i++)
 								res[i] = (*this) + other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1307,14 +1306,14 @@ namespace rapid
 							// Cases
 							//  > Grid addition
 
-							auto resShape = std::vector<int64>(other.shape.size() + 1);
-							for (int64 i = 0; i < other.shape.size(); i++)
+							auto resShape = std::vector<uint64>(other.shape.size() + 1);
+							for (uint64 i = 0; i < other.shape.size(); i++)
 								resShape[i] = shape[i];
 							resShape[other.shape.size()] = other.shape[other.shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this)[i] + other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1325,14 +1324,14 @@ namespace rapid
 							// Cases
 							//  > Reverse grid addition
 
-							auto resShape = std::vector<int64>(shape.size() + 1);
-							for (int64 i = 0; i < shape.size(); i++)
+							auto resShape = std::vector<uint64>(shape.size() + 1);
+							for (uint64 i = 0; i < shape.size(); i++)
 								resShape[i] = other.shape[i];
 							resShape[shape.size()] = shape[shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this) + other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1345,7 +1344,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] + other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1358,7 +1357,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] + other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1386,10 +1385,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(mode != -1, "Cannot subtract arrays with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -1509,7 +1508,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								res[i] = (*this)[i] - other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1522,7 +1521,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < other.shape[0]; i++)
+							for (uint64 i = 0; i < other.shape[0]; i++)
 								res[i] = (*this) - other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1533,14 +1532,14 @@ namespace rapid
 							// Cases
 							//  > Grid subtraction
 
-							auto resShape = std::vector<int64>(other.shape.size() + 1);
-							for (int64 i = 0; i < other.shape.size(); i++)
+							auto resShape = std::vector<uint64>(other.shape.size() + 1);
+							for (uint64 i = 0; i < other.shape.size(); i++)
 								resShape[i] = shape[i];
 							resShape[other.shape.size()] = other.shape[other.shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this)[i] - other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1551,14 +1550,14 @@ namespace rapid
 							// Cases
 							//  > Reverse grid subtraction
 
-							auto resShape = std::vector<int64>(shape.size() + 1);
-							for (int64 i = 0; i < shape.size(); i++)
+							auto resShape = std::vector<uint64>(shape.size() + 1);
+							for (uint64 i = 0; i < shape.size(); i++)
 								resShape[i] = other.shape[i];
 							resShape[shape.size()] = shape[shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this) - other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1571,7 +1570,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] - other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1584,7 +1583,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] - other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1612,10 +1611,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(mode != -1, "Cannot multiply arrays with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -1736,7 +1735,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								res[i] = (*this)[i] * other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1749,7 +1748,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < other.shape[0]; i++)
+							for (uint64 i = 0; i < other.shape[0]; i++)
 								res[i] = (*this) * other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1760,14 +1759,14 @@ namespace rapid
 							// Cases
 							//  > Grid multiplication
 
-							auto resShape = std::vector<int64>(other.shape.size() + 1);
-							for (int64 i = 0; i < other.shape.size(); i++)
+							auto resShape = std::vector<uint64>(other.shape.size() + 1);
+							for (uint64 i = 0; i < other.shape.size(); i++)
 								resShape[i] = shape[i];
 							resShape[other.shape.size()] = other.shape[other.shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this)[i] * other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1778,14 +1777,14 @@ namespace rapid
 							// Cases
 							//  > Reverse grid multiplication
 
-							auto resShape = std::vector<int64>(shape.size() + 1);
-							for (int64 i = 0; i < shape.size(); i++)
+							auto resShape = std::vector<uint64>(shape.size() + 1);
+							for (uint64 i = 0; i < shape.size(); i++)
 								resShape[i] = other.shape[i];
 							resShape[shape.size()] = shape[shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this) * other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1798,7 +1797,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] * other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1811,7 +1810,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] * other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1839,10 +1838,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(mode != -1, "Cannot divide arrays with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -1963,7 +1962,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								res[i] = (*this)[i] / other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1976,7 +1975,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < other.shape[0]; i++)
+							for (uint64 i = 0; i < other.shape[0]; i++)
 								res[i] = (*this) / other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -1987,14 +1986,14 @@ namespace rapid
 							// Cases
 							//  > Grid division
 
-							auto resShape = std::vector<int64>(other.shape.size() + 1);
-							for (int64 i = 0; i < other.shape.size(); i++)
+							auto resShape = std::vector<uint64>(other.shape.size() + 1);
+							for (uint64 i = 0; i < other.shape.size(); i++)
 								resShape[i] = shape[i];
 							resShape[other.shape.size()] = other.shape[other.shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this)[i] / other;
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -2005,14 +2004,14 @@ namespace rapid
 							// Cases
 							//  > Reverse grid division
 
-							auto resShape = std::vector<int64>(shape.size() + 1);
-							for (int64 i = 0; i < shape.size(); i++)
+							auto resShape = std::vector<uint64>(shape.size() + 1);
+							for (uint64 i = 0; i < shape.size(); i++)
 								resShape[i] = other.shape[i];
 							resShape[shape.size()] = shape[shape.size() - 1];
 
 							auto res = Array<arrayType, location>(resShape);
 
-							for (int64 i = 0; i < resShape[0]; i++)
+							for (uint64 i = 0; i < resShape[0]; i++)
 								res[i] = (*this) / other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -2025,7 +2024,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(other.shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] / other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -2038,7 +2037,7 @@ namespace rapid
 
 							auto res = Array<arrayType, location>(shape);
 
-							for (int64 i = 0; i < res.shape[0]; i++)
+							for (uint64 i = 0; i < res.shape[0]; i++)
 								res[i] = (*this)[i] / other[i];
 
 							res.isZeroDim = isZeroDim && other.isZeroDim;
@@ -2195,10 +2194,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(false, "Cannot add arrays inplace with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -2274,7 +2273,7 @@ namespace rapid
 							// Cases:
 							//  > "Row by row" addition
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] += other;
 
 							return *this;
@@ -2284,7 +2283,7 @@ namespace rapid
 							// Cases
 							//  > reverse "column by column" addition
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] += other[i];
 
 							return *this;
@@ -2313,10 +2312,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(false, "Cannot subtract arrays inplace with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -2392,7 +2391,7 @@ namespace rapid
 							// Cases:
 							//  > "Row by row" subtraction
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] -= other;
 
 							return *this;
@@ -2402,7 +2401,7 @@ namespace rapid
 							// Cases
 							//  > reverse "column by column" subtraction
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] -= other[i];
 
 							return *this;
@@ -2431,10 +2430,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(false, "Cannot multiply arrays inplace with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -2510,7 +2509,7 @@ namespace rapid
 							// Cases:
 							//  > "Row by row" multiplication
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] *= other;
 
 							return *this;
@@ -2520,7 +2519,7 @@ namespace rapid
 							// Cases
 							//  > reverse "column by column" multiplication
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] *= other[i];
 
 							return *this;
@@ -2549,10 +2548,10 @@ namespace rapid
 					std::string shapeThis;
 					std::string shapeOther;
 
-					for (int64 i = 0; i < shape.size(); i++)
+					for (uint64 i = 0; i < shape.size(); i++)
 						shapeThis += std::to_string(shape[i]) + (i == shape.size() - 1 ? "" : ", ");
 
-					for (int64 i = 0; i < other.shape.size(); i++)
+					for (uint64 i = 0; i < other.shape.size(); i++)
 						shapeOther += std::to_string(other.shape[i]) + (i == other.shape.size() - 1 ? "" : ", ");
 
 					rapidAssert(false, "Cannot divide arrays inplace with shapes (" + shapeThis + ") and (" + shapeOther + ")");
@@ -2628,7 +2627,7 @@ namespace rapid
 							// Cases:
 							//  > "Row by row" division
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] /= other;
 
 							return *this;
@@ -2638,7 +2637,7 @@ namespace rapid
 							// Cases
 							//  > reverse "column by column" division
 
-							for (int64 i = 0; i < shape[0]; i++)
+							for (uint64 i = 0; i < shape[0]; i++)
 								(*this)[i] /= other[i];
 
 							return *this;
@@ -2759,6 +2758,16 @@ namespace rapid
 			#endif
 			}
 
+			inline void fillRandom(const arrayType min = -1, const arrayType max = 1)
+			{
+				Array<arrayType, location>::unaryOpArray(*this, *this,
+														 math::prod(shape) > 1000000 ? ExecutionType::PARALLEL : ExecutionType::SERIAL,
+														 [=](arrayType x)
+				{
+					return math::random<arrayType>(min, max);
+				});
+			}
+
 			/// <summary>
 			/// Calculate the dot product with another array. If the
 			/// arrays are single-dimensional vectors, the vector math::product
@@ -2774,7 +2783,7 @@ namespace rapid
 				// Matrix vector product
 				if (utils::subVector(shape, 1) == other.shape)
 				{
-					std::vector<int64> resShape;
+					std::vector<uint64> resShape;
 					resShape.emplace_back(shape[0]);
 
 					if (other.shape.size() > 1)
@@ -2782,7 +2791,7 @@ namespace rapid
 
 					auto res = Array<arrayType, location>(resShape);
 
-					for (int64 i = 0; i < shape[0]; i++)
+					for (uint64 i = 0; i < shape[0]; i++)
 						res[i] = (*this)[i].dot(other);
 
 					return res;
@@ -2791,7 +2800,7 @@ namespace rapid
 				// Reverse matrix vector product
 				if (shape == utils::subVector(other.shape, 1))
 				{
-					std::vector<int64> resShape;
+					std::vector<uint64> resShape;
 					resShape.emplace_back(other.shape[0]);
 
 					if (shape.size() > 1)
@@ -2799,14 +2808,14 @@ namespace rapid
 
 					auto res = Array<arrayType, location>(resShape);
 
-					for (int64 i = 0; i < shape[0]; i++)
+					for (uint64 i = 0; i < shape[0]; i++)
 						res[i] = other[i].dot((*this));
 
 					return res;
 				}
 
 				rapidAssert(shape.size() == other.shape.size(), "Invalid number of dimensions for array dot product");
-				int64 dims = shape.size();
+				uint64 dims = shape.size();
 
 				if (location == CPU)
 				{
@@ -2844,12 +2853,12 @@ namespace rapid
 							}
 						default:
 							{
-								std::vector<int64> resShape = shape;
+								std::vector<uint64> resShape = shape;
 								resShape[resShape.size() - 2] = shape[shape.size() - 2];
 								resShape[resShape.size() - 1] = other.shape[other.shape.size() - 1];
 								Array<arrayType, location> res(resShape);
 
-								for (int64 i = 0; i < shape[0]; i++)
+								for (uint64 i = 0; i < shape[0]; i++)
 								{
 									res[i] = (*this)[i].dot(other[i]);
 								}
@@ -2869,7 +2878,7 @@ namespace rapid
 								res.isZeroDim = true;
 								res.dataStart[0] = 0;
 
-								for (int64 i = 0; i < shape[0]; i++)
+								for (uint64 i = 0; i < shape[0]; i++)
 									res.dataStart[0] += dataStart[i] * other.dataStart[i];
 
 								return res;
@@ -2877,8 +2886,8 @@ namespace rapid
 						case 2:
 							{
 								rapidAssert(shape[1] == other.shape[0], "Columns of A must match rows of B for dot math::product");
-								int64 mode;
-								int64 size = shape[0] * shape[1] * other.shape[1];
+								uint64 mode;
+								uint64 size = shape[0] * shape[1] * other.shape[1];
 
 								if (size < 8000) mode = 0;
 								else if (size < 64000000) mode = 1;
@@ -3008,12 +3017,12 @@ namespace rapid
 							}
 						default:
 							{
-								std::vector<int64> resShape = shape;
+								std::vector<uint64> resShape = shape;
 								resShape[resShape.size() - 2] = shape[shape.size() - 2];
 								resShape[resShape.size() - 1] = other.shape[other.shape.size() - 1];
 								Array<arrayType, location> res(resShape);
 
-								for (int64 i = 0; i < shape[0]; i++)
+								for (uint64 i = 0; i < shape[0]; i++)
 								{
 									res[i] = (operator[](i).dot(other[i]));
 								}
@@ -3043,13 +3052,13 @@ namespace rapid
 						case 2:
 							{
 								rapidAssert(shape[1] == other.shape[0], "Columns of A must match rows of B for dot math::product");
-								int64 size = shape[0] * shape[1] * other.shape[1];
+								uint64 size = shape[0] * shape[1] * other.shape[1];
 
 								Array<arrayType, location> res({shape[0], other.shape[1]});
 
-								int64 m = shape[0];
-								int64 n = shape[1];
-								int64 k = other.shape[1];
+								uint64 m = shape[0];
+								uint64 n = shape[1];
+								uint64 k = other.shape[1];
 
 								arrayType dotAlpha = 1;
 								arrayType dotBeta = 0;
@@ -3068,12 +3077,12 @@ namespace rapid
 							}
 						default:
 							{
-								std::vector<int64> resShape = shape;
+								std::vector<uint64> resShape = shape;
 								resShape[resShape.size() - 2] = shape[shape.size() - 2];
 								resShape[resShape.size() - 1] = other.shape[other.shape.size() - 1];
 								Array<arrayType, location> res(resShape);
 
-								for (int64 i = 0; i < shape[0]; i++)
+								for (uint64 i = 0; i < shape[0]; i++)
 									res[i] = (*this)[i].dot(other[i]);
 
 								return res;
@@ -3091,14 +3100,14 @@ namespace rapid
 			/// </summary>
 			/// <param name="axes"></param>
 			/// <returns></returns>
-			inline Array<arrayType, location> transposed(const std::vector<int64> &axes = std::vector<int64>(), bool dataOnly = false) const
+			inline Array<arrayType, location> transposed(const std::vector<uint64> &axes = std::vector<uint64>(), bool dataOnly = false) const
 			{
 			#ifdef RAPID_DEBUG
 				if (!axes.empty())
 				{
 					if (axes.size() != shape.size())
 						message::RapidError("Transpose Error", "Invalid number of axes for array transpose").display();
-					for (int64 i = 0; i < axes.size(); i++)
+					for (uint64 i = 0; i < axes.size(); i++)
 						if (std::count(axes.begin(), axes.end(), i) != 1)
 							message::RapidError("Transpose Error", "Dimension does not appear only once").display();
 				}
@@ -3106,28 +3115,28 @@ namespace rapid
 
 				// Check if a transposition is required
 				bool cpy = !axes.empty();
-				for (int64 i = 0; i < axes.size(); i++) if (axes[i] != i) cpy = false;
+				for (uint64 i = 0; i < axes.size(); i++) if (axes[i] != i) cpy = false;
 				if (cpy) return copy();
 
-				std::vector<int64> newDims;
+				std::vector<uint64> newDims;
 
 				if (dataOnly)
 				{
-					newDims = std::vector<int64>(shape.begin(), shape.end());
+					newDims = std::vector<uint64>(shape.begin(), shape.end());
 				}
 				else
 				{
-					newDims = std::vector<int64>(shape.size());
+					newDims = std::vector<uint64>(shape.size());
 					if (axes.empty())
-						for (int64 i = 0; i < shape.size(); i++)
+						for (uint64 i = 0; i < shape.size(); i++)
 							newDims[i] = shape[shape.size() - i - 1];
 					else
-						for (int64 i = 0; i < shape.size(); i++)
+						for (uint64 i = 0; i < shape.size(); i++)
 							newDims[i] = shape[axes[i]];
 				}
 
-				const int64 newDimsProd = math::prod(newDims);
-				const int64 shapeProd = math::prod(shape);
+				const uint64 newDimsProd = math::prod(newDims);
+				const uint64 shapeProd = math::prod(shape);
 
 				if (location == CPU)
 				{
@@ -3143,20 +3152,20 @@ namespace rapid
 					{
 						auto res = Array<arrayType, location>(newDims);
 
-						int64 rows = shape[0];
-						int64 cols = shape[1];
+						uint64 rows = shape[0];
+						uint64 cols = shape[1];
 
 						if (rows * cols < 1000000)
 						{
-							for (int64 i = 0; i < rows; i++)
+							for (uint64 i = 0; i < rows; i++)
 							{
-								for (int64 j = 0; j < cols; j++)
+								for (uint64 j = 0; j < cols; j++)
 									res.dataStart[i + j * rows] = dataStart[j + i * cols];
 							}
 						}
 						else
 						{
-							int64_t i = 0, j = 0;
+							int64 i = 0, j = 0;
 							const arrayType *thisData = dataStart;
 							arrayType *resData = res.dataStart;
 							auto minCols = rapid::math::max(cols, 3) - 3;
@@ -3166,8 +3175,8 @@ namespace rapid
 							{
 								for (j = 0; j < minCols; j++)
 								{
-									int64_t p1 = i + j * rows;
-									int64_t p2 = j + i * cols;
+									int64 p1 = i + j * rows;
+									int64 p2 = j + i * cols;
 
 									resData[p1 + 0] = thisData[p2 + 0];
 									resData[p1 + 1] = thisData[p2 + 1];
@@ -3185,24 +3194,24 @@ namespace rapid
 
 					auto res = Array<arrayType, location>(newDims);
 
-					std::vector<int64> indices(shape.size(), 0);
-					std::vector<int64> indicesRes(shape.size(), 0);
+					std::vector<uint64> indices(shape.size(), 0);
+					std::vector<uint64> indicesRes(shape.size(), 0);
 
 					if (shapeProd < 62000)
 					{
-						for (int64_t i = 0; i < shapeProd; i++)
+						for (int64 i = 0; i < shapeProd; i++)
 						{
 							if (axes.empty())
-								for (int64_t j = 0; j < shape.size(); j++)
+								for (int64 j = 0; j < shape.size(); j++)
 									indicesRes[j] = indices[shape.size() - j - 1];
 							else
-								for (int64_t j = 0; j < shape.size(); j++)
+								for (int64 j = 0; j < shape.size(); j++)
 									indicesRes[j] = indices[axes[j]];
 
 							res.dataStart[imp::dimsToIndex(newDims, indicesRes)] = dataStart[imp::dimsToIndex(shape, indices)];
 
 							indices[shape.size() - 1]++;
-							int64_t index = shape.size() - 1;
+							int64 index = shape.size() - 1;
 
 							while (indices[index] >= shape[index] && index > 0)
 							{
@@ -3214,19 +3223,19 @@ namespace rapid
 					}
 					else
 					{
-						for (int64_t i = 0; i < shapeProd; i++)
+						for (int64 i = 0; i < shapeProd; i++)
 						{
 							if (axes.empty())
-								for (int64_t j = 0; j < shape.size(); j++)
+								for (int64 j = 0; j < shape.size(); j++)
 									indicesRes[j] = indices[shape.size() - j - 1];
 							else
-								for (int64_t j = 0; j < shape.size(); j++)
+								for (int64 j = 0; j < shape.size(); j++)
 									indicesRes[j] = indices[axes[j]];
 
 							res.dataStart[imp::dimsToIndex(newDims, indicesRes)] = dataStart[imp::dimsToIndex(shape, indices)];
 
 							indices[shape.size() - 1]++;
-							int64_t index = shape.size() - 1;
+							int64 index = shape.size() - 1;
 
 							while (indices[index] >= shape[index] && index > 0)
 							{
@@ -3251,8 +3260,8 @@ namespace rapid
 					}
 					else if (shape.size() == 2)
 					{
-						int64 m = shape[0];
-						int64 n = shape[1];
+						uint64 m = shape[0];
+						uint64 n = shape[1];
 
 						auto res = Array<arrayType, location>(newDims);
 
@@ -3279,10 +3288,34 @@ namespace rapid
 						// auto hostRes = new arrayType[shapeProd];
 						// cudaSafeCall(cudaMemcpy(hostRes, dataStart, sizeof(arrayType) * shapeProd, cudaMemcpyDeviceToHost));
 						//
-						// std::vector<int64> indices(shape.size(), 0);
-						// std::vector<int64> indicesRes(shape.size(), 0);
+						// std::vector<uint64> indices(shape.size(), 0);
+						// std::vector<uint64> indicesRes(shape.size(), 0);
 						//
 						// if (shapeProd < 62000)
+						// {
+						// 	for (uint64 i = 0; i < shapeProd; i++)
+						// 	{
+						// 		if (axes.empty())
+						// 			for (uint64 j = 0; j < shape.size(); j++)
+						// 				indicesRes[j] = indices[shape.size() - j - 1];
+						// 		else
+						// 			for (uint64 j = 0; j < shape.size(); j++)
+						// 				indicesRes[j] = indices[axes[j]];
+						//
+						// 		hostRes[imp::dimsToIndex(newDims, indicesRes)] = hostThis[imp::dimsToIndex(shape, indices)];
+						//
+						// 		indices[shape.size() - 1]++;
+						// 		uint64 index = shape.size() - 1;
+						//
+						// 		while (indices[index] >= shape[index] && index > 0)
+						// 		{
+						// 			indices[index] = 0;
+						// 			index--;
+						// 			indices[index]++;
+						// 		}
+						// 	}
+						// }
+						// else
 						// {
 						// 	for (int64 i = 0; i < shapeProd; i++)
 						// 	{
@@ -3306,30 +3339,6 @@ namespace rapid
 						// 		}
 						// 	}
 						// }
-						// else
-						// {
-						// 	for (int64_t i = 0; i < shapeProd; i++)
-						// 	{
-						// 		if (axes.empty())
-						// 			for (int64_t j = 0; j < shape.size(); j++)
-						// 				indicesRes[j] = indices[shape.size() - j - 1];
-						// 		else
-						// 			for (int64_t j = 0; j < shape.size(); j++)
-						// 				indicesRes[j] = indices[axes[j]];
-						//
-						// 		hostRes[imp::dimsToIndex(newDims, indicesRes)] = hostThis[imp::dimsToIndex(shape, indices)];
-						//
-						// 		indices[shape.size() - 1]++;
-						// 		int64_t index = shape.size() - 1;
-						//
-						// 		while (indices[index] >= shape[index] && index > 0)
-						// 		{
-						// 			indices[index] = 0;
-						// 			index--;
-						// 			indices[index]++;
-						// 		}
-						// 	}
-						// }
 						//
 						// auto res = Array<arrayType, location>(newDims);
 						// cudaSafeCall(cudaMemcpy(res.dataStart, hostRes, sizeof(arrayType) * shapeProd, cudaMemcpyHostToDevice));
@@ -3343,8 +3352,8 @@ namespace rapid
 
 						if (axes.empty())
 						{
-							std::vector<int64> tmpAxes(shape.size());
-							for (int64 i = 0; i < shape.size(); i++)
+							std::vector<uint64> tmpAxes(shape.size());
+							for (uint64 i = 0; i < shape.size(); i++)
 								tmpAxes[i] = shape.size() - i - 1;
 
 							cuda::array_transpose(shape, newDims, tmpAxes, dataStart, res.dataStart);
@@ -3362,7 +3371,7 @@ namespace rapid
 				return Array<arrayType, location>({0, 0});
 			}
 
-		#define AUTO ((int64) -1)
+		#define AUTO ((uint64) -1)
 
 			/// <summary>
 			/// Resize an array and return the result. The resulting
@@ -3372,12 +3381,12 @@ namespace rapid
 			/// </summary>
 			/// <param name="newShape"></param>
 			/// <returns></returns>
-			inline Array<arrayType, location> reshaped(const std::vector<int64> &newShape) const
+			inline Array<arrayType, location> reshaped(const std::vector<uint64> &newShape) const
 			{
-				auto tmpNewShape = std::vector<int64>(newShape.size(), 1);
-				auto undefined = (int64) -1;
+				auto tmpNewShape = std::vector<uint64>(newShape.size(), 1);
+				auto undefined = (uint64) -1;
 
-				for (int64 i = 0; i < newShape.size(); i++)
+				for (uint64 i = 0; i < newShape.size(); i++)
 				{
 					if (newShape[i] == AUTO)
 					{
@@ -3415,12 +3424,12 @@ namespace rapid
 			/// Resize an array inplace
 			/// </summary>
 			/// <param name="newShape"></param>
-			inline void reshape(const std::vector<int64> &newShape)
+			inline void reshape(const std::vector<uint64> &newShape)
 			{
-				auto tmpNewShape = std::vector<int64>(newShape.size(), 1);
-				auto undefined = (int64) -1;
+				auto tmpNewShape = std::vector<uint64>(newShape.size(), 1);
+				auto undefined = (uint64) -1;
 
-				for (int64 i = 0; i < newShape.size(); i++)
+				for (uint64 i = 0; i < newShape.size(); i++)
 				{
 					if (newShape[i] == AUTO)
 					{
@@ -3497,7 +3506,7 @@ namespace rapid
 			/// </summary>
 			/// <typeparam name="t"></typeparam>
 			/// <returns></returns>
-			std::string toString(int64 startDepth = 0) const;
+			std::string toString(uint64 startDepth = 0) const;
 		};
 
 		template<typename t, ArrayLocation loc>
@@ -3535,7 +3544,7 @@ namespace rapid
 		}
 
 		template<typename t, ArrayLocation loc = CPU>
-		inline Array<t, loc> zeros(const std::vector<int64> &shape)
+		inline Array<t, loc> zeros(const std::vector<uint64> &shape)
 		{
 			auto res = Array<t, loc>(shape);
 			res.fill(0);
@@ -3543,7 +3552,7 @@ namespace rapid
 		}
 
 		template<typename t, ArrayLocation loc = CPU>
-		inline Array<t, loc> ones(const std::vector<int64> &shape)
+		inline Array<t, loc> ones(const std::vector<uint64> &shape)
 		{
 			auto res = Array<t, loc>(shape);
 			res.fill(1);
@@ -3587,13 +3596,13 @@ namespace rapid
 		/// <param name="val"></param>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> operator+(t val, const Array<t, loc> &other)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> operator+(v val, const Array<t, loc> &other)
 		{
 			if (loc == CPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				Array<t, loc>::binaryOpScalarArray(val, other, res,
+				Array<t, loc>::binaryOpScalarArray((t) val, other, res,
 												   math::prod(other.shape) > 10000 ? ExecutionType::PARALLEL : ExecutionType::SERIAL,
 												   [](t x, t y)
 				{
@@ -3607,7 +3616,7 @@ namespace rapid
 			else if (loc == GPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				cuda::add_scalar_array(math::prod(other.shape), val, other.dataStart, res.dataStart);
+				cuda::add_scalar_array(math::prod(other.shape), (t) val, other.dataStart, res.dataStart);
 
 				res.isZeroDim = other.isZeroDim;
 				return res;
@@ -3622,13 +3631,13 @@ namespace rapid
 		/// <param name="val"></param>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> operator-(t val, const Array<t, loc> &other)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> operator-(v val, const Array<t, loc> &other)
 		{
 			if (loc == CPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				Array<t, loc>::binaryOpScalarArray(val, other, res,
+				Array<t, loc>::binaryOpScalarArray((t) val, other, res,
 												   math::prod(other.shape) > 10000 ? ExecutionType::PARALLEL : ExecutionType::SERIAL,
 												   [](t x, t y)
 				{
@@ -3642,7 +3651,7 @@ namespace rapid
 			else if (loc == GPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				cuda::sub_scalar_array(math::prod(other.shape), val, other.dataStart, res.dataStart);
+				cuda::sub_scalar_array(math::prod(other.shape), (t) val, other.dataStart, res.dataStart);
 
 				res.isZeroDim = other.isZeroDim;
 				return res;
@@ -3657,13 +3666,13 @@ namespace rapid
 		/// <param name="val"></param>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> operator*(t val, const Array<t, loc> &other)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> operator*(v val, const Array<t, loc> &other)
 		{
 			if (loc == CPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				Array<t, loc>::binaryOpScalarArray(val, other, res,
+				Array<t, loc>::binaryOpScalarArray((t) val, other, res,
 												   math::prod(other.shape) > 10000 ? ExecutionType::PARALLEL : ExecutionType::SERIAL,
 												   [](t x, t y)
 				{
@@ -3677,7 +3686,7 @@ namespace rapid
 			else if (loc == GPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				cuda::mul_scalar_array(math::prod(other.shape), val, other.dataStart, 1, res.dataStart, 1);
+				cuda::mul_scalar_array(math::prod(other.shape), (t) val, other.dataStart, 1, res.dataStart, 1);
 
 				res.isZeroDim = other.isZeroDim;
 				return res;
@@ -3692,13 +3701,13 @@ namespace rapid
 		/// <param name="val"></param>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> operator/(t val, const Array<t, loc> &other)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> operator/(v val, const Array<t, loc> &other)
 		{
 			if (loc == CPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				Array<t, loc>::binaryOpScalarArray(val, other, res,
+				Array<t, loc>::binaryOpScalarArray((t) val, other, res,
 												   math::prod(other.shape) > 10000 ? ExecutionType::PARALLEL : ExecutionType::SERIAL,
 												   [](t x, t y)
 				{
@@ -3712,7 +3721,7 @@ namespace rapid
 			else if (loc == GPU)
 			{
 				auto res = Array<t, loc>(other.shape);
-				cuda::div_scalar_array(math::prod(other.shape), val, other.dataStart, 1, res.dataStart, 1);
+				cuda::div_scalar_array(math::prod(other.shape), (t) val, other.dataStart, 1, res.dataStart, 1);
 				return res;
 			}
 		#endif
@@ -3805,9 +3814,9 @@ namespace rapid
 		/// <param name="arr"></param>
 		/// <returns></returns>
 		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> sum(const Array<t, loc> &arr, int64 axis = (int64) -1, int64 depth = 0)
+		inline Array<t, loc> sum(const Array<t, loc> &arr, uint64 axis = (uint64) -1, uint64 depth = 0)
 		{
-			if (axis == (int64) -1 || arr.shape.size() == 1)
+			if (axis == (uint64) -1 || arr.shape.size() == 1)
 			{
 				if (loc == CPU)
 				{
@@ -3838,43 +3847,43 @@ namespace rapid
 						"' is out of bounds for array with '" + std::to_string(arr.shape.size()) +
 						"' dimensions");
 
-			std::vector<int64> transposeOrder(arr.shape.size());
+			std::vector<uint64> transposeOrder(arr.shape.size());
 
 			if (depth == 0)
 			{
-				for (int64 i = 0; i < axis; i++)
+				for (uint64 i = 0; i < axis; i++)
 					transposeOrder[i] = i;
 
-				for (int64 i = axis; i < arr.shape.size() - 1; i++)
+				for (uint64 i = axis; i < arr.shape.size() - 1; i++)
 					transposeOrder[i] = depth == 0 ? (i + 1) : i;
 
 				transposeOrder[transposeOrder.size() - 1] = axis;
 			}
 			else
 			{
-				for (int64 i = 0; i < arr.shape.size(); i++)
+				for (uint64 i = 0; i < arr.shape.size(); i++)
 					transposeOrder[i] = i;
 			}
 
 			auto fixed = arr.transposed(transposeOrder);
 
-			std::vector<int64> resShape;
-			for (int64 i = 0; i < transposeOrder.size() - 1; i++)
+			std::vector<uint64> resShape;
+			for (uint64 i = 0; i < transposeOrder.size() - 1; i++)
 				resShape.emplace_back(arr.shape[transposeOrder[i]]);
 
 			Array<t, loc> res(resShape);
 
-			for (int64 outer = 0; outer < res.shape[0]; outer++)
+			for (uint64 outer = 0; outer < res.shape[0]; outer++)
 				res[outer] = sum(fixed[outer], math::max(axis, 1) - 1, depth + 1);
 
 			return res;
 		}
 
 		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> mean(const Array<t, loc> &arr, int64 axis = (int64) -1, int depth = 0)
+		inline Array<t, loc> mean(const Array<t, loc> &arr, uint64 axis = (uint64) -1, int depth = 0)
 		{
 			// Mean of all values
-			if (axis == (int64) -1 || arr.shape.size() == 1)
+			if (axis == (uint64) -1 || arr.shape.size() == 1)
 			{
 				return Array<t, loc>(sum(arr) / math::prod(arr.shape));
 			}
@@ -3883,33 +3892,33 @@ namespace rapid
 						"' is out of bounds for array with '" + std::to_string(arr.shape.size()) +
 						"' dimensions");
 
-			std::vector<int64> transposeOrder(arr.shape.size());
+			std::vector<uint64> transposeOrder(arr.shape.size());
 
 			if (depth == 0)
 			{
-				for (int64 i = 0; i < axis; i++)
+				for (uint64 i = 0; i < axis; i++)
 					transposeOrder[i] = i;
 
-				for (int64 i = axis; i < arr.shape.size() - 1; i++)
+				for (uint64 i = axis; i < arr.shape.size() - 1; i++)
 					transposeOrder[i] = depth == 0 ? (i + 1) : i;
 
 				transposeOrder[transposeOrder.size() - 1] = axis;
 			}
 			else
 			{
-				for (int64 i = 0; i < arr.shape.size(); i++)
+				for (uint64 i = 0; i < arr.shape.size(); i++)
 					transposeOrder[i] = i;
 			}
 
 			auto fixed = arr.transposed(transposeOrder);
 
-			std::vector<int64> resShape;
-			for (int64 i = 0; i < transposeOrder.size() - 1; i++)
+			std::vector<uint64> resShape;
+			for (uint64 i = 0; i < transposeOrder.size() - 1; i++)
 				resShape.emplace_back(arr.shape[transposeOrder[i]]);
 
 			Array<t, loc> res(resShape);
 
-			for (int64 outer = 0; outer < res.shape[0]; outer++)
+			for (uint64 outer = 0; outer < res.shape[0]; outer++)
 				res[outer] = mean(fixed[outer], math::max(axis, 1) - 1, depth + 1);
 
 			return res;
@@ -4084,43 +4093,43 @@ namespace rapid
 		}
 
 		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> var(const Array<t, loc> &arr, const int64 axis = (int64) -1, const int64 depth = 0)
+		inline Array<t, loc> var(const Array<t, loc> &arr, const uint64 axis = (uint64) -1, const uint64 depth = 0)
 		{
 			// Default variation calculation on flattened array
-			if (axis == (int64) -1 || arr.shape.size() == 1)
+			if (axis == (uint64) -1 || arr.shape.size() == 1)
 				return mean(square(abs(arr - mean(arr))));
 
 			rapidAssert(axis < arr.shape.size(), "Axis '" + std::to_string(axis) +
 						"' is out of bounds for array with '" + std::to_string(arr.shape.size()) +
 						"' dimensions");
 
-			std::vector<int64> transposeOrder(arr.shape.size());
+			std::vector<uint64> transposeOrder(arr.shape.size());
 
 			if (depth == 0)
 			{
-				for (int64 i = 0; i < axis; i++)
+				for (uint64 i = 0; i < axis; i++)
 					transposeOrder[i] = i;
 
-				for (int64 i = axis; i < arr.shape.size() - 1; i++)
+				for (uint64 i = axis; i < arr.shape.size() - 1; i++)
 					transposeOrder[i] = depth == 0 ? (i + 1) : i;
 
 				transposeOrder[transposeOrder.size() - 1] = axis;
 			}
 			else
 			{
-				for (int64 i = 0; i < arr.shape.size(); i++)
+				for (uint64 i = 0; i < arr.shape.size(); i++)
 					transposeOrder[i] = i;
 			}
 
 			auto fixed = arr.transposed(transposeOrder);
 
-			std::vector<int64> resShape;
-			for (int64 i = 0; i < transposeOrder.size() - 1; i++)
+			std::vector<uint64> resShape;
+			for (uint64 i = 0; i < transposeOrder.size() - 1; i++)
 				resShape.emplace_back(arr.shape[transposeOrder[i]]);
 
 			Array<t, loc> res(resShape);
 
-			for (int64 outer = 0; outer < res.shape[0]; outer++)
+			for (uint64 outer = 0; outer < res.shape[0]; outer++)
 				res[outer] = var(fixed[outer], math::max(axis, 1) - 1, depth + 1);
 
 			return res;
@@ -4258,9 +4267,9 @@ namespace rapid
 		{
 			using ct = typename std::common_type<s, e>::type;
 
-			auto len = (int64) ceil(math::abs((ct) end - (ct) start) / (ct) inc);
+			auto len = (uint64) ceil(math::abs((ct) end - (ct) start) / (ct) inc);
 			auto res = Array<typename std::common_type<s, e>::type, loc>({len});
-			for (int64 i = 0; i < len; i++)
+			for (uint64 i = 0; i < len; i++)
 				res[i] = (ct) start + (ct) inc * (ct) i;
 			return res;
 		}
@@ -4296,25 +4305,25 @@ namespace rapid
 
 			if (math::prod(result.shape) < 10000)
 			{
-				for (int64_t i = 0; i < b.shape[0]; i++)
-					for (int64_t j = 0; j < a.shape[0]; j++)
-						result.setVal({(int64_t) 0, i, j}, a.accessVal({j}));
+				for (int64 i = 0; i < b.shape[0]; i++)
+					for (int64 j = 0; j < a.shape[0]; j++)
+						result.setVal({(int64) 0, i, j}, a.accessVal({j}));
 
-				for (int64_t i = 0; i < b.shape[0]; i++)
-					for (int64_t j = 0; j < a.shape[0]; j++)
-						result.setVal({(int64_t) 1, i, j}, b.accessVal({i}));
+				for (int64 i = 0; i < b.shape[0]; i++)
+					for (int64 j = 0; j < a.shape[0]; j++)
+						result.setVal({(int64) 1, i, j}, b.accessVal({i}));
 			}
 			else
 			{
 			#pragma omp parallel for
-				for (int64_t i = 0; i < b.shape[0]; i++)
-					for (int64_t j = 0; j < a.shape[0]; j++)
-						result.setVal({(int64_t) 0, i, j}, a.accessVal({j}));
+				for (int64 i = 0; i < b.shape[0]; i++)
+					for (int64 j = 0; j < a.shape[0]; j++)
+						result.setVal({(int64) 0, i, j}, a.accessVal({j}));
 
 			#pragma omp parallel for
-				for (int64_t i = 0; i < b.shape[0]; i++)
-					for (int64_t j = 0; j < a.shape[0]; j++)
-						result.setVal({(int64_t) 1, i, j}, b.accessVal({i}));
+				for (int64 i = 0; i < b.shape[0]; i++)
+					for (int64 j = 0; j < a.shape[0]; j++)
+						result.setVal({(int64) 1, i, j}, b.accessVal({i}));
 			}
 
 			return result;
@@ -4363,13 +4372,13 @@ namespace rapid
 			{
 				if (math::prod(src.shape) < 10000)
 				{
-					for (int64_t i = 0; i < math::prod(src.shape); i++)
+					for (int64 i = 0; i < math::prod(src.shape); i++)
 						res.dataStart[i] = (resT) src.dataStart[i];
 				}
 				else
 				{
 				#pragma omp parallel for
-					for (int64_t i = 0; i < math::prod(src.shape); i++)
+					for (int64 i = 0; i < math::prod(src.shape); i++)
 						res.dataStart[i] = (resT) src.dataStart[i];
 				}
 			}
@@ -4379,7 +4388,7 @@ namespace rapid
 				if (math::prod(src.shape) < 10000)
 				{
 					srcT srcVal = 0;
-					for (int64_t i = 0; i < math::prod(src.shape); i++)
+					for (int64 i = 0; i < math::prod(src.shape); i++)
 					{
 						cudaSafeCall(cudaMemcpy(&srcVal, src.dataStart + i, sizeof(srcT), cudaMemcpyDeviceToHost));
 						res.dataStart[i] = (resT) srcVal;
@@ -4389,7 +4398,7 @@ namespace rapid
 				{
 					srcT srcVal = 0;
 				#pragma omp parallel for private(srcVal)
-					for (int64_t i = 0; i < math::prod(src.shape); i++)
+					for (int64 i = 0; i < math::prod(src.shape); i++)
 					{
 						cudaSafeCall(cudaMemcpy(&srcVal, src.dataStart + i, sizeof(srcT), cudaMemcpyDeviceToHost));
 						res.dataStart[i] = (resT) srcVal;
@@ -4401,7 +4410,7 @@ namespace rapid
 				if (math::prod(src.shape) < 10000)
 				{
 					resT srcVal = 0;
-					for (int64_t i = 0; i < math::prod(src.shape); i++)
+					for (int64 i = 0; i < math::prod(src.shape); i++)
 					{
 						srcVal = (resT) src.dataStart[i];
 						cudaSafeCall(cudaMemcpy(res.dataStart + i, &srcVal, sizeof(resT), cudaMemcpyHostToDevice));
@@ -4411,7 +4420,7 @@ namespace rapid
 				{
 					resT srcVal = 0;
 				#pragma omp parallel for private(srcVal)
-					for (int64_t i = 0; i < math::prod(src.shape); i++)
+					for (int64 i = 0; i < math::prod(src.shape); i++)
 					{
 						srcVal = (resT) src.dataStart[i];
 						cudaSafeCall(cudaMemcpy(res.dataStart + i, &srcVal, sizeof(resT), cudaMemcpyHostToDevice));

@@ -47,7 +47,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val) override
+				inline void setParam(const std::string &name, const ndarray::Array<t> &val) override
 				{
 					if (name == "learningRate")
 					{
@@ -319,7 +319,7 @@ namespace rapid
 
 					if (name == "time")
 					{
-						m_Time = (int64_t) val;
+						m_Time = (int64) val;
 						return;
 					}
 
@@ -366,7 +366,7 @@ namespace rapid
 
 					if (name == "time")
 					{
-						m_Time = (int64_t) val;
+						m_Time = (int64) val;
 						return;
 					}
 
@@ -401,7 +401,7 @@ namespace rapid
 				t m_Epsilon = 1e-8;
 				ndarray::Array<t> m_M;
 				ndarray::Array<t> m_V;
-				int64_t m_Time = 0;
+				int64 m_Time = 0;
 			};
 		}
 	}

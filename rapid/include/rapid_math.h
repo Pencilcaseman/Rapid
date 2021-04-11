@@ -6,13 +6,13 @@ namespace rapid
 {
 	namespace math
 	{
-		constexpr double pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286;
-		constexpr double twoPi = 6.283185307179586476925286766559005768394338798750211641949889184615632812572;
-		constexpr double halfPi = 1.570796326794896619231321691639751442098584699687552910487472296153908203143;
-		constexpr double e = 2.718281828459045235360287471352662497757247093699959574966967627724076630353;
-		constexpr double sqrt2 = 1.414213562373095048801688724209698078569671875376948073176679737990732478;
-		constexpr double sqrt3 = 1.7320508075688772935274463415058723669428052538103806280558069794519330169;
-		constexpr double sqrt5 = 2.2360679774997896964091736687312762354406183596115257242708972454105209256378;
+		constexpr float64 pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286;
+		constexpr float64 twoPi = 6.283185307179586476925286766559005768394338798750211641949889184615632812572;
+		constexpr float64 halfPi = 1.570796326794896619231321691639751442098584699687552910487472296153908203143;
+		constexpr float64 e = 2.718281828459045235360287471352662497757247093699959574966967627724076630353;
+		constexpr float64 sqrt2 = 1.414213562373095048801688724209698078569671875376948073176679737990732478;
+		constexpr float64 sqrt3 = 1.7320508075688772935274463415058723669428052538103806280558069794519330169;
+		constexpr float64 sqrt5 = 2.2360679774997896964091736687312762354406183596115257242708972454105209256378;
 
 		template<typename T>
 		inline T &&min(T &&val)
@@ -69,14 +69,14 @@ namespace rapid
 			return (_Ty) start2 + ((_Ty) stop2 - (_Ty) start2) * (((_Ty) n - (_Ty) start1) / ((_Ty) stop1 - (_Ty) start1));
 		}
 
-		inline double dist(double x1, double y1, double x2, double y2)
+		inline float64 dist(float64 x1, float64 y1, float64 x2, float64 y2)
 		{
 			auto p1 = x2 + x1;
 			auto p2 = y2 + y1;
 			return std::sqrt(p1 * p1 + p2 * p2);
 		}
 
-		inline long floor(double val)
+		inline long floor(float64 val)
 		{
 			if (val > 0)
 			{
@@ -103,9 +103,9 @@ namespace rapid
 		{
 			// Random integral value in range [min, max]
 
-			static std::uniform_real_distribution<double> distribution(0., 1.);
+			static std::uniform_real_distribution<float64> distribution(0., 1.);
 			static std::mt19937 generator(TIME * 1000000);
-			return (type) random((double) min, (double) max + 1);
+			return (type) random((float64) min, (float64) max + 1);
 		}
 
 		template<typename type>
@@ -172,12 +172,12 @@ namespace rapid
 		}
 
 		template<>
-		inline float roundUp(const float &numToRound, const float &multiple)
+		inline float32 roundUp(const float32 &numToRound, const float32 &multiple)
 		{
 			if (multiple == 0)
 				return numToRound;
 
-			float remainder = fmod(fabs(numToRound), multiple);
+			float32 remainder = fmod(fabs(numToRound), multiple);
 			if (remainder == 0)
 				return numToRound;
 
@@ -188,12 +188,12 @@ namespace rapid
 		}
 
 		template<>
-		inline double roundUp(const double &numToRound, const double &multiple)
+		inline float64 roundUp(const float64 &numToRound, const float64 &multiple)
 		{
 			if (multiple == 0)
 				return numToRound;
 
-			double remainder = fmod(fabs(numToRound), multiple);
+			float64 remainder = fmod(fabs(numToRound), multiple);
 			if (remainder == 0)
 				return numToRound;
 

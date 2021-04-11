@@ -641,7 +641,7 @@ namespace rapid
 
 					for (uint64 i = 0; i < shapeProd; i++)
 					{
-						for (int64_t j = 0; j < dims; j++)
+						for (int64 j = 0; j < dims; j++)
 							indicesRes[j] = indices[axes[j]];
 
 						uint64 resIndex = 0;

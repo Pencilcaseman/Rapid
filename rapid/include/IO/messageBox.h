@@ -253,7 +253,7 @@ namespace rapid
 	}
 }
 #else
-#include "../math.h"
+#include "../rapid_math.h"
 
 namespace rapid
 {
@@ -264,33 +264,33 @@ namespace rapid
 		public:
 			enum class MessageBoxType : int
 			{
-				ICON_ERROR = MB_ICONERROR,
-				ICON_QUESTION = MB_ICONQUESTION,
-				ICON_WARNING = MB_ICONWARNING,
-				ICON_INFORMATION = MB_ICONINFORMATION,
-
-				BUTTON_ABORD_RETRY_IGNORE = MB_ABORTRETRYIGNORE,
-				BUTTON_CANCEL_TRY_CONTINUE = MB_CANCELTRYCONTINUE,
-				BUTTON_HELP = MB_HELP,
-				BUTTON_OK = MB_OK,
-				BUTTON_OK_CANCEL = MB_OKCANCEL,
-				BUTTON_RETRY_CANCEL = MB_RETRYCANCEL,
-				BUTTON_YES_NO = MB_YESNO,
-				BUTTON_YES_NO_CANCEL = MB_YESNOCANCEL,
-
-				DEFAULT_FIRST = MB_DEFBUTTON1,
-				DEFAULT_SECOND = MB_DEFBUTTON2,
-				DEFAULT_THIRD = MB_DEFBUTTON3,
-
-				RETURN_ABORT = IDABORT,
-				RETURN_CANCEL = IDCANCEL,
-				RETURN_CONTINUE = IDCONTINUE,
-				RETURN_IGNORE = IDIGNORE,
-				RETURN_NO = IDNO,
-				RETURN_OK = IDOK,
-				RETURN_RETRY = IDRETRY,
-				RETURN_TRY_AGAIN = IDTRYAGAIN,
-				RETURN_YES = IDYES
+				ICON_ERROR					= 0,
+				ICON_QUESTION				= 1,
+				ICON_WARNING				= 2,
+				ICON_INFORMATION			= 3,
+											  
+				BUTTON_ABORD_RETRY_IGNORE	= 4,
+				BUTTON_CANCEL_TRY_CONTINUE	= 5,
+				BUTTON_HELP					= 6,
+				BUTTON_OK					= 7,
+				BUTTON_OK_CANCEL			= 8,
+				BUTTON_RETRY_CANCEL			= 9,
+				BUTTON_YES_NO				= 10,
+				BUTTON_YES_NO_CANCEL		= 11,
+											  
+				DEFAULT_FIRST				= 12,
+				DEFAULT_SECOND				= 13,
+				DEFAULT_THIRD				= 14,
+											  
+				RETURN_ABORT				= 15,
+				RETURN_CANCEL				= 16,
+				RETURN_CONTINUE				= 17,
+				RETURN_IGNORE				= 18,
+				RETURN_NO					= 19,
+				RETURN_OK					= 20,
+				RETURN_RETRY				= 21,
+				RETURN_TRY_AGAIN			= 22,
+				RETURN_YES					= 23
 			};
 
 			std::string title = "Rapid Message Box";

@@ -9,10 +9,10 @@ namespace rapid
 		class Matrix4x4
 		{
 		public:
-			double p00, p01, p02, p03;
-			double p10, p11, p12, p13;
-			double p20, p21, p22, p23;
-			double p30, p31, p32, p33;
+			float64 p00, p01, p02, p03;
+			float64 p10, p11, p12, p13;
+			float64 p20, p21, p22, p23;
+			float64 p30, p31, p32, p33;
 
 			Matrix4x4()
 			{
@@ -34,7 +34,7 @@ namespace rapid
 				p33 = 0;
 			}
 
-			explicit Matrix4x4(const double &val)
+			explicit Matrix4x4(const float64 &val)
 			{
 				p00 = val;
 				p01 = val;
@@ -57,22 +57,22 @@ namespace rapid
 				p33 = val;
 			}
 
-			Matrix4x4(const double &_p00,
-					  const double &_p01,
-					  const double &_p02,
-					  const double &_p03,
-					  const double &_p10,
-					  const double &_p11,
-					  const double &_p12,
-					  const double &_p13,
-					  const double &_p20,
-					  const double &_p21,
-					  const double &_p22,
-					  const double &_p23,
-					  const double &_p30,
-					  const double &_p31,
-					  const double &_p32,
-					  const double &_p33)
+			Matrix4x4(const float64 &_p00,
+					  const float64 &_p01,
+					  const float64 &_p02,
+					  const float64 &_p03,
+					  const float64 &_p10,
+					  const float64 &_p11,
+					  const float64 &_p12,
+					  const float64 &_p13,
+					  const float64 &_p20,
+					  const float64 &_p21,
+					  const float64 &_p22,
+					  const float64 &_p23,
+					  const float64 &_p30,
+					  const float64 &_p31,
+					  const float64 &_p32,
+					  const float64 &_p33)
 			{
 				p00 = _p00;
 				p01 = _p01;

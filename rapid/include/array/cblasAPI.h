@@ -9,7 +9,7 @@ namespace rapid
 		namespace imp
 		{
 			template<typename t>
-			inline t rapid_dot(uint64_t len,
+			inline t rapid_dot(uint64 len,
 							   const t *__restrict a,
 							   const t *__restrict b)
 			{
@@ -17,7 +17,7 @@ namespace rapid
 			}
 
 			template<>
-			inline float64 rapid_dot(uint64_t len,
+			inline float64 rapid_dot(uint64 len,
 									const float64 *__restrict a,
 									const float64 *__restrict b)
 			{
@@ -25,7 +25,7 @@ namespace rapid
 			}
 
 			template<>
-			inline float32 rapid_dot(uint64_t len,
+			inline float32 rapid_dot(uint64 len,
 								   const float32 *__restrict a,
 								   const float32 *__restrict b)
 			{
@@ -33,7 +33,7 @@ namespace rapid
 			}
 
 			template<typename t>
-			inline void rapid_gemm(uint64_t M, uint64_t N, uint64_t K,
+			inline void rapid_gemm(uint64 M, uint64 N, uint64 K,
 								   const t *__restrict a,
 								   const t *__restrict b,
 								   t *__restrict c)
@@ -42,7 +42,7 @@ namespace rapid
 			}
 
 			template<>
-			inline void rapid_gemm(uint64_t M, uint64_t N, uint64_t K,
+			inline void rapid_gemm(uint64 M, uint64 N, uint64 K,
 								   const float64 *__restrict a,
 								   const float64 *__restrict b,
 								   float64 *__restrict c)
@@ -52,7 +52,7 @@ namespace rapid
 			}
 
 			template<>
-			inline void rapid_gemm(uint64_t M, uint64_t N, uint64_t K,
+			inline void rapid_gemm(uint64 M, uint64 N, uint64 K,
 								   const float32 *__restrict a,
 								   const float32 *__restrict b,
 								   float32 *__restrict c)

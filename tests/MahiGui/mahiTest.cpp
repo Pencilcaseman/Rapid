@@ -6,7 +6,7 @@
 class MyApp : public mahi::gui::Application
 {
 public:
-	MyApp() : Application()
+	MyApp() : Application(500, 500, "Window!")
 	{}
 
 	void update() override
@@ -76,19 +76,19 @@ public:
 			ImGui::BulletText("Use the scroll wheel to zoom in and out");
 			ImGui::BulletText("You can also drag the axes to move horizontally or vertically");
 
-			static double x[2000]{};
-			static double y[2000]{};
+			static float64 x[2000]{};
+			static float64 y[2000]{};
 
-			for (uint64_t i = 0; i < 1000; i++)
+			for (uint64 i = 0; i < 1000; i++)
 			{
-				x[i] = (double) i / 100;
-				y[i] = sin((double) i / 100 + TIME * 2) * 10;
+				x[i] = (float64) i / 100;
+				y[i] = sin((float64) i / 100 + TIME * 2) * 10;
 			}
 
-			for (uint64_t i = 0; i < 1000; i++)
+			for (uint64 i = 0; i < 1000; i++)
 			{
-				x[i + 1000] = (double) i / 100;
-				y[i + 1000] = cos((double) i / 100 + TIME * 2) * 10;
+				x[i + 1000] = (float64) i / 100;
+				y[i + 1000] = cos((float64) i / 100 + TIME * 2) * 10;
 			}
 
 			ImPlot::BeginPlot("Simple Waves");
@@ -113,18 +113,18 @@ public:
 
 			ImGui::BulletText("Click and drag the box to move the selected area around");
 
-			static float x_data[512]{};
-			static float y_data1[512]{};
-			static float y_data2[512]{};
-			static float y_data3[512]{};
-			static float sampling_freq = 44100;
-			static float freq = 500;
+			static float32 x_data[512]{};
+			static float32 y_data1[512]{};
+			static float32 y_data2[512]{};
+			static float32 y_data3[512]{};
+			static float32 sampling_freq = 44100;
+			static float32 freq = 500;
 
 			for (size_t i = 0; i < 512; ++i)
 			{
-				const float t = i / sampling_freq;
+				const float32 t = i / sampling_freq;
 				x_data[i] = t;
-				const float arg = 2 * 3.14f * freq * t;
+				const float32 arg = 2 * 3.14f * freq * t;
 				y_data1[i] = sinf(arg);
 				y_data2[i] = y_data1[i] * -0.6f + sinf(2 * arg) * 0.4f;
 				y_data3[i] = y_data2[i] * -0.6f + sinf(3 * arg) * 0.4f;
@@ -157,10 +157,10 @@ public:
 		{
 			// static std::random_device randomNumberGenerator;
 			static std::mt19937 randomNumberGenerator;
-			static std::uniform_real_distribution<double> realDistribution(0, 10);
+			static std::uniform_real_distribution<float64> realDistribution(0, 10);
 
-			static double x[100000]{};
-			static double y[100000]{};
+			static float64 x[100000]{};
+			static float64 y[100000]{};
 
 			static int points = 10;
 			static bool randomize = true;
@@ -171,9 +171,9 @@ public:
 
 			if (randomize)
 			{
-				for (uint64_t i = 0; i < points; i++)
+				for (uint64 i = 0; i < points; i++)
 				{
-					x[i] = (double) i / ((double) points / 10);
+					x[i] = (float64) i / ((float64) points / 10);
 					y[i] = realDistribution(randomNumberGenerator);
 				}
 			}

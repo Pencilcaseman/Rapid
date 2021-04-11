@@ -38,13 +38,13 @@ namespace rapid
 			Value(const _Ty val, const Unit &unit) : m_Value(val), m_Unit(unit)
 			{}
 
-			inline double getValue() const
+			inline float64 getValue() const
 			{
 				return m_Value;
 			}
 
 		private:
-			double m_Value;
+			float64 m_Value;
 			Unit m_Unit;
 		};
 	}

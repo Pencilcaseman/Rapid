@@ -133,17 +133,13 @@ inline void HIDDEN_cudaSafeCall(cudaError_t err, const char *file, const int lin
 #define cublasSafeCall(func)
 #endif
 
-#ifdef RAPID_CPP
-#ifndef RAPID_NO_AMP
-#include <amp.h>		// Optional AMP include
-#endif
-#else
-#ifdef _MSC_VER
-#pragma message ("AMP cannot be used in CUDA mode")
-#else
-#warning AMP cannot be used in CUDA mode
-#endif
-#endif
+// Platform independent types
+using uint64 = unsigned long long;
+using int64 = long long;
+using uint32 = uint32_t;
+using int32 = int32_t;
+using float32 = float32;
+using float64 = float64;
 
 #ifndef RAPID_NO_BLAS
 #pragma comment(lib, "libopenblas.lib")
@@ -213,6 +209,7 @@ inline void HIDDEN_cudaSafeCall(cudaError_t err, const char *file, const int lin
 #define RAPID_OS_AIX // IBM AIX
 #define RAPID_OS "aix"
 #elif defined(__APPLE__) && defined(__MACH__) // Apple OSX and iOS (Darwin)
+#define RAPID_OS_APPLE
 #include <TargetConditionals.h>
 #if TARGET_IPHONE_SIMULATOR == 1
 #define RAPID_OS_IOS // Apple iOS
@@ -230,6 +227,19 @@ inline void HIDDEN_cudaSafeCall(cudaError_t err, const char *file, const int lin
 #else
 #define RAPID_OS_UNKNOWN
 #define RAPID_OS "unknown"
+#endif
+
+// OS dependent options
+#ifdef RAPID_OS_WINDOWS
+#if defined(RAPID_CPP) && !defined(RAPID_NO_AMP)
+#include <amp.h>		// Optional AMP include
+#else
+#ifdef _MSC_VER
+#pragma message ("AMP cannot be used in CUDA mode")
+#else
+#warning AMP cannot be used in CUDA mode
+#endif
+#endif
 #endif
 
 #ifdef RAPID_OS_WINDOWS
@@ -253,45 +263,72 @@ std::string workingDirectory()
 #define RAPID_WORKING_DIR workingDirectory()
 #endif
 
-//**************//
-// CURRENT TIME //
-//**************//
 // A routine to give access to a high precision timer on most systems.
-#if defined(_WIN32) || defined(_WIN64) || defined(MSC_VER) || defined(WIN32) || defined(__CYGWIN__) || defined(CUDAAPI)
+#ifdef RAPID_OS_WINDOWS
 #if !defined(WIN32_LEAN_AND_MEAN)
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <Windows.h>
+#include <windows.h>
 
-double seconds()
+namespace rapid
 {
-	LARGE_INTEGER t;
-	static double oofreq;
-	static int checkedForHighResTimer = 0;
-	static BOOL hasHighResTimer;
-
-	if (!checkedForHighResTimer)
+	namespace utils
 	{
-		hasHighResTimer = QueryPerformanceFrequency(&t);
-		oofreq = 1.0 / (double) t.QuadPart;
-		checkedForHighResTimer = 1;
-	}
+		inline float64 seconds()
+		{
+			LARGE_INTEGER t;
+			static float64 oofreq;
+			static int checkedForHighResTimer = 0;
+			static BOOL hasHighResTimer;
 
-	if (hasHighResTimer)
-	{
-		QueryPerformanceCounter(&t);
-		return (double) t.QuadPart * oofreq;
-	}
+			if (!checkedForHighResTimer)
+			{
+				hasHighResTimer = QueryPerformanceFrequency(&t);
+				oofreq = 1.0 / (float64) t.QuadPart;
+				checkedForHighResTimer = 1;
+			}
 
-	return (double) GetTickCount64() * 1.0e-3;
+			if (hasHighResTimer)
+			{
+				QueryPerformanceCounter(&t);
+				return (float64) t.QuadPart * oofreq;
+			}
+			else
+			{
+				return (float64) GetTickCount() * 1.0e-3;
+			}
+		}
+	}
 }
-
-#define TIME (seconds())
-
+#elif defined(RAPID_OS_LINUX) || defined(RAPID_OS_MAC)
+#include <stddef.h>
+#include <sys/time.h>
+namespace rapid
+{
+	namespace utils
+	{
+		inline float64 seconds()
+		{
+			struct timeval tv;
+			gettimeofday(&tv, NULL);
+			return (double) tv.tv_sec + (double) tv.tv_usec * 1.0e-6;
+		}
+	}
+}
 #else
-#define TIME (omp_get_wtime())
+namespace rapid
+{
+	namespace utils
+	{
+		inline float64 seconds()
+		{
+			return (double) std::chrono::high_resolution_clock().now().time_since_epoch().count() / 1000000000;
+		}
+	}
+}
 #endif
+#define TIME rapid::utils::seconds()
 
 // Looping for timing things
 
@@ -300,7 +337,7 @@ double seconds()
 #define _loop_timer rapidTimerLoopTimer
 #define _loop_goto rapidTimerLoopGoto
 #define START_TIMER(id, n) auto _loop_timer##id = rapid::RapidTimer(n);								\
-						   for (uint64_t _loop_var##id = 0; _loop_var##id < n; _loop_var##id++) {	\
+						   for (uint64 _loop_var##id = 0; _loop_var##id < n; _loop_var##id++) {	\
 
 #define END_TIMER(id)	} \
 						_loop_timer##id.endTimer()
@@ -311,7 +348,7 @@ namespace rapid
 	{
 	public:
 		std::chrono::time_point<std::chrono::steady_clock> start, end;
-		uint64_t loops;
+		uint64 loops;
 		bool finished = false;
 
 		RapidTimer()
@@ -320,7 +357,7 @@ namespace rapid
 			loops = 1;
 		}
 
-		RapidTimer(uint64_t iters)
+		RapidTimer(uint64 iters)
 		{
 			startTimer();
 			loops = iters;
@@ -345,7 +382,7 @@ namespace rapid
 
 			finished = true;
 
-			auto delta = (double) std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (double) loops;
+			auto delta = (float64) std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (float64) loops;
 			std::string unit = "ns";
 
 			if (delta >= 1000)
@@ -418,21 +455,14 @@ namespace rapid
 	}
 
 	template<>
-	inline float rapidCast(const std::string &in, const std::string &name)
+	inline float32 rapidCast(const std::string &in, const std::string &name)
 	{
-		return (float) atof(in.c_str());
+		return (float32) atof(in.c_str());
 	}
 
 	template<>
-	inline double rapidCast(const std::string &in, const std::string &name)
+	inline float64 rapidCast(const std::string &in, const std::string &name)
 	{
-		return (double) atof(in.c_str());
+		return (float64) atof(in.c_str());
 	}
 }
-
-using uint64 = uint64_t;
-using int64 = uint64_t;
-using uint32 = uint32_t;
-using int32 = uint32_t;
-using float32 = float;
-using float64 = double;

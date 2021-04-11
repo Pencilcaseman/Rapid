@@ -25,7 +25,7 @@ namespace rapid
 
 			size_t count = 0;
 
-			while (std::getline(file, line) && count < (end == 0 ? (uint64_t) -1 : (end - start)))
+			while (std::getline(file, line) && count < (end == 0 ? (uint64) -1 : (end - start)))
 			{
 				if (verbose && count % 100 == 0)
 					std::cout << "Loaded " << count << " lines\n";
