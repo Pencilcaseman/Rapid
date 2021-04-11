@@ -4,6 +4,10 @@
 #error CUDA support is limited. For more information see "README.md". Remove this error and procede at your own risk...
 #endif
 
+// Include Mahi-Gui because it's awesome
+#include <Mahi/Gui.hpp>
+#include <Mahi/Util.hpp>
+
 #include "./internal.h"
 #include "./units.h"
 #include "./rapid_math.h"
@@ -17,7 +21,3 @@
 #include "./network.h"
 #include "./io.h"
 #include "./parser.h"
-
-// Include Mahi-Gui because it's awesome
-#include <Mahi/Gui.hpp>
-#include <Mahi/Util.hpp>
