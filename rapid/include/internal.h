@@ -468,4 +468,4 @@ namespace rapid
 }
 
 #include "setup.h"
-rapid::setup::Setup _internalRapidSetup();
+static auto _internalSetupInstance = rapid::setup::Setup();
