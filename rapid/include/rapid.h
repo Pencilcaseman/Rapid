@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef RAPID_CUDA
-#error CUDA support currently doesn't work. Fix this!
+#error CUDA support is limited. For more information see "README.md". Remove this error and procede at your own risk...
 #endif
 
 #include "./internal.h"

@@ -1,9 +1,5 @@
 ﻿#pragma once
 
-#ifdef RAPID_HAS_BLAS
-#error "HAS BLAS!"
-#endif
-
 #include <cstdlib>
 
 #include <iostream>
