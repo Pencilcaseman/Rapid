@@ -8,16 +8,16 @@ namespace rapid
 		class ArrayView
 		{
 			T *ptr_;
-			size_t len_;
+			uint64 len_;
 		public:
-			ArrayView(T *ptr, size_t len) noexcept : ptr_{ptr}, len_{len} {}
+			ArrayView(T *ptr, uint64 len) noexcept : ptr_{ptr}, len_{len} {}
 
-			T &operator[](size_t i) noexcept
+			T &operator[](uint64 i) noexcept
 			{
 				return ptr_[i];
 			}
 
-			T &operator[](size_t i) const noexcept
+			T &operator[](uint64 i) const noexcept
 			{
 				return ptr_[i];
 			}

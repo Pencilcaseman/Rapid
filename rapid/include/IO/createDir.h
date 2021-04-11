@@ -15,7 +15,7 @@ namespace rapid
 			std::vector<std::string> folders;
 
 			std::string tempDir = dir;
-			size_t index;
+			uint64 index;
 
 			while ((index = tempDir.find_first_of('/')) != std::string::npos) // Loop while valid directories exist
 			{

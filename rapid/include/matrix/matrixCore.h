@@ -34,10 +34,10 @@ namespace rapid
 	{
 		typedef struct MatrixSize
 		{
-			size_t rows;
-			size_t cols;
+			uint64 rows;
+			uint64 cols;
 
-			size_t operator[](size_t index) const
+			uint64 operator[](uint64 index) const
 			{
 				if (index == 0)
 					return rows;
@@ -48,7 +48,7 @@ namespace rapid
 				return -1;
 			}
 
-			size_t operator()(size_t index) const
+			uint64 operator()(uint64 index) const
 			{
 				if (index == 0)
 					return rows;
@@ -63,12 +63,12 @@ namespace rapid
 		class Matrix
 		{
 		private:
-			size_t rows;
-			size_t cols;
+			uint64 rows;
+			uint64 cols;
 			std::vector<dataType> data;
 
 			// Operation method evaluator
-			inline static int evalOperationMode(size_t M, size_t N, size_t K, int op)
+			inline static int evalOperationMode(uint64 M, uint64 N, uint64 K, int op)
 			{
 				// Matrix-matrix and matrix-scalar arithmetic operators
 				if (op >= RAPID_MATH_OP_MATRIX_MATRIX_ADDITION && op <= RAPID_MATH_OP_MATRIX_SCALAR_DIVISION)
@@ -119,7 +119,7 @@ namespace rapid
 				if (mode == RAPID_MATH_MODE_SERIAL)
 				{
 					// Serial addition
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (a.rows * a.cols > 3)
 					{
@@ -156,7 +156,7 @@ namespace rapid
 				if (mode == RAPID_MATH_MODE_SERIAL)
 				{
 					// Serial addition
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (a.rows * a.cols > 3)
 					{
@@ -193,7 +193,7 @@ namespace rapid
 				if (mode == RAPID_MATH_MODE_SERIAL)
 				{
 					// Serial addition
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (a.rows * a.cols > 3)
 					{
@@ -225,7 +225,7 @@ namespace rapid
 			inline void checkNan(const std::string &msg = "NaN detected") const
 			{
 				const dataType *__restrict tmp = data.data();
-				for (size_t i = 0; i < rows * cols; i++)
+				for (uint64 i = 0; i < rows * cols; i++)
 					if (tmp[i] != tmp[i])
 						message::RapidError("NaN Detected", msg).display();
 			}
@@ -236,7 +236,7 @@ namespace rapid
 			{};
 
 			// From rows
-			Matrix(size_t matrixRows)
+			Matrix(uint64 matrixRows)
 			{
 				rows = matrixRows;
 				cols = 1;
@@ -245,7 +245,7 @@ namespace rapid
 			}
 
 			// From rows and columns
-			Matrix(size_t matrixRows, size_t matrixCols)
+			Matrix(uint64 matrixRows, uint64 matrixCols)
 			{
 				rows = matrixRows;
 				cols = matrixCols;
@@ -254,7 +254,7 @@ namespace rapid
 			}
 
 			// From rows, columns and specified fill value
-			Matrix(size_t matrixRows, size_t matrixCols, const dataType &fill)
+			Matrix(uint64 matrixRows, uint64 matrixCols, const dataType &fill)
 			{
 				rows = matrixRows;
 				cols = matrixCols;
@@ -282,8 +282,8 @@ namespace rapid
 
 				data = std::vector<dataType>(rows * cols);
 
-				for (size_t i = 0; i < rows; i++)
-					for (size_t j = 0; j < cols; j++)
+				for (uint64 i = 0; i < rows; i++)
+					for (uint64 j = 0; j < cols; j++)
 						data[j + i * cols] = *((matrixData.begin() + i)->begin() + j);
 
 			#ifdef RAPID_CHECK_NAN
@@ -305,7 +305,7 @@ namespace rapid
 				return *this;
 			}
 
-			static Matrix<dataType> random(const size_t &matrixRows, const size_t &matrixCols = 1, const dataType &minVal = -1, const dataType &maxVal = 1)
+			static Matrix<dataType> random(const uint64 &matrixRows, const uint64 &matrixCols = 1, const dataType &minVal = -1, const dataType &maxVal = 1)
 			{
 				auto res = Matrix<dataType>(matrixRows, matrixCols);
 
@@ -317,7 +317,7 @@ namespace rapid
 				return res;
 			}
 
-			static Matrix<dataType> zeros(const size_t &matrixRows)
+			static Matrix<dataType> zeros(const uint64 &matrixRows)
 			{
 				auto res = Matrix<dataType>(matrixRows, 1);
 
@@ -329,7 +329,7 @@ namespace rapid
 				return res;
 			}
 
-			static Matrix<dataType> zeros(const size_t &matrixRows, const size_t &matrixCols)
+			static Matrix<dataType> zeros(const uint64 &matrixRows, const uint64 &matrixCols)
 			{
 				auto res = Matrix<dataType>(matrixRows, matrixCols);
 
@@ -353,7 +353,7 @@ namespace rapid
 				return res;
 			}
 
-			static Matrix<dataType> ones(const size_t &matrixRows)
+			static Matrix<dataType> ones(const uint64 &matrixRows)
 			{
 				auto res = Matrix<dataType>(matrixRows, 1);
 
@@ -365,7 +365,7 @@ namespace rapid
 				return res;
 			}
 
-			static Matrix<dataType> ones(const size_t &matrixRows, const size_t &matrixCols)
+			static Matrix<dataType> ones(const uint64 &matrixRows, const uint64 &matrixCols)
 			{
 				auto res = Matrix<dataType>(matrixRows, matrixCols);
 
@@ -389,7 +389,7 @@ namespace rapid
 				return res;
 			}
 
-			static Matrix<dataType> truncatedNormal(const size_t &matrixRows, const size_t &matrixCols, const dataType &mean = 0, const dataType &stddev = 1)
+			static Matrix<dataType> truncatedNormal(const uint64 &matrixRows, const uint64 &matrixCols, const dataType &mean = 0, const dataType &stddev = 1)
 			{
 				auto res = Matrix<dataType>::random(matrixRows, matrixCols);
 				res *= stddev / res.stddev();
@@ -401,7 +401,7 @@ namespace rapid
 			// Fill the matrix with a single value
 			inline void fill(const dataType &val)
 			{
-				for (size_t i = 0; i < rows * cols; i++)
+				for (uint64 i = 0; i < rows * cols; i++)
 					data[i] = val;
 
 			#ifdef RAPID_CHECK_NAN
@@ -410,7 +410,7 @@ namespace rapid
 			}
 
 			// Get a row of the matrix
-			inline ArrayView<dataType> &operator[](const size_t &index)
+			inline ArrayView<dataType> &operator[](const uint64 &index)
 			{
 				rapidAssert(index < rows, "List index out of range");
 
@@ -420,7 +420,7 @@ namespace rapid
 			}
 
 			// Get a row of the matrix
-			inline ArrayView<const dataType> &operator[](const size_t &index) const
+			inline ArrayView<const dataType> &operator[](const uint64 &index) const
 			{
 				rapidAssert(index < rows, "List index out of range");
 
@@ -710,8 +710,8 @@ namespace rapid
 				{
 					// Serial transposition of the matrix
 
-					size_t row = 0;
-					size_t col = 0;
+					uint64 row = 0;
+					uint64 col = 0;
 
 					const dataType *__restrict thisData = data.data();
 					dataType *__restrict resData = res.data.data();
@@ -773,15 +773,15 @@ namespace rapid
 				{
 					// Serial
 
-					size_t M = rows;
-					size_t N = cols;
-					size_t K = other.cols;
+					uint64 M = rows;
+					uint64 N = cols;
+					uint64 K = other.cols;
 
 					const dataType *__restrict a = data.data();
 					const dataType *__restrict b = other.data.data();
 					dataType *__restrict c = res.data.data();
 
-					size_t i, j, k;
+					uint64 i, j, k;
 					dataType tmp;
 
 					for (i = 0; i < M; ++i)
@@ -834,9 +834,9 @@ namespace rapid
 					// Tile size
 					static const int TS = 32;
 
-					const auto resizedThis = resized(rapid::roundUp(rows, (size_t) TS), rapid::roundUp(cols, (size_t) TS));
-					const auto resizedOther = resized(rapid::roundUp(other.rows, (size_t) TS), rapid::roundUp(other.cols, (size_t) TS));
-					res.resize(rapid::roundUp(rows, (size_t) TS), rapid::roundUp(other.cols, (size_t) TS));
+					const auto resizedThis = resized(rapid::roundUp(rows, (uint64) TS), rapid::roundUp(cols, (uint64) TS));
+					const auto resizedOther = resized(rapid::roundUp(other.rows, (uint64) TS), rapid::roundUp(other.cols, (uint64) TS));
+					res.resize(rapid::roundUp(rows, (uint64) TS), rapid::roundUp(other.cols, (uint64) TS));
 
 					auto M = (unsigned int) resizedThis.rows;
 					auto N = (unsigned int) resizedThis.cols;
@@ -891,7 +891,7 @@ namespace rapid
 			{
 				auto res = Matrix<dataType>::zerosLike(*this);
 
-				for (size_t i = 0; i < rows * cols; i++)
+				for (uint64 i = 0; i < rows * cols; i++)
 					res.data[0] = pow(data[i], exp.data[i]);
 
 			#ifdef RAPID_CHECK_NAN
@@ -917,20 +917,20 @@ namespace rapid
 				return res;
 			}
 
-			inline Matrix<dataType> resized(size_t newRows, size_t newCols) const
+			inline Matrix<dataType> resized(uint64 newRows, uint64 newCols) const
 			{
 				Matrix<dataType> res(newRows, newCols);
 
 				auto resData = res.data.data();
 				auto thisData = data.data();
 
-				for (size_t i = 0; i < rapid::min(rows, newRows); i++)
+				for (uint64 i = 0; i < rapid::min(rows, newRows); i++)
 					memcpy(&resData[i * newCols], &thisData[i * cols], sizeof(dataType) * rapid::min(cols, newCols));
 
 				return res;
 			}
 
-			inline void resize(size_t newRows, size_t newCols)
+			inline void resize(uint64 newRows, uint64 newCols)
 			{
 				*this = resized(newRows, newCols);
 			}
@@ -963,7 +963,7 @@ namespace rapid
 				dataType *__restrict resData = res.data.data();
 
 				// Copy the data over
-				for (size_t i = 0; i < a.rows; i++)
+				for (uint64 i = 0; i < a.rows; i++)
 				{
 					memcpy(resData + res.cols * i, aData + a.cols * i, sizeof(dataType) * a.cols); // Copy segment of A
 					memcpy(resData + res.cols * i + a.cols, bData + b.cols * i, sizeof(dataType) * b.cols); // Copy segment of B
@@ -972,7 +972,7 @@ namespace rapid
 				return res;
 			}
 
-			inline Matrix<dataType> subMatrix(size_t splitStart, size_t splitEnd = -1) const
+			inline Matrix<dataType> subMatrix(uint64 splitStart, uint64 splitEnd = -1) const
 			{
 				if (splitEnd == -1)
 					splitEnd = rows;
@@ -1000,9 +1000,9 @@ namespace rapid
 				const dataType *__restrict bData = b.data.data();
 				dataType *__restrict resData = res.data.data();
 
-				for (size_t i = 0; i < res.rows; i++)
+				for (uint64 i = 0; i < res.rows; i++)
 				{
-					for (size_t j = 0; j < res.cols; j++)
+					for (uint64 j = 0; j < res.cols; j++)
 					{
 						resData[j + i * res.cols] = aData[i] * bData[j];
 					}
@@ -1100,7 +1100,7 @@ namespace rapid
 				auto meanAverage = mean();
 				Matrix<dataType> variance(rows * cols, 1, 0);
 
-				size_t index = 0;
+				uint64 index = 0;
 				for (const auto &val : data)
 				{
 					variance[index][0] = (val - meanAverage) * (val - meanAverage);
@@ -1126,9 +1126,9 @@ namespace rapid
 			{
 				std::string res;
 
-				for (size_t i = 0; i < rows; i++)
+				for (uint64 i = 0; i < rows; i++)
 				{
-					for (size_t j = 0; j < cols; j++)
+					for (uint64 j = 0; j < cols; j++)
 					{
 						res += rapidCast<std::string>(data[j + i * cols]);
 
@@ -1254,9 +1254,9 @@ namespace rapid
 
 			Matrix<float64> res(rows, other.cols);
 
-			size_t M = rows;
-			size_t N = cols;
-			size_t K = other.cols;
+			uint64 M = rows;
+			uint64 N = cols;
+			uint64 K = other.cols;
 
 			const float64 *__restrict a = data.data();
 			const float64 *__restrict b = other.data.data();
@@ -1277,9 +1277,9 @@ namespace rapid
 
 			Matrix<float32> res(rows, other.cols);
 
-			size_t M = rows;
-			size_t N = cols;
-			size_t K = other.cols;
+			uint64 M = rows;
+			uint64 N = cols;
+			uint64 K = other.cols;
 
 			const float32 *__restrict a = data.data();
 			const float32 *__restrict b = other.data.data();

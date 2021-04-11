@@ -13,7 +13,7 @@ namespace rapid
 			struct strContainer
 			{
 				std::string str;
-				size_t decimalPoint;
+				uint64 decimalPoint;
 			};
 
 			/// <summary>
@@ -57,7 +57,7 @@ namespace rapid
 			{
 				std::string res = "[";
 
-				for (size_t i = 0; i < adjusted.size(); i++)
+				for (uint64 i = 0; i < adjusted.size(); i++)
 				{
 					if (stripMiddle && adjusted.size() > 6 && i == 3)
 					{
@@ -83,8 +83,8 @@ namespace rapid
 			/// <param name="depth"></param>
 			/// <param name="stripMiddle"></param>
 			/// <returns></returns>
-			std::string toString(const std::vector<std::string> &adjusted, const std::vector<size_t> &shape,
-								 size_t depth, bool stripMiddle, bool wasGPU)
+			std::string toString(const std::vector<std::string> &adjusted, const std::vector<uint64> &shape,
+								 uint64 depth, bool stripMiddle, bool wasGPU)
 			{
 				if (shape.size() == 1)
 					return toString1D(adjusted, stripMiddle);
@@ -93,8 +93,8 @@ namespace rapid
 				{
 					std::string res = "[";
 
-					size_t count = 0;
-					for (size_t i = 0; i < adjusted.size(); i += shape[1])
+					uint64 count = 0;
+					for (uint64 i = 0; i < adjusted.size(); i += shape[1])
 					{
 						if (stripMiddle && shape[0] > 6 && i == shape[1] * 3)
 						{
@@ -122,10 +122,10 @@ namespace rapid
 				else
 				{
 					std::string res = "[";
-					size_t count = 0;
-					size_t inc = math::prod(shape) / shape[0];
+					uint64 count = 0;
+					uint64 inc = math::prod(shape) / shape[0];
 
-					for (size_t i = 0; i < adjusted.size(); i += inc)
+					for (uint64 i = 0; i < adjusted.size(); i += inc)
 					{
 						if (stripMiddle && shape[0] > 6 && i == inc * 3)
 						{
@@ -143,7 +143,7 @@ namespace rapid
 						auto shapeEnd = shape.end();
 
 						auto subAdjusted = std::vector<std::string>(adjustedStart, adjustedEnd);
-						auto subShape = std::vector<size_t>(shapeStart, shapeEnd);
+						auto subShape = std::vector<uint64>(shapeStart, shapeEnd);
 
 						res += toString(subAdjusted, subShape, depth + 1, stripMiddle, wasGPU);
 
@@ -198,8 +198,8 @@ namespace rapid
 			}
 
 			std::vector<utils::strContainer> formatted(math::prod(shape), {"", 0});
-			size_t longestIntegral = 0;
-			size_t longestDecimal = 0;
+			uint64 longestIntegral = 0;
+			uint64 longestDecimal = 0;
 
 			// General checks
 			bool stripMiddle = false;
@@ -264,7 +264,7 @@ namespace rapid
 
 			std::vector<std::string> adjusted(formatted.size(), "");
 
-			for (size_t i = 0; i < formatted.size(); i++)
+			for (uint64 i = 0; i < formatted.size(); i++)
 			{
 				if (formatted[i].str.empty())
 					continue;

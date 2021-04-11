@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+#ifdef RAPID_HAS_BLAS
+#error "HAS BLAS!"
+#endif
+
 #include <cstdlib>
 
 #include <iostream>
@@ -131,8 +135,8 @@ using uint64 = unsigned long long;
 using int64 = long long;
 using uint32 = uint32_t;
 using int32 = int32_t;
-using float32 = float32;
-using float64 = float64;
+using float32 = float;
+using float64 = double;
 
 #ifndef RAPID_NO_BLAS
 #pragma comment(lib, "libopenblas.lib")

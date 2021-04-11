@@ -120,7 +120,7 @@ public:
 			static float32 sampling_freq = 44100;
 			static float32 freq = 500;
 
-			for (size_t i = 0; i < 512; ++i)
+			for (uint64 i = 0; i < 512; ++i)
 			{
 				const float32 t = i / sampling_freq;
 				x_data[i] = t;

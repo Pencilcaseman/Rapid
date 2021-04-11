@@ -7,7 +7,7 @@ namespace rapid
 	namespace io
 	{
 		template<typename t>
-		std::vector<std::vector<t>> loadCSV(const std::string &dir, size_t start = 0, size_t end = 0, bool verbose = false)
+		std::vector<std::vector<t>> loadCSV(const std::string &dir, uint64 start = 0, uint64 end = 0, bool verbose = false)
 		{
 			std::vector<std::vector<t>> res;
 
@@ -20,10 +20,10 @@ namespace rapid
 			std::string line;
 			std::string delimiter = ",";
 
-			for (size_t i = 0; i < start; i++)
+			for (uint64 i = 0; i < start; i++)
 				std::getline(file, line);
 
-			size_t count = 0;
+			uint64 count = 0;
 
 			while (std::getline(file, line) && count < (end == 0 ? (uint64) -1 : (end - start)))
 			{
@@ -32,7 +32,7 @@ namespace rapid
 
 				std::vector<t> row;
 
-				size_t pos = 0;
+				uint64 pos = 0;
 				std::string token;
 				while ((pos = line.find(delimiter)) != std::string::npos)
 				{

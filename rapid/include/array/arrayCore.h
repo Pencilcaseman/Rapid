@@ -167,10 +167,10 @@ namespace rapid
 		class Array
 		{
 		public:
-			std::vector<size_t> shape;
+			std::vector<uint64> shape;
 			arrayType *dataOrigin = nullptr;
 			arrayType *dataStart = nullptr;
-			size_t *originCount = nullptr;
+			uint64 *originCount = nullptr;
 			bool isZeroDim;
 
 			// #ifdef RAPID_CUDA
@@ -195,12 +195,12 @@ namespace rapid
 			inline static void binaryOpArrayArray(const Array<arrayType, loc> &a, const Array<arrayType, loc> &b,
 												  Array<arrayType, loc> &c, ExecutionType mode, Lambda func)
 			{
-				size_t size = math::prod(a.shape);
+				uint64 size = math::prod(a.shape);
 
 				if (mode == ExecutionType::SERIAL)
 				{
 					// Serial execution on CPU
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (size > 3)
 					{
@@ -248,12 +248,12 @@ namespace rapid
 			inline static void binaryOpArrayScalar(const Array<arrayType, loc> &a, const arrayType &b,
 												   Array<arrayType, loc> &c, ExecutionType mode, Lambda func)
 			{
-				size_t size = math::prod(a.shape);
+				uint64 size = math::prod(a.shape);
 
 				if (mode == ExecutionType::SERIAL)
 				{
 					// Serial execution on CPU
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (size > 3)
 					{
@@ -301,12 +301,12 @@ namespace rapid
 			inline static void binaryOpScalarArray(const arrayType &a, const Array<arrayType, loc> &b,
 												   Array<arrayType, loc> &c, ExecutionType mode, Lambda func)
 			{
-				size_t size = math::prod(b.shape);
+				uint64 size = math::prod(b.shape);
 
 				if (mode == ExecutionType::SERIAL)
 				{
 					// Serial execution on CPU
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (size > 3)
 					{
@@ -350,12 +350,12 @@ namespace rapid
 			inline static void unaryOpArray(const Array<arrayType, loc> &a, Array<arrayType, loc> &b,
 											ExecutionType mode, Lambda func)
 			{
-				size_t size = math::prod(a.shape);
+				uint64 size = math::prod(a.shape);
 
 				if (mode == ExecutionType::SERIAL)
 				{
 					// Serial execution on CPU
-					size_t index = 0;
+					uint64 index = 0;
 
 					if (size > 3)
 					{
@@ -403,14 +403,14 @@ namespace rapid
 
 				if (location == CPU)
 				{
-					for (size_t i = 0; i < rapid::math::min(shape[0], newShape[0]); i++)
+					for (uint64 i = 0; i < rapid::math::min(shape[0], newShape[0]); i++)
 						memcpy(resData + i * newShape[1], thisData + i * shape[1],
 							   sizeof(arrayType) * rapid::math::min(shape[1], newShape[1]));
 				}
 			#ifdef RAPID_CUDA
 				else if (location == GPU)
 				{
-					for (size_t i = 0; i < rapid::math::min(shape[0], newShape[0]); i++)
+					for (uint64 i = 0; i < rapid::math::min(shape[0], newShape[0]); i++)
 						cudaSafeCall(cudaMemcpy(resData + i * newShape[1], thisData + i * shape[1],
 									 sizeof(arrayType) * rapid::math::min(shape[1], newShape[1]), cudaMemcpyHostToDevice));
 				}
@@ -579,7 +579,7 @@ namespace rapid
 			/// <typeparam name="t"></typeparam>
 			/// <typeparam name="type"></typeparam>
 			/// <param name="arrShape"></param>
-			Array(const std::vector<size_t> &arrShape)
+			Array(const std::vector<uint64> &arrShape)
 			{
 			#ifdef RAPID_CUDA
 				if (!handle::handleInitialized)
@@ -599,7 +599,7 @@ namespace rapid
 				#endif
 
 					dataOrigin = dataStart;
-					originCount = new size_t;
+					originCount = new uint64;
 					*originCount = 1;
 				}
 				else
@@ -615,7 +615,7 @@ namespace rapid
 				#endif
 
 					dataOrigin = dataStart;
-					originCount = new size_t;
+					originCount = new uint64;
 					*originCount = 1;
 				}
 			}
@@ -641,7 +641,7 @@ namespace rapid
 			#endif
 
 				res.dataOrigin = res.dataStart;
-				res.originCount = new size_t;
+				res.originCount = new uint64;
 				(*res.originCount) = 1;
 
 				return res;
@@ -810,9 +810,9 @@ namespace rapid
 			/// <param name="originCount"></param>
 			/// <param name="isZeroDim"></param>
 			/// <returns></returns>
-			static inline Array<arrayType, location> fromData(const std::vector<size_t> &arrDims,
+			static inline Array<arrayType, location> fromData(const std::vector<uint64> &arrDims,
 															  arrayType *newDataOrigin, arrayType *dataStart,
-															  size_t *originCount, bool isZeroDim)
+															  uint64 *originCount, bool isZeroDim)
 			{
 			#ifdef RAPID_CUDA
 				if (!handle::handleInitialized)
@@ -1024,7 +1024,7 @@ namespace rapid
 			/// </summary>
 			/// <param name="index"></param>
 			/// <returns></returns>
-			Array<arrayType, location> operator[](const size_t &index) const
+			Array<arrayType, location> operator[](const uint64 &index) const
 			{
 				rapidAssert(index < shape[0], "Index out of range for array subscript");
 
@@ -1038,14 +1038,14 @@ namespace rapid
 
 				if (location == CPU)
 				{
-					std::vector<size_t> resShape(shape.begin() + 1, shape.end());
+					std::vector<uint64> resShape(shape.begin() + 1, shape.end());
 					return Array<arrayType, location>::fromData(resShape, dataOrigin, dataStart + utils::ndToScalar({index}, shape),
 																originCount, isZeroDim);
 				}
 			#ifdef RAPID_CUDA
 				else if (location == GPU)
 				{
-					std::vector<size_t> resShape(shape.begin() + 1, shape.end());
+					std::vector<uint64> resShape(shape.begin() + 1, shape.end());
 					return Array<arrayType, location>::fromData(resShape, dataOrigin, dataStart + utils::ndToScalar({index}, shape),
 																originCount, isZeroDim);
 				}
@@ -1065,7 +1065,7 @@ namespace rapid
 			{
 				rapidAssert(index.size() == shape.size(), "Invalid number of dimensions to access");
 			#ifdef RAPID_DEBUG
-				for (size_t i = 0; i < index.size(); i++)
+				for (uint64 i = 0; i < index.size(); i++)
 				{
 					if (*(index.begin() + i) < 0 || *(index.begin() + i) >= shape[i])
 						message::RapidError("Index Error", "Index out of range or negative").display();
@@ -1097,7 +1097,7 @@ namespace rapid
 			{
 				rapidAssert(index.size() == shape.size(), "Invalid number of dimensions to access");
 			#ifdef RAPID_DEBUG
-				for (size_t i = 0; i < index.size(); i++)
+				for (uint64 i = 0; i < index.size(); i++)
 				{
 					if (*(index.begin() + i) < 0 || *(index.begin() + i) >= shape[i])
 						message::RapidError("Index Error", "Index out of range or negative");
@@ -2839,9 +2839,9 @@ namespace rapid
 
 								Array<arrayType, location> res({shape[0], other.shape[1]});
 
-								const size_t M = shape[0];
-								const size_t N = shape[1];
-								const size_t K = other.shape[1];
+								const uint64 M = shape[0];
+								const uint64 N = shape[1];
+								const uint64 K = other.shape[1];
 
 								const arrayType *a = dataStart;
 								const arrayType *b = other.dataStart;
@@ -2903,15 +2903,15 @@ namespace rapid
 								{
 									// Serial
 
-									size_t M = shape[0];
-									size_t N = shape[1];
-									size_t K = other.shape[1];
+									uint64 M = shape[0];
+									uint64 N = shape[1];
+									uint64 K = other.shape[1];
 
 									const arrayType *a = dataStart;
 									const arrayType *b = other.dataStart;
 									arrayType *c = res.dataStart;
 
-									size_t i, j, k;
+									uint64 i, j, k;
 									arrayType tmp;
 
 									for (i = 0; i < M; ++i)
@@ -2964,12 +2964,12 @@ namespace rapid
 									// Tile size
 									static const int TS = 32;
 
-									const auto resizedThis = internal_resized({rapid::roundUp(shape[0], (size_t) TS),
-																			  rapid::roundUp(shape[1], (size_t) TS)});
-									const auto resizedOther = internal_resized({rapid::roundUp(other.shape[0], (size_t) TS),
-																			   rapid::roundUp(other.shape[1], (size_t) TS)});
-									res.internal_resize({rapid::roundUp(shape[0], (size_t) TS),
-														rapid::roundUp(other.shape[1], (size_t) TS)});
+									const auto resizedThis = internal_resized({rapid::roundUp(shape[0], (uint64) TS),
+																			  rapid::roundUp(shape[1], (uint64) TS)});
+									const auto resizedOther = internal_resized({rapid::roundUp(other.shape[0], (uint64) TS),
+																			   rapid::roundUp(other.shape[1], (uint64) TS)});
+									res.internal_resize({rapid::roundUp(shape[0], (uint64) TS),
+														rapid::roundUp(other.shape[1], (uint64) TS)});
 
 									auto M = (unsigned int) resizedThis.shape[0];
 									auto N = (unsigned int) resizedThis.shape[1];
@@ -3481,7 +3481,7 @@ namespace rapid
 				Array<arrayType, location> res;
 				res.isZeroDim = isZeroDim;
 				res.shape = shape;
-				res.originCount = new size_t;
+				res.originCount = new uint64;
 				*(res.originCount) = 1;
 
 				if (location == CPU)
@@ -3537,7 +3537,7 @@ namespace rapid
 		#endif
 
 			res.dataOrigin = res.dataStart;
-			res.originCount = new size_t;
+			res.originCount = new uint64;
 			(*res.originCount) = 1;
 
 			return res;
@@ -3822,7 +3822,7 @@ namespace rapid
 				{
 					t res = 0;
 
-					for (size_t i = 0; i < math::prod(arr.shape); i++)
+					for (uint64 i = 0; i < math::prod(arr.shape); i++)
 						res += arr.dataStart[i];
 					return Array<t, loc>::fromScalar(res);
 				}
@@ -3834,7 +3834,7 @@ namespace rapid
 					cudaSafeCall(cudaMemcpy(host, arr.dataStart, sizeof(t) * math::prod(arr.shape), cudaMemcpyDeviceToHost));
 					t res = 0;
 
-					for (size_t i = 0; i < math::prod(arr.shape); i++)
+					for (uint64 i = 0; i < math::prod(arr.shape); i++)
 						res += host[i];
 
 					delete[] host;
@@ -4227,7 +4227,7 @@ namespace rapid
 		/// <param name="len"></param>
 		/// <returns></returns>
 		template<typename s, typename e>
-		inline Array<typename std::common_type<s, e>::type> linspace(s start, e end, size_t len)
+		inline Array<typename std::common_type<s, e>::type> linspace(s start, e end, uint64 len)
 		{
 			using ct = typename std::common_type<s, e>::type;
 
@@ -4244,7 +4244,7 @@ namespace rapid
 			}
 
 			ct inc = ((ct) end - (ct) start) / (ct) (len - 1);
-			for (size_t i = 0; i < len; i++)
+			for (uint64 i = 0; i < len; i++)
 				result.dataStart[i] = (ct) start + (ct) i * inc;
 
 			return result;
@@ -4339,7 +4339,7 @@ namespace rapid
 		/// <param name="sigma"></param>
 		/// <returns></returns>
 		template<typename t, ArrayLocation loc = CPU>
-		inline Array<t, loc> gaussian(size_t r, size_t c, t sigma)
+		inline Array<t, loc> gaussian(uint64 r, uint64 c, t sigma)
 		{
 			t rows = (t) r;
 			t cols = (t) c;

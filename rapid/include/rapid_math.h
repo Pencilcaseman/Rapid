@@ -204,7 +204,7 @@ namespace rapid
 		}
 
 		template<typename t>
-		inline t round(const t &numToRound, size_t dp = 0)
+		inline t round(const t &numToRound, uint64 dp = 0)
 		{
 			t remainder = fmod(abs(numToRound), 1. * pow(10, -((t) dp)));
 			if (remainder == 0)
@@ -225,7 +225,7 @@ namespace rapid
 		template<typename t>
 		t prod(const std::vector<t> &arr)
 		{
-			size_t res = 1;
+			uint64 res = 1;
 			for (const auto &val : arr)
 				res *= val;
 			return res;
