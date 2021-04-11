@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../internal.h"
+#include "messageBox.h"
 #include <sys/stat.h>
 
 namespace rapid

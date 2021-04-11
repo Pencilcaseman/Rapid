@@ -194,8 +194,6 @@ public:
 
 int main()
 {
-	std::cout << "Has blas: " << RAPID_HAS_BLAS << "\n";
-
 	MyApp app;
 	app.run();
 
