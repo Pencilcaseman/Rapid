@@ -36,6 +36,8 @@ add_executable (myApp "myApp.cpp")
 target_link_libraries(myApp rapid)
 ```
 
+Rapid builds successfully on Windows and MacOS, and will hopefully work on Linux too, so you can use it crossplatform without issues.
+
 ---
 
 ## Build Rapid yourself
