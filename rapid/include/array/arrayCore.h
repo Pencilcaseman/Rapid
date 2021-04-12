@@ -997,10 +997,10 @@ namespace rapid
 				if (!isZeroDim)
 					rapidAssert(isZeroDim, "Cannot cast multidimensional array to scalar value");
 			#endif
-
+			
 				if (location == CPU)
 					return (t) (dataStart[0]);
-
+			
 			#ifdef RAPID_CUDA
 				if (location == GPU)
 				{
@@ -3727,14 +3727,14 @@ namespace rapid
 		#endif
 		}
 
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> minimum(const Array<t, loc> &arr, t x)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> minimum(const Array<t, loc> &arr, v x)
 		{
 			if (loc == CPU)
 			{
 				return arr.mapped([&](t val)
 				{
-					return val < x ? val : x;
+					return val < (t) x ? val : (t) x;
 				});
 			}
 		#ifdef RAPID_CUDA
@@ -3747,14 +3747,14 @@ namespace rapid
 		#endif
 		}
 
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> maximum(const Array<t, loc> &arr, t x)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> maximum(const Array<t, loc> &arr, v x)
 		{
 			if (loc == CPU)
 			{
 				return arr.mapped([&](t val)
 				{
-					return val > x ? val : x;
+					return val > (t) x ? val : (t) x;
 				});
 			}
 		#ifdef RAPID_CUDA
@@ -3767,14 +3767,14 @@ namespace rapid
 		#endif
 		}
 
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> less(const Array<t, loc> &arr, t x)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> less(const Array<t, loc> &arr, v x)
 		{
 			if (loc == CPU)
 			{
 				return arr.mapped([&](t val)
 				{
-					return val < x ? 1 : 0;
+					return val < (t) x ? 1 : 0;
 				});
 			}
 		#ifdef RAPID_CUDA
@@ -3787,14 +3787,14 @@ namespace rapid
 		#endif
 		}
 
-		template<typename t, ArrayLocation loc>
-		inline Array<t, loc> greater(const Array<t, loc> &arr, t x)
+		template<typename t, typename v, ArrayLocation loc>
+		inline Array<t, loc> greater(const Array<t, loc> &arr, v x)
 		{
 			if (loc == CPU)
 			{
 				return arr.mapped([&](t val)
 				{
-					return val > x ? 1 : 0;
+					return val > (t) x ? 1 : 0;
 				});
 			}
 		#ifdef RAPID_CUDA

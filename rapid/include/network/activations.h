@@ -35,7 +35,7 @@ namespace rapid
 			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
 			ndarray::Array<t, loc> tanh(const ndarray::Array<t, loc> &arr)
 			{
-				return ndarray::tanh(arr, 0);
+				return ndarray::tanh(arr);
 			}
 			
 			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>

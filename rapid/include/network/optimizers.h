@@ -33,7 +33,7 @@ namespace rapid
 
 				inline ndarray::Array<t> apply(const ndarray::Array<t> &w, const ndarray::Array<t> &dw)
 				{
-					return m_LearningRate * dw;
+					return w + m_LearningRate * dw;
 				}
 
 				inline void setParam(const std::string &name, const t val) override
@@ -72,10 +72,10 @@ namespace rapid
 			};
 
 			template<typename t>
-			class SDGMomentum : public Optimizer<t>
+			class SGDMomentum : public Optimizer<t>
 			{
 			public:
-				SDGMomentum(t learningRate = 1e-2, t momentum = 0.9, const ndarray::Array<t> &velocity = ndarray::Array<t>())
+				SGDMomentum(t learningRate = 1e-2, t momentum = 0.9, const ndarray::Array<t> &velocity = ndarray::Array<t>())
 					: m_LearningRate(learningRate), m_Momentum(momentum), m_Velocity(velocity)
 				{}
 
@@ -85,7 +85,7 @@ namespace rapid
 						m_Velocity = ndarray::zerosLike(w);
 
 					// Momentum update formula -- also update velocity
-					m_Velocity.set(m_Momentum * m_Velocity - m_LearningRate * dw);
+					m_Velocity = m_Momentum * m_Velocity - m_LearningRate * dw;
 					return w + m_Velocity;
 				}
 
@@ -112,7 +112,7 @@ namespace rapid
 					rapidAssert(false, "'Stochastic Gradient Descent with Momentum' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val) override
+				inline void setParam(const std::string &name, const ndarray::Array<t> &val) override
 				{
 					if (name == "learningRate")
 					{
@@ -158,7 +158,7 @@ namespace rapid
 			class RMSProp : public Optimizer<t>
 			{
 			public:
-				RMSProp(t learningRate = 1e-2, t decayRate = 0.99, t epsilon = 0.99, const ndarray::Array<t> &cache = ndarray::Array<t>()) 
+				RMSProp(t learningRate = 1e-2, t decayRate = 0.99, t epsilon = 1e-8, const ndarray::Array<t> &cache = ndarray::Array<t>()) 
 					: m_LearningRate(learningRate), m_DecayRate(decayRate), m_Epsilon(epsilon), m_Cache(cache)
 				{}
 
@@ -202,7 +202,7 @@ namespace rapid
 					rapidAssert(false, "'RMS Prop' optimizer has no parameter named '" + name + "'");
 				}
 
-				inline void setParam(const std::string &name, const ndarray::Array<t> val) override
+				inline void setParam(const std::string &name, const ndarray::Array<t> &val) override
 				{
 					if (name == "learningRate")
 					{
@@ -270,9 +270,9 @@ namespace rapid
 						m_V = ndarray::zerosLike(x);
 
 					m_Time++;
-					m_M.set(m_Beta1 * m_M + (1 - m_Beta1) * dx);
+					m_M = m_Beta1 * m_M + (1 - m_Beta1) * dx;
 					auto mCorr = m_M / (1. - std::pow(m_Beta1, (t) m_Time));
-					m_V.set(m_Beta2 * m_V + (1 - m_Beta2) * (dx * dx));
+					m_V = m_Beta2 * m_V + (1 - m_Beta2) * (dx * dx);
 					auto vCorr = m_V / (1 - std::pow(m_Beta2, (t) m_Time));
 					auto nextX = x - m_LearningRate * mCorr / (ndarray::sqrt(vCorr) + m_Epsilon);
 
