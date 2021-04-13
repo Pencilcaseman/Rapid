@@ -85,7 +85,8 @@ namespace rapid
 						m_Velocity = ndarray::zerosLike(w);
 
 					// Momentum update formula -- also update velocity
-					m_Velocity = m_Momentum * m_Velocity - m_LearningRate * dw;
+					// m_Velocity = m_Momentum * m_Velocity - m_LearningRate * dw;
+					m_Velocity = m_LearningRate * dw - m_Momentum * m_Velocity;
 					return w + m_Velocity;
 				}
 
