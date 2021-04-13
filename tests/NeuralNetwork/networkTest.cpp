@@ -3,11 +3,11 @@
 
 int main()
 {
-	auto *activation = (activationPtr<float64>) rapid::neural::activation::sigmoid<float64>;
-	auto *derivative = (activationPtr<float64>) rapid::neural::activation::sigmoidDerivative<float64>;
+	auto *activation = (activationPtr<float64>) rapid::neural::activation::tanh<float64>;
+	auto *derivative = (activationPtr<float64>) rapid::neural::activation::tanhDerivative<float64>;
 
-	auto optim1 = new rapid::neural::optim::SGDMomentum<float64>(0.075);
-	auto optim2 = new rapid::neural::optim::SGDMomentum<float64>(0.075);
+	auto optim1 = new rapid::neural::optim::SGDMomentum<float64>(0.1, 0.5);
+	auto optim2 = new rapid::neural::optim::SGDMomentum<float64>(0.1, 0.5);
 
 	auto layer1 = new rapid::neural::layers::Input<float64>(2);
 	auto layer2 = new rapid::neural::layers::Affine<float64>(3, std::make_pair(activation, derivative), optim1);
@@ -35,7 +35,7 @@ int main()
 	network.compile();
 
 	std::cout << "Train\n";
-	for (int64 i = 0; i < 1000000; i++)
+	for (int64 i = 0; i < 5000; i++)
 	{
 		auto index = rapid::math::random<int>(0, 3);
 		network.backward(input[index], output[index]);
