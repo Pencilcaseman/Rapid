@@ -6,8 +6,17 @@
 class MyApp : public mahi::gui::Application
 {
 public:
-	MyApp() : Application(500, 500, "Window!")
-	{}
+	MyApp(mahi::gui::Application::Config config) : Application(config)
+	{
+		auto pxRatio = get_pixel_ratio();
+		m_Fb = nvgluCreateFramebuffer(m_vg, (int) (100 * pxRatio), (int) (100 * pxRatio), NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
+		set_background({0.3f, 0.3f, 0.32f, 1.0f});
+	}
+
+	~MyApp()
+	{
+		nvgluDeleteFramebuffer(m_Fb);
+	}
 
 	void update() override
 	{
@@ -53,6 +62,8 @@ public:
 		ImGui::BulletText("This is an ImGui window being used from Rapid");
 		ImGui::BulletText("In the menu above are some tools you can use");
 		ImGui::BulletText("Try the dropdown menus below");
+
+		ImGui::Checkbox("Show colorful boxes", &colourfulBoxes);
 
 		if (ImGui::CollapsingHeader("Framerate Settings"))
 		{
@@ -190,11 +201,70 @@ public:
 		if (!isOpen)
 			quit();
 	}
+
+	void draw(NVGcontext *vg) override
+	{
+		float t = time().as_seconds();
+		if (m_Fb != NULL && colourfulBoxes)
+		{
+			NVGpaint img = nvgImagePattern(vg, 0, 0, 100, 100, rapid::math::halfPi, m_Fb->image, 1.0f);
+			nvgSave(vg);
+
+			auto [width, height] = get_window_size();
+			auto [mouseX, mouseY] = get_mouse_pos();
+
+			for (int i = 0; i < 20; i++)
+			{
+				for (int j = 0; j < 20; j++)
+				{
+					nvgBeginPath(vg);
+
+					float x, y, w, h;
+					x = ((float) i / 20.f) * width + 10;
+					y = ((float) j / 20.f) * width + 10;
+					w = 10;
+					h = 10;
+
+					nvgRect(vg, x, y, w, h);
+
+					float s, l, a;
+					h = std::sqrt(((mouseX - x) * (mouseX - x) + (mouseY - y) * (mouseY - y))) / width;
+					s = 0.5f;
+					l = 0.5f;
+					a = 255;
+
+					nvgFillColor(vg, nvgHSLA(h, s, l, a));
+					nvgFill(vg);
+				}
+			}
+
+			nvgBeginPath(vg);
+			nvgRoundedRect(vg, get_mouse_pos().x - 150, get_mouse_pos().y - 150, 300, 300, 40);
+			nvgFillPaint(vg, img);
+			nvgFill(vg);
+			nvgStrokeColor(vg, nvgRGBA(220, 160, 0, 255));
+			nvgStrokeWidth(vg, 3.0f);
+			nvgStroke(vg);
+			nvgRestore(vg);
+		}
+	}
+
+private:
+
+	NVGLUframebuffer *m_Fb = NULL;
+	bool colourfulBoxes = false;
 };
 
 int main()
 {
-	MyApp app;
+	mahi::gui::Application::Config conf;
+	conf.title = "NanoVG FBO Demo";
+	conf.width = 1000;
+	conf.height = 600;
+	conf.msaa = 0;      // pick one
+	conf.nvg_aa = true; // pick one
+
+	MyApp app(conf);
 	app.run();
 
 	return 0;
