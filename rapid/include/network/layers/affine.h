@@ -13,21 +13,21 @@ namespace rapid
 			class Affine : public Layer<t>
 			{
 			public:
-				Affine(const int64 nodes, const std::pair<activationPtr<t>, activationPtr<t>> &adPair, optim::Optimizer<t> *optimizer)
-					: m_Nodes(nodes), m_Activation(adPair.first), m_Derivative(adPair.second), m_Optimizer(optimizer), m_Type("affine")
+				Affine(const int64 nodes, activation::Activation<t> *activation, optim::Optimizer<t> *optimizer)
+					: m_Nodes(nodes), m_Activation(activation), m_Optimizer(optimizer), m_Type("affine")
 				{}
 
 				inline void construct(Layer<t> *prevLayer) override
 				{
 					m_PrevLayer = prevLayer;
 
-					// Construct the network to be the correct shape
-					m_W = ndarray::Array<t>({m_Nodes, m_PrevLayer->getNodes()});
-					m_B = ndarray::Array<t>({m_Nodes, 1});
-					m_PrevOutput = ndarray::Array<t>({m_Nodes, 1});
+					// Construct the activation so we can use the correct weightings
+					m_Activation->construct(m_PrevLayer->getNodes());
 
-					m_W.fillRandom();
-					m_B.fillRandom();
+					// Construct the network to be the correct shape
+					m_W = m_Activation->weight({m_Nodes, m_PrevLayer->getNodes()}); // ndarray::Array<t>({m_Nodes, m_PrevLayer->getNodes()});
+					m_B = m_Activation->weight({m_Nodes, 1}); // ndarray::Array<t>({m_Nodes, 1});
+					m_PrevOutput = ndarray::Array<t>({m_Nodes, 1});
 				}
 
 				inline ndarray::Array<t> forward(const ndarray::Array<t> &x) override
@@ -35,7 +35,7 @@ namespace rapid
 					rapidAssert(x.shape[0] == m_W.shape[1], "Cannot compute forward feed on data with " +
 								std::to_string(x.shape[0]) + " nodes. Expected " + std::to_string(m_W.shape[1]) + ".");
 
-					m_PrevOutput = m_Activation(m_W.dot(x) + m_B);
+					m_PrevOutput = m_Activation->f(m_W.dot(x) + m_B);
 					return m_PrevOutput;
 				}
 
@@ -46,7 +46,7 @@ namespace rapid
 					// is controlled by the optimizer, while the bias is
 					// updated by adding the gradients
 
-					auto gradient = m_Derivative(m_PrevOutput) * error;
+					auto gradient = m_Activation->df(m_PrevOutput) * error;
 					auto transposed = m_PrevLayer->getPrevOutput().transposed();
 					auto dx = gradient.dot(transposed);
 					m_W = m_Optimizer->apply(m_W, dx);
@@ -82,8 +82,7 @@ namespace rapid
 				optim::Optimizer<t> *m_Optimizer = nullptr;
 				Layer<t> *m_PrevLayer = nullptr;
 
-				activationPtr<t> m_Activation = nullptr;
-				activationPtr<t> m_Derivative = nullptr;
+				activation::Activation<t> *m_Activation = nullptr;
 			};
 		}
 	}
