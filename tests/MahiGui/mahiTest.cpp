@@ -3,11 +3,15 @@
 #include <iostream>
 #include <rapid.h>
 
+// A simple application
 class MyApp : public mahi::gui::Application
 {
 public:
+	// Constructor uses a Config object as a parameter
+	// for the Application that is inherited
 	MyApp(mahi::gui::Application::Config config) : Application(config)
 	{
+		// Find the pixel ratio and create the NanoVG frame buffer
 		auto pxRatio = get_pixel_ratio();
 		m_Fb = nvgluCreateFramebuffer(m_vg, (int) (100 * pxRatio), (int) (100 * pxRatio), NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
 		set_background({0.3f, 0.3f, 0.32f, 1.0f});
@@ -15,20 +19,24 @@ public:
 
 	~MyApp()
 	{
+		// Remove the frame buffer
 		nvgluDeleteFramebuffer(m_Fb);
 	}
 
+	// This is called every frame to render things to the screen
 	void update() override
 	{
+		// Define some static variables to keep track of what
+		// should be shown, and what shouldn't
 		static bool isOpen = true;
 		static bool plotMetrics = false;
 		static bool showStyleEditor_imGui = false;
 		static bool showStyleEditor_imPlot = false;
 
-		if (plotMetrics)
+		if (plotMetrics) // Show the ImGui metrics window
 			ImGui::ShowMetricsWindow(&plotMetrics);
 
-		if (showStyleEditor_imGui)
+		if (showStyleEditor_imGui) // Show the ImGui style editor window
 		{
 			ImGui::SetNextWindowSize(ImVec2(415, 762), ImGuiCond_Appearing);
 
@@ -37,7 +45,7 @@ public:
 			ImGui::End();
 		}
 
-		if (showStyleEditor_imPlot)
+		if (showStyleEditor_imPlot) // Show the ImPlot style editor window
 		{
 			ImGui::SetNextWindowSize(ImVec2(415, 762), ImGuiCond_Appearing);
 			ImGui::Begin("Graph Style Editor", &showStyleEditor_imPlot);
@@ -45,10 +53,14 @@ public:
 			ImGui::End();
 		}
 
+		// Set the ImGui window size -- this will only take effect on the first
+		// call, so the window can still be resized
 		ImGui::SetNextWindowSize(ImVec2(600, 750), ImGuiCond_FirstUseEver);
 
+		// Begin an ImGui window
 		ImGui::Begin("This is a window!", &isOpen, ImGuiWindowFlags_MenuBar);
 
+		// Create a menu bar
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Tools"))
 		{
@@ -63,8 +75,9 @@ public:
 		ImGui::BulletText("In the menu above are some tools you can use");
 		ImGui::BulletText("Try the dropdown menus below");
 
-		ImGui::Checkbox("Show colorful boxes", &colourfulBoxes);
+		ImGui::Checkbox("Show colorful boxes", &m_ColorfulBoxes);
 
+		// Create a collapsing header
 		if (ImGui::CollapsingHeader("Framerate Settings"))
 		{
 			ImGui::BulletText("Change whether the framerate is limited with the checkbox");
@@ -196,16 +209,21 @@ public:
 			}
 		}
 
+		// End the window
 		ImGui::End();
 
+		// If we close the window, actually close it...
 		if (!isOpen)
 			quit();
 	}
 
+	// This is also called each frame, but this allows you to make
+	// calls to NanoVG to draw graphics to a window
 	void draw(NVGcontext *vg) override
 	{
-		float t = time().as_seconds();
-		if (m_Fb != NULL && colourfulBoxes)
+		// Only render if the frame buffer is valid
+		// (or if we actually want to draw the boxes)
+		if (m_Fb != NULL && m_ColorfulBoxes)
 		{
 			NVGpaint img = nvgImagePattern(vg, 0, 0, 100, 100, rapid::math::halfPi, m_Fb->image, 1.0f);
 			nvgSave(vg);
@@ -251,12 +269,14 @@ public:
 
 private:
 
+	// Frame buffer and a member variable
 	NVGLUframebuffer *m_Fb = NULL;
-	bool colourfulBoxes = false;
+	bool m_ColorfulBoxes = false;
 };
 
 int main()
 {
+	// Create the config
 	mahi::gui::Application::Config conf;
 	conf.title = "NanoVG FBO Demo";
 	conf.width = 1000;
@@ -264,6 +284,7 @@ int main()
 	conf.msaa = 0;      // pick one
 	conf.nvg_aa = true; // pick one
 
+	// Run the app
 	MyApp app(conf);
 	app.run();
 

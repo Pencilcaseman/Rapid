@@ -27,6 +27,15 @@ namespace rapid
 			/***************/
 
 			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
+			ndarray::Array<t, loc> leakyRelu(const ndarray::Array<t, loc> &arr)
+			{
+				return arr.mapped([](t x)
+				{
+					return x > 0 ? x : x * 0.2;
+				});
+			}
+			
+			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
 			ndarray::Array<t, loc> relu(const ndarray::Array<t, loc> &arr)
 			{
 				return ndarray::maximum(arr, 0);
@@ -48,6 +57,15 @@ namespace rapid
 			/* Derivatives */
 			/***************/
 
+			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
+			ndarray::Array<t, loc> leakyReluDerivative(const ndarray::Array<t, loc> &arr)
+			{
+				return arr.mapped([](t x)
+				{
+					return x > 0 ? 1 : 0.2;
+				});
+			}
+			
 			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
 			ndarray::Array<t, loc> reluDerivative(const ndarray::Array<t, loc> &arr)
 			{

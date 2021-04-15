@@ -85,7 +85,6 @@ namespace rapid
 						m_Velocity = ndarray::zerosLike(w);
 
 					// Momentum update formula -- also update velocity
-					// m_Velocity = m_Momentum * m_Velocity - m_LearningRate * dw;
 					m_Velocity = m_LearningRate * dw - m_Momentum * m_Velocity;
 					return w + m_Velocity;
 				}
@@ -169,7 +168,7 @@ namespace rapid
 						m_Cache.set(ndarray::zerosLike(x));
 
 					m_Cache.set(m_DecayRate * m_Cache + (1 - m_DecayRate) * (dx * dx));
-					auto nextX = x - m_LearningRate * dx / (ndarray::sqrt(m_Cache) + m_Epsilon);
+					auto nextX = x + (m_LearningRate * dx) / (ndarray::sqrt(m_Cache) + m_Epsilon);
 
 					return nextX;
 				}
@@ -275,7 +274,7 @@ namespace rapid
 					auto mCorr = m_M / (1. - std::pow(m_Beta1, (t) m_Time));
 					m_V = m_Beta2 * m_V + (1 - m_Beta2) * (dx * dx);
 					auto vCorr = m_V / (1 - std::pow(m_Beta2, (t) m_Time));
-					auto nextX = x - m_LearningRate * mCorr / (ndarray::sqrt(vCorr) + m_Epsilon);
+					auto nextX = x + m_LearningRate * mCorr / (ndarray::sqrt(vCorr) + m_Epsilon);
 
 					return nextX;
 				}

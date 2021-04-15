@@ -222,22 +222,24 @@ using float64 = double;
 #define RAPID_OS "unknown"
 #endif
 
+#ifdef RAPID_HAS_OMP
+#include <omp.h>
+#endif
+
 // OS dependent options
 #ifdef RAPID_OS_WINDOWS
 
 #include <conio.h>
 #include <intrin.h>
-#include <omp.h>
 
-#if defined(RAPID_CPP) && !defined(RAPID_NO_AMP)
-#include <amp.h>		// Optional AMP include
-#else
-#ifdef _MSC_VER
-#pragma message ("AMP cannot be used in CUDA mode")
-#else
-#warning AMP cannot be used in CUDA mode
-#endif // _MSC_VER
-#endif // RAPID_CPP
+#ifdef RAPID_CUDA
+#define RAPID_NO_AMP
+#endif
+
+#ifndef RAPID_NO_AMP
+#include <amp.h>
+#endif
+
 #else
 #define RAPID_NO_AMP
 #endif // RAPID_OS_WINDOWS
@@ -337,10 +339,10 @@ namespace rapid
 #define _loop_timer rapidTimerLoopTimer
 #define _loop_goto rapidTimerLoopGoto
 #define START_TIMER(id, n) auto _loop_timer##id = rapid::RapidTimer(n);								\
-						   for (uint64 _loop_var##id = 0; _loop_var##id < n; _loop_var##id++) {	\
+						   for (uint64 _loop_var##id = 0; _loop_var##id < n; _loop_var##id++) {	    \
 
-#define END_TIMER(id)	} \
-						_loop_timer##id.endTimer()
+#define END_TIMER(id)	   } \
+						   _loop_timer##id.endTimer()
 
 namespace rapid
 {
@@ -383,28 +385,43 @@ namespace rapid
 			finished = true;
 
 			auto delta = (float64) std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (float64) loops;
+			auto elapsed = (float64) std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 			std::string unit = "ns";
+			std::string unitElapsed = "ns";
 
 			if (delta >= 1000)
 			{
-				unit = "us";
-				delta /= 1000.;
+				unit = "us"; delta /= 1000.;
 			}
 
 			if (delta >= 1000)
 			{
-				unit = "ms";
-				delta /= 1000.;
+				unit = "ms"; delta /= 1000.;
 			}
 
 			if (delta >= 1000.)
 			{
-				unit = "s";
-				delta /= 1000.;
+				unit = "s"; delta /= 1000.;
+			}
+
+			if (elapsed >= 1000)
+			{
+				unitElapsed = "us"; elapsed /= 1000.;
+			}
+
+			if (elapsed >= 1000)
+			{
+				unitElapsed = "ms"; elapsed /= 1000.;
+			}
+
+			if (elapsed >= 1000.)
+			{
+				unitElapsed = "s"; elapsed /= 1000.;
 			}
 
 			std::cout << std::fixed;
-			std::cout << "Block finished in: " << delta << " " << unit << "\n";
+			std::cout << "Elapsed  : " << elapsed << " " << unitElapsed << "\n";
+			std::cout << "Mean time: " << delta << " " << unit << "\n";
 		}
 	};
 

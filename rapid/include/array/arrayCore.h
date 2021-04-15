@@ -711,6 +711,8 @@ namespace rapid
 						(*originCount) = 1;
 				}
 
+				isZeroDim = other.isZeroDim;
+
 				return *this;
 			}
 
@@ -723,6 +725,7 @@ namespace rapid
 			Array<arrayType, location> &operator=(const arrayType &other)
 			{
 				fill(other);
+				isZeroDim = other.isZeroDim;
 				return *this;
 			}
 
@@ -2867,6 +2870,7 @@ namespace rapid
 							}
 					}
 				#else
+					using namespace concurrency;
 					switch (dims)
 					{
 						case 1:
@@ -2977,9 +2981,9 @@ namespace rapid
 
 									array_view<const arrayType, 2> a(M, N, resizedThis.dataStart);
 									array_view<const arrayType, 2> b(N, K, resizedOther.dataStart);
-									array_view<arrayType, 2> math::product(M, K, res.dataStart);
+									array_view<arrayType, 2> product(M, K, res.dataStart);
 
-									parallel_for_each(math::product.extent.tile<TS, TS>(), [=](tiled_index<TS, TS> t_idx) restrict(amp)
+									parallel_for_each(product.extent.tile<TS, TS>(), [=](tiled_index<TS, TS> t_idx) restrict(amp)
 									{
 										// Get the location of the thread relative to the tile (row, col)
 										// and the entire array_view (rowGlobal, colGlobal).
@@ -3004,10 +3008,10 @@ namespace rapid
 											t_idx.barrier.wait();
 										}
 
-										math::product[t_idx.global] = sum;
+										product[t_idx.global] = sum;
 									});
 
-									math::product.synchronize();
+									product.synchronize();
 
 									res.internal_resize({shape[0], other.shape[1]});
 								}

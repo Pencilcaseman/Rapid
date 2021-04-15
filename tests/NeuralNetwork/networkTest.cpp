@@ -1,16 +1,24 @@
-﻿#include <iostream>
+﻿#define RAPID_NO_BLAS
+
+#include <iostream>
 #include <rapid.h>
 
 int main()
 {
-	auto *activation = (activationPtr<float64>) rapid::neural::activation::tanh<float64>;
-	auto *derivative = (activationPtr<float64>) rapid::neural::activation::tanhDerivative<float64>;
+	/*
+	PUT ACTIVATIONS INTO A POLYMORPHIC CLASS
+	FUNCTION TO GET INITIALIZATION TYPE
+	INITIALIZATION TYPE ALSO OVERLOADABLE
+	*/
 
-	auto optim1 = new rapid::neural::optim::SGDMomentum<float64>(0.1, 0.5);
-	auto optim2 = new rapid::neural::optim::SGDMomentum<float64>(0.1, 0.5);
+	auto *activation = (activationPtr<float64>) rapid::neural::activation::leakyRelu<float64>;
+	auto *derivative = (activationPtr<float64>) rapid::neural::activation::leakyReluDerivative<float64>;
+
+	auto optim1 = new rapid::neural::optim::ADAM<float64>(0.01);
+	auto optim2 = new rapid::neural::optim::ADAM<float64>(0.01);
 
 	auto layer1 = new rapid::neural::layers::Input<float64>(2);
-	auto layer2 = new rapid::neural::layers::Affine<float64>(3, std::make_pair(activation, derivative), optim1);
+	auto layer2 = new rapid::neural::layers::Affine<float64>(5, std::make_pair(activation, derivative), optim1);
 	auto layer3 = new rapid::neural::layers::Affine<float64>(1, std::make_pair(activation, derivative), optim2);
 
 	auto network = rapid::neural::Network<float64>();
@@ -35,11 +43,10 @@ int main()
 	network.compile();
 
 	std::cout << "Train\n";
-	for (int64 i = 0; i < 5000; i++)
-	{
-		auto index = rapid::math::random<int>(0, 3);
-		network.backward(input[index], output[index]);
-	}
+	START_TIMER(0, 5000);
+	auto index = rapid::math::random<int>(0, 3);
+	network.backward(input[index], output[index]);
+	END_TIMER(0);
 
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)

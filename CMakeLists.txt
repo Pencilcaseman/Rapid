@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8 FATAL_ERROR)
 
-project ("rapid")
+project("rapid")
 
 set(MODERN_CMAKE_BUILD_TESTING ON)
 
