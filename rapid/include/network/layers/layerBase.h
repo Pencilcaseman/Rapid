@@ -14,6 +14,7 @@ namespace rapid
 			{
 			public:
 				inline virtual void construct(Layer<t> *prevLayer) = 0;
+				inline virtual bool check(Layer<t> *other) = 0;
 
 				inline virtual ndarray::Array<t> forward(const ndarray::Array<t> &x) = 0;
 				inline virtual ndarray::Array<t> backward(const ndarray::Array<t> &error) = 0;
@@ -22,6 +23,8 @@ namespace rapid
 				inline virtual optim::Optimizer<t> *getOptimizer() const = 0;
 
 				inline virtual ndarray::Array<t> getPrevOutput() const = 0;
+
+				inline virtual activation::Activation<t> *getActivation() const = 0;
 
 			private:
 				std::string m_Type = "none";
@@ -35,9 +38,14 @@ namespace rapid
 				Input(const uint64 nodes) : m_Nodes(nodes), m_Type("input")
 				{}
 
-				inline void construct(Layer<t> *prevLayer)
+				inline void construct(Layer<t> *prevLayer) override
 				{
 					m_PrevOutput = ndarray::Array<t>({m_Nodes, 1});
+				}
+
+				inline bool check(Layer<t> *other) override
+				{
+					return this == other;
 				}
 
 				inline ndarray::Array<t> forward(const ndarray::Array<t> &x) override
@@ -64,6 +72,11 @@ namespace rapid
 				inline ndarray::Array<t> getPrevOutput() const override
 				{
 					return m_PrevOutput;
+				}
+
+				inline activation::Activation<t> *getActivation() const override
+				{
+					return nullptr;
 				}
 
 			private:

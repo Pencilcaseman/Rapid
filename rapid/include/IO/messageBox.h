@@ -141,8 +141,6 @@ namespace rapid
 				const auto m = (LPCSTR) message.c_str();
 				const auto t = (LPCSTR) title.c_str();
 
-				std::cout << "Info: " << m << "\n";
-
 				int msgBoxID = MessageBox(
 					nullptr,
 					m,

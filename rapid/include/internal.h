@@ -222,6 +222,10 @@ using float64 = double;
 #define RAPID_OS "unknown"
 #endif
 
+#ifdef RAPID_NO_OMP
+#undef RAPID_HAS_MP
+#endif
+
 #ifdef RAPID_HAS_OMP
 #include <omp.h>
 #endif

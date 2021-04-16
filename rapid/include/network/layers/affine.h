@@ -38,6 +38,20 @@ namespace rapid
 					m_PrevOutput = ndarray::Array<t>({m_Nodes, 1});
 				}
 
+				inline bool check(Layer<t> *other) override
+				{
+					if (this == other)
+						return true;
+
+					if (m_Optimizer == other->getOptimizer())
+						return true;
+
+					if (m_Activation == other->getActivation())
+						return true;
+
+					return false;
+				}
+
 				inline ndarray::Array<t> forward(const ndarray::Array<t> &x) override
 				{
 					rapidAssert(x.shape[0] == m_W.shape[1], "Cannot compute forward feed on data with " +
@@ -77,6 +91,11 @@ namespace rapid
 				inline ndarray::Array<t> getPrevOutput() const override
 				{
 					return m_PrevOutput;
+				}
+
+				inline activation::Activation<t> *getActivation() const override
+				{
+					return m_Activation;
 				}
 
 			private:

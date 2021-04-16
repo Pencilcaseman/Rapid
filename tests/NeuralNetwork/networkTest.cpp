@@ -1,50 +1,57 @@
-﻿// #define RAPID_NO_BLAS
+﻿#define RAPID_NO_BLAS
+#define RAPID_NO_OMP
 
 #include <iostream>
 #include <rapid.h>
 
 int main()
 {
-	auto *activation1 = new rapid::neural::activation::LeakyRelu<float64>();
-	auto *activation2 = new rapid::neural::activation::LeakyRelu<float64>();
+	using namespace rapid::neural;
+	using namespace rapid::ndarray;
+	using namespace rapid::math;
+	using dtype = float;
 
-	auto optim1 = new rapid::neural::optim::ADAM<float64>(0.02);
-	auto optim2 = new rapid::neural::optim::ADAM<float64>(0.02);
+	auto *activation1 = new activation::LeakyRelu<dtype>();
+	auto *activation2 = new activation::LeakyRelu<dtype>();
 
-	auto layer1 = new rapid::neural::layers::Input<float64>(2);
-	auto layer2 = new rapid::neural::layers::Affine<float64>(5, activation1, optim1);
-	auto layer3 = new rapid::neural::layers::Affine<float64>(1, activation2, optim2);
+	auto optim1 = new optim::ADAM<dtype>(0.05);
+	auto optim2 = new optim::ADAM<dtype>(0.05);
 
-	auto network = rapid::neural::Network<float64>();
+	auto layer1 = new layers::Input<dtype>(2);
+	auto layer2 = new layers::Affine<dtype>(3, activation1, optim1);
+	auto layer3 = new layers::Affine<dtype>(1, activation2, optim2);
+
+	auto network = Network<dtype>();
 	network.addLayers({layer1, layer2, layer3});
 
 	// Inputs for XOR
-	std::vector<rapid::ndarray::Array<float64>> input = {
-		rapid::ndarray::Array<float64>::fromData({0, 0}).reshaped({2, 1}),
-		rapid::ndarray::Array<float64>::fromData({0, 1}).reshaped({2, 1}),
-		rapid::ndarray::Array<float64>::fromData({1, 0}).reshaped({2, 1}),
-		rapid::ndarray::Array<float64>::fromData({1, 1}).reshaped({2, 1})
+	std::vector<Array<dtype>> input = {
+		Array<dtype>::fromData({0, 0}),
+		Array<dtype>::fromData({0, 1}),
+		Array<dtype>::fromData({1, 0}),
+		Array<dtype>::fromData({1, 1})
 	};
 
 	// Targets for XOR
-	std::vector<rapid::ndarray::Array<float64>> output = {
-		rapid::ndarray::Array<float64>::fromData({0}).reshaped({1, 1}),
-		rapid::ndarray::Array<float64>::fromData({1}).reshaped({1, 1}),
-		rapid::ndarray::Array<float64>::fromData({1}).reshaped({1, 1}),
-		rapid::ndarray::Array<float64>::fromData({0}).reshaped({1, 1})
+	std::vector<Array<dtype>> output = {
+		Array<dtype>::fromData({0}),
+		Array<dtype>::fromData({1}),
+		Array<dtype>::fromData({1}),
+		Array<dtype>::fromData({0})
 	};
 
 	network.compile();
 
 	std::cout << "Train\n";
-	START_TIMER(0, 1000);
-	auto index = rapid::math::random<int>(0, 3);
+	START_TIMER(0, 2000);
+	auto index = random<int>(0, 3);
 	network.backward(input[index], output[index]);
 	END_TIMER(0);
 
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)
-		std::cout << input[i] << " => " << network.forward(input[i]) << " (" << output[i] << ")" << "\n\n";
+		std::cout << (int) input[i][0] << "^" << (int) input[i][1] << " => "
+		<< network.forward(input[i])[0][0] << " (Correct: " << output[i][0] << ")" << "\n\n";
 
 	return 0;
 }
