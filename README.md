@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/Pencilcaseman/Rapid/master/misc/RapidLogo.png" width="256"> 
+<img src="https://github.com/Pencilcaseman/Rapid/blob/master/misc/RapidLogo.png" width="800"> 
 </p>
 
 ## What is it?
