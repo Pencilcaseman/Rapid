@@ -17,6 +17,14 @@ namespace rapid
 					: m_Nodes(nodes), m_Activation(activation), m_Optimizer(optimizer), m_Type("affine")
 				{}
 
+				~Affine()
+				{
+					// Free the optimizer and the activation
+					// Don't free the previous layer, as that is freed by the network class
+					delete m_Optimizer;
+					delete m_Activation;
+				}
+
 				inline void construct(Layer<t> *prevLayer) override
 				{
 					m_PrevLayer = prevLayer;

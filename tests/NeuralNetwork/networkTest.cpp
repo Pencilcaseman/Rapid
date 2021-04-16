@@ -1,4 +1,4 @@
-﻿#define RAPID_NO_BLAS
+﻿// #define RAPID_NO_BLAS
 
 #include <iostream>
 #include <rapid.h>
@@ -8,8 +8,8 @@ int main()
 	auto *activation1 = new rapid::neural::activation::LeakyRelu<float64>();
 	auto *activation2 = new rapid::neural::activation::LeakyRelu<float64>();
 
-	auto optim1 = new rapid::neural::optim::ADAM<float64>(0.01);
-	auto optim2 = new rapid::neural::optim::ADAM<float64>(0.01);
+	auto optim1 = new rapid::neural::optim::ADAM<float64>(0.02);
+	auto optim2 = new rapid::neural::optim::ADAM<float64>(0.02);
 
 	auto layer1 = new rapid::neural::layers::Input<float64>(2);
 	auto layer2 = new rapid::neural::layers::Affine<float64>(5, activation1, optim1);
@@ -45,16 +45,6 @@ int main()
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)
 		std::cout << input[i] << " => " << network.forward(input[i]) << " (" << output[i] << ")" << "\n\n";
-
-	delete optim1;
-	delete optim2;
-
-	delete activation1;
-	delete activation2;
-
-	delete layer1;
-	delete layer2;
-	delete layer3;
 
 	return 0;
 }

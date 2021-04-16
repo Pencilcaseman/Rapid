@@ -16,6 +16,13 @@ namespace rapid
 		public:
 			Network() = default;
 
+			~Network()
+			{
+				// Free the layers stored
+				for (auto layer : m_Layers)
+					delete layer;
+			}
+
 			void addLayer(layers::Layer<t> *layer)
 			{
 				m_Layers.emplace_back(layer);
