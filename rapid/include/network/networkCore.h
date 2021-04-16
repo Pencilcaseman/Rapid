@@ -32,13 +32,69 @@ namespace rapid
 					message::RapidError("Neural Network Error", "Input shape " + shape + " is invalid. Expected shape (" + n + ") or (" + n + ", 1) or (1, " + n + ")").display();
 				}
 			}
+
+			inline uint64 sumNodes(const std::vector<std::pair<std::string, uint64>> &nodes)
+			{
+				uint64 sum = 0;
+				for (const auto &node : nodes)
+					sum += node.second;
+				return sum;
+			}
+
+			template<typename t>
+			inline activation::Activation<t> *newActivation(const std::string &name)
+			{
+				if (name == "Sigmoid")
+					return new activation::Sigmoid<t>();
+				if (name == "Tanh")
+					return new activation::Tanh<t>();
+				if (name == "Relu")
+					return new activation::Relu<t>();
+				if (name == "LeakyRelu")
+					return new activation::LeakyRelu<t>();
+				message::RapidError("Neural Network Error", "Unknown activation function '" + name + "'").display();
+			}
+
+			template<typename t>
+			inline optim::Optimizer<t> *newOptimizer(const std::string &name, const t learningRate)
+			{
+				if (name == "SGD")
+					return new optim::SGD<t>(learningRate);
+				if (name == "SGDMomentum")
+					return new optim::SGDMomentum<t>(learningRate);
+				if (name == "RMSProp")
+					return new optim::RMSProp<t>(learningRate);
+				if (name == "ADAM")
+					return new optim::ADAM<t>(learningRate);
+				message::RapidError("Neural Network Error", "Unknown optimizer '" + name + "'").display();
+			}
 		}
+
+		template<typename t = float32>
+		struct Config
+		{
+			std::vector<std::pair<std::string, uint64>> inputs;
+			std::vector<std::pair<std::string, uint64>> outputs;
+			std::vector<uint64> hidden;
+			std::vector<std::string> activations;
+			std::vector<std::string> optimizers;
+			std::vector<t> learningRates;
+		};
 
 		template<typename t = float32>
 		class Network
 		{
 		public:
 			Network() = default;
+
+			Network(const std::vector<layers::Layer<t> *> &layers) : m_Layers(layers)
+			{}
+
+			Network(const Config<t> &config)
+			{
+				m_HasConfig = true;
+				m_Config = config;
+			}
 
 			~Network()
 			{
@@ -71,13 +127,55 @@ namespace rapid
 
 			void compile()
 			{
+				if (m_HasConfig)
+				{
+					// If using a config parameter, initialize using it
+
+					uint64 activationIndex = 0;
+					uint64 optimizerIndex = 0;
+
+					uint64 activationCount = m_Config.activations.size();
+					if (activationCount != 0 && activationCount != 1 && activationCount != m_Config.hidden.size() + 2)
+						message::RapidError("Neural Network Error", "Invalid number of activations provided. Expected 0, 1 or "
+											+ std::to_string(m_Config.hidden.size() + 2)).display();
+
+					uint64 optimCount = m_Config.activations.size();
+					if (optimCount != 0 && optimCount != 1 && optimCount != m_Config.hidden.size() + 2)
+						message::RapidError("Neural Network Error", "Invalid number of optimizers. Expected 0, 1 or "
+											+ std::to_string(m_Config.hidden.size() + 2)).display();
+
+					addLayer(new layers::Input<t>(utils::sumNodes(m_Config.inputs)));
+
+					std::string activation, optimizer;
+					for (const auto &nodes : m_Config.hidden)
+					{
+						if (activationCount < 2) activation = activationCount == 0 ? "Sigmoid" : m_Config.activations[0];
+						else activation = m_Config.activations[activationIndex++];
+
+						if (optimCount < 2) optimizer = optimCount == 0 ? "SGD" : m_Config.optimizers[0];
+						else optimizer = m_Config.optimizers[optimizerIndex++];
+
+						addLayer(new layers::Affine<t>(nodes, utils::newActivation<t>(activation), utils::newOptimizer<t>(optimizer, 0.01)));
+					}
+
+					if (activationCount < 2) activation = activationCount == 0 ? "Sigmoid" : m_Config.activations[0];
+					else activation = m_Config.activations[activationIndex++];
+
+					if (optimCount < 2) optimizer = optimCount == 0 ? "SGD" : m_Config.optimizers[0];
+					else optimizer = m_Config.optimizers[optimizerIndex++];
+
+					addLayer(new layers::Affine<t>(m_Config.outputs.size(), utils::newActivation<t>(activation), utils::newOptimizer<t>(optimizer, 0.01)));
+				}
+
 				for (uint64 i = 0; i < m_Layers.size(); i++)
 				{
 					for (uint64 j = 0; j < m_Layers.size(); j++)
 					{
 						if (i != j && m_Layers[i]->check(m_Layers[j]))
 						{
-							message::RapidWarning("Neural Network Warning", "Layers " + std::to_string(i) + " and " + std::to_string(j) + " share memory pointers, which may lead to issues and incorrect results").display();
+							message::RapidWarning("Neural Network Warning",
+												  "Layers " + std::to_string(i) + " and " + std::to_string(j) +
+												  " share memory pointers, which may lead to issues and incorrect results").display();
 						}
 					}
 				}
@@ -111,6 +209,45 @@ namespace rapid
 				return m_Layers[m_Layers.size() - 1]->getPrevOutput();
 			}
 
+			inline ndarray::Array<t> forward(const std::map<std::string, ndarray::Array<t>> &inputs)
+			{
+			#ifdef RAPID_DEBUG
+				bool valid = true;
+				std::vector<std::string> notFound;
+
+				for (const auto &param : m_Config.inputs)
+				{
+					bool currentIsValid = false;
+
+					for (const auto &inp : inputs)
+						if (param.first == inp.first)
+							currentIsValid = true;
+
+					if (!currentIsValid)
+					{
+						notFound.emplace_back(param.first);
+						valid = false;
+					}
+				}
+
+				if (!valid)
+				{
+					std::string tmp;
+					for (const auto &val : notFound)
+					{
+						if (val != *(notFound.end() - 1))
+							tmp += "\"" + val + "\", ";
+						else
+							tmp +=  "\"" + val +  "\"";
+					}
+
+					message::RapidError("Neural Network Error", "Feed forward is missing required input(s): " + tmp + "").display();
+				}
+			#endif
+
+				return forward(constructVectorFromNames(inputs));
+			}
+
 			inline ndarray::Array<t> backward(const ndarray::Array<t> &input, const ndarray::Array<t> &target)
 			{
 				auto fixedInput = validateArray(input, true);
@@ -130,22 +267,22 @@ namespace rapid
 				return loss;
 			}
 
-			inline ndarray::Array<t> validateArray(const ndarray::Array<t> &input, bool x = true) const
+			inline ndarray::Array<t> validateArray(const ndarray::Array<t> &input, bool x = true, uint64 nodes = 0) const
 			{
 				uint64 index = x ? 0 : m_Layers.size() - 1;
 
 				if (input.shape.size() == 1)
 				{
-					if (input.shape[0] == m_Layers[index]->getNodes())
+					if (input.shape[0] == nodes == 0 ? m_Layers[index]->getNodes() : nodes)
 						return input.reshaped({AUTO, 1});
 					return ndarray::Array<t>();
 				}
 
 				if (input.shape.size() == 2)
 				{
-					if (input.shape[0] == m_Layers[index]->getNodes() && input.shape[1] == 1)
+					if (input.shape[0] == nodes == 0 ? m_Layers[index]->getNodes() : nodes && input.shape[1] == 1)
 						return input;
-					if (input.shape[1] == m_Layers[index]->getNodes() && input.shape[0] == 1)
+					if (input.shape[1] == nodes == 0 ? m_Layers[index]->getNodes() : nodes && input.shape[0] == 1)
 						return input.transposed();
 					return ndarray::Array<t>();
 				}
@@ -153,8 +290,36 @@ namespace rapid
 				return ndarray::Array<t>();
 			}
 
+			inline ndarray::Array<t> constructVectorFromNames(const std::map<std::string, ndarray::Array<t>> &nodes)
+			{
+				auto &params = m_Config.inputs;
+
+				auto res = ndarray::Array<t>({utils::sumNodes(params), 1});
+				uint64 offset = 0;
+
+				for (const auto &param : params)
+				{
+					auto fixed = validateArray(nodes.at(param.first), false, param.second);
+
+				#ifdef RAPID_DEBUG
+					if (param.second != fixed.shape[0])
+						message::RapidError("Neural Network Error", "Input '" + param.first + "' expected " +
+											std::to_string(param.second) + " nodes, but received " + std::to_string(fixed.shape[0])).display();
+				#endif
+
+					memcpy(res.dataStart + offset, fixed.dataStart, sizeof(t) * param.second);
+
+					offset += param.second;
+				}
+
+				return res;
+			}
+
 		private:
 			bool m_Built = false;
+
+			bool m_HasConfig = false;
+			Config<t> m_Config;
 
 			std::vector<layers::Layer<t> *> m_Layers;
 			std::vector<std::pair<ndarray::Array<t>, ndarray::Array<t>>> m_Data;

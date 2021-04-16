@@ -2,3 +2,4 @@
 
 add_subdirectory("MahiGui")
 add_subdirectory("NeuralNetwork")
+add_subdirectory("NeuralNetwork2")
