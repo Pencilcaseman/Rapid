@@ -1,4 +1,4 @@
-﻿// #define MAHI_GUI_NO_CONSOLE
+﻿#define MAHI_GUI_NO_CONSOLE
 
 #include <iostream>
 #include <rapid.h>

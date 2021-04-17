@@ -1,13 +1,19 @@
+message("CMake building Rapid")
+
 # Add the Rapid library as an interface
 add_library(rapid INTERFACE)
 
 # Check if OpenBLAS is installed in this location (the usual location)
 # This can be changed easily by users who require a different file location
 if (EXISTS C:/opt/openblas)
+	message("Rapid found OpenBLAS at C:/opt/openblas. Compiling with BLAS support")
+
 	target_include_directories(rapid INTERFACE C:/opt/openblas/include)
 	target_link_directories(rapid INTERFACE C:/opt/openblas/lib)
 	target_compile_definitions(rapid INTERFACE -DRAPID_HAS_BLAS)
 else()
+	message("Rapid did not find OpenBLAS. Compiling without BLAS support")
+
 	target_compile_definitions(rapid INTERFACE -DRAPID_NO_BLAS=true)
 endif()
 
@@ -15,6 +21,7 @@ endif()
 target_include_directories(rapid INTERFACE include)
 
 # Fetch Mahi-Gui from GitHub
+message("Fetching Mahi-Gui")
 include(FetchContent) 
 FetchContent_Declare(mahi-gui GIT_REPOSITORY https://github.com/mahilab/mahi-gui.git) 
 FetchContent_MakeAvailable(mahi-gui)
@@ -25,8 +32,25 @@ target_link_libraries(rapid INTERFACE mahi::gui)
 # Find and link against OpenMP if possible
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
+	message("Rapid found OpenMP. Compiling with OpenMP support")
+
     target_link_libraries(rapid INTERFACE OpenMP::OpenMP_CXX)
 	target_compile_definitions(rapid INTERFACE -DRAPID_HAS_OMP)
 else()
+	message("Rapid did not find OpenMP. Compiling without OpenMP support")
+
 	target_compile_definitions(rapid INTERFACE -DRAPID_NO_OMP)
+endif()
+
+# If compiling for release, enable all optimizations
+if(${CMAKE_BUILD_TYPE} MATCHES "Release")
+	message("Project is being build for \"Release\". Enabling full optimizations")
+
+	if (${CMAKE_CXX_COMPILER_ID} EQUAL "MSVC")
+		set(COMPILE_OPTIONS "/O2")
+	else()
+		set(COMPILE_OPTIONS "-O3")
+	endif()
+else()
+	message("Project is being build for \"" ${CMAKE_BUILD_TYPE} "\". Not enabling optimizations automatically")
 endif()

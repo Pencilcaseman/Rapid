@@ -3548,6 +3548,128 @@ namespace rapid
 		}
 
 		template<typename t, ArrayLocation loc = CPU>
+		inline Array<t, loc> fromData(const std::initializer_list<t> &data)
+		{
+		#ifdef RAPID_CUDA
+			if (!handle::handleInitialized)
+				handle::createHandle();
+		#endif
+
+			auto res = Array<t, loc>({data.size()});
+			std::vector<t> values;
+
+			for (const auto &val : data)
+				values.emplace_back(val);
+
+			if (loc == CPU)
+				memcpy(res.dataStart, values.data(), sizeof(t) * values.size());
+		#ifdef RAPID_CUDA
+			else if (location == GPU)
+				cudaSafeCall(cudaMemcpy(res.dataStart, values.data(), sizeof(t) * values.size(), cudaMemcpyHostToDevice));
+		#endif
+
+			return res;
+		}
+
+	#define imp_temp template<typename t, ArrayLocation loc = CPU>
+	#define imp_func_def(x) static inline Array<t, loc> fromData(const x &data)
+	#define imp_func_body	auto res = Array<t, loc>(imp::extractShape(data)); \
+							    uint64 index = 0; \
+								for (const auto &val : data) res[index++] = fromData<t, loc>(val); \
+									return res;
+	#define L std::initializer_list
+
+		// Up to 20-dimensional array setting from data
+		imp_temp imp_func_def(L<L<t>>)
+		{
+			auto res = Array<t, loc>(imp::extractShape(data));
+
+			uint64 index = 0;
+			for (const auto &val : data)
+				res[index++] = fromData<t, loc>(val);
+
+			return res;
+		}
+
+		imp_temp imp_func_def(L<L<L<t>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<t>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<t>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<t>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<t>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<t>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<t>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+		imp_temp imp_func_def(L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<L<t>>>>>>>>>>>>>>>>>>>>)
+		{
+			imp_func_body
+		}
+
+	#undef imp_temp
+	#undef imp_func_def
+	#undef imp_func_body
+	#undef L
+
+		template<typename t, ArrayLocation loc = CPU>
 		inline Array<t, loc> zeros(const std::vector<uint64> &shape)
 		{
 			auto res = Array<t, loc>(shape);

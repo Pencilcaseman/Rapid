@@ -6,6 +6,11 @@
 #include "optimizers.h"
 #include "layers/layerBase.h"
 
+template<typename t>
+using NetworkInput = std::unordered_map<std::string, rapid::ndarray::Array<t>>;
+template<typename t>
+using NetworkOutput = std::unordered_map<std::string, rapid::ndarray::Array<t>>;
+
 namespace rapid
 {
 	namespace neural
@@ -33,12 +38,51 @@ namespace rapid
 				}
 			}
 
-			inline uint64 sumNodes(const std::vector<std::pair<std::string, uint64>> &nodes)
+			inline uint64 sumNodes(const std::unordered_map<std::string, uint64> &nodes)
 			{
 				uint64 sum = 0;
 				for (const auto &node : nodes)
 					sum += node.second;
 				return sum;
+			}
+
+			template<typename t>
+			inline void findMissing(const std::unordered_map<std::string, uint64> &target,
+									const std::unordered_map<std::string, ndarray::Array<t>> &given,
+									const std::string &object,
+									const std::string &missing)
+			{
+				bool valid = true;
+				std::vector<std::string> notFound;
+
+				for (const auto &param : target)
+				{
+					bool currentIsValid = false;
+
+					for (const auto &inp : given)
+						if (param.first == inp.first)
+							currentIsValid = true;
+
+					if (!currentIsValid)
+					{
+						notFound.emplace_back(param.first);
+						valid = false;
+					}
+				}
+
+				if (!valid)
+				{
+					std::string tmp;
+					for (const auto &val : notFound)
+					{
+						if (val != *(notFound.end() - 1))
+							tmp += "\"" + val + "\", ";
+						else
+							tmp += "\"" + val + "\"";
+					}
+
+					message::RapidError("Neural Network Error", object + " is missing required " + missing + "(s): " + tmp + "").display();
+				}
 			}
 
 			template<typename t>
@@ -73,8 +117,8 @@ namespace rapid
 		template<typename t = float32>
 		struct Config
 		{
-			std::vector<std::pair<std::string, uint64>> inputs;
-			std::vector<std::pair<std::string, uint64>> outputs;
+			std::unordered_map<std::string, uint64> inputs;
+			std::unordered_map<std::string, uint64> outputs;
 			std::vector<uint64> hidden;
 			std::vector<std::string> activations;
 			std::vector<std::string> optimizers;
@@ -209,43 +253,27 @@ namespace rapid
 				return m_Layers[m_Layers.size() - 1]->getPrevOutput();
 			}
 
-			inline ndarray::Array<t> forward(const std::map<std::string, ndarray::Array<t>> &inputs)
+			inline std::unordered_map<std::string, ndarray::Array<t>> forward(const std::unordered_map<std::string, ndarray::Array<t>> &inputs)
 			{
 			#ifdef RAPID_DEBUG
-				bool valid = true;
-				std::vector<std::string> notFound;
-
-				for (const auto &param : m_Config.inputs)
-				{
-					bool currentIsValid = false;
-
-					for (const auto &inp : inputs)
-						if (param.first == inp.first)
-							currentIsValid = true;
-
-					if (!currentIsValid)
-					{
-						notFound.emplace_back(param.first);
-						valid = false;
-					}
-				}
-
-				if (!valid)
-				{
-					std::string tmp;
-					for (const auto &val : notFound)
-					{
-						if (val != *(notFound.end() - 1))
-							tmp += "\"" + val + "\", ";
-						else
-							tmp +=  "\"" + val +  "\"";
-					}
-
-					message::RapidError("Neural Network Error", "Feed forward is missing required input(s): " + tmp + "").display();
-				}
+				utils::findMissing<t>(m_Config.inputs, inputs, "Feed forward", "input");
 			#endif
 
-				return forward(constructVectorFromNames(inputs));
+				auto tmp = forward(constructVectorFromNames(inputs));
+
+				std::unordered_map<std::string, ndarray::Array<t>> res;
+				uint64 offset = 0;
+
+				for (const auto &out : m_Config.outputs)
+				{
+					auto current = ndarray::Array<t>({out.second, 1});
+					memcpy(current.dataStart, tmp.dataStart + offset, sizeof(t) * out.second);
+					res[out.first] = current;
+
+					offset += out.second;
+				}
+
+				return res;
 			}
 
 			inline ndarray::Array<t> backward(const ndarray::Array<t> &input, const ndarray::Array<t> &target)
@@ -265,6 +293,17 @@ namespace rapid
 					loss.set(m_Layers[i]->backward(loss));
 
 				return loss;
+			}
+
+			inline ndarray::Array<t> backward(const std::unordered_map<std::string, ndarray::Array<t>> &inputs,
+											  const std::unordered_map<std::string, ndarray::Array<t>> &targets)
+			{
+			#ifdef RAPID_DEBUG
+				utils::findMissing<t>(m_Config.inputs, inputs, "Backpropagation", "input");
+				utils::findMissing<t>(m_Config.outputs, targets, "Backpropagation", "target");
+			#endif
+
+				return backward(constructVectorFromNames(inputs, true), constructVectorFromNames(targets, false));
 			}
 
 			inline ndarray::Array<t> validateArray(const ndarray::Array<t> &input, bool x = true, uint64 nodes = 0) const
@@ -290,9 +329,9 @@ namespace rapid
 				return ndarray::Array<t>();
 			}
 
-			inline ndarray::Array<t> constructVectorFromNames(const std::map<std::string, ndarray::Array<t>> &nodes)
+			inline ndarray::Array<t> constructVectorFromNames(const std::unordered_map<std::string, ndarray::Array<t>> &nodes, bool input = true)
 			{
-				auto &params = m_Config.inputs;
+				std::unordered_map<std::string, uint64> &params = input ? m_Config.inputs : m_Config.outputs;
 
 				auto res = ndarray::Array<t>({utils::sumNodes(params), 1});
 				uint64 offset = 0;

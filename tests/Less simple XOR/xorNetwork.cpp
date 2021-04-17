@@ -1,5 +1,4 @@
 ﻿#define RAPID_NO_BLAS
-#define RAPID_NO_OMP
 
 #include <iostream>
 #include <rapid.h>
