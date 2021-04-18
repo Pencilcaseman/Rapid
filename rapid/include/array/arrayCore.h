@@ -3177,7 +3177,7 @@ namespace rapid
 							arrayType *resData = res.dataStart;
 							auto minCols = rapid::math::max(cols, 3) - 3;
 
-						#pragma omp parallel for private(i, j) shared(resData, thisData, minCols) default(none)
+						#pragma omp parallel for private(i, j) shared(resData, thisData, minCols, rows, cols) default(none)
 							for (i = 0; i < rows; i++)
 							{
 								for (j = 0; j < minCols; j++)
