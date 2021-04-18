@@ -115,7 +115,7 @@ namespace rapid
 		}
 
 		template<typename t = float32>
-		struct Config
+		struct NetworkConfig
 		{
 			std::unordered_map<std::string, uint64> inputs;
 			std::unordered_map<std::string, uint64> outputs;
@@ -123,6 +123,12 @@ namespace rapid
 			std::vector<std::string> activations;
 			std::vector<std::string> optimizers;
 			std::vector<t> learningRates;
+		};
+
+		struct TrainConfig
+		{
+			uint64 batchSize;
+			uint64 epochs;
 		};
 
 		template<typename t = float32>
@@ -134,7 +140,7 @@ namespace rapid
 			Network(const std::vector<layers::Layer<t> *> &layers) : m_Layers(layers)
 			{}
 
-			Network(const Config<t> &config)
+			Network(const NetworkConfig<t> &config)
 			{
 				m_HasConfig = true;
 				m_Config = config;
@@ -167,6 +173,16 @@ namespace rapid
 			{
 				for (const auto &elem : data)
 					addData(elem.first, elem.second);
+			}
+
+			inline std::pair<uint64, uint64> getBatchRange()
+			{
+				return {m_BatchStart, m_BatchEnd};
+			}
+			
+			inline void setBatchRange(uint64 start = -1, uint64 end = -1)
+			{
+				m_BatchStart = start, m_BatchEnd = end;
 			}
 
 			void compile()
@@ -329,6 +345,37 @@ namespace rapid
 				return ndarray::Array<t>();
 			}
 
+			// Fit the network to the training data using provided epoch and batch size parameters
+			inline void fit(const TrainConfig &config = {-1, -1})
+			{
+				if (m_BatchEnd == -1) m_BatchEnd = config.batchSize;
+
+				uint64 batchStart, batchEnd;
+
+				if (m_BatchStart != -1) batchStart = math::min(batchStart, m_Data.size() - 1);
+				else batchStart = 0;
+
+				if (m_BatchEnd != -1) batchEnd = math::min(batchEnd, m_Data.size());
+				else batchEnd = m_Data.size();
+
+				for (uint64 epoch = 0; epoch < config.epochs; epoch++)
+				{
+					for (uint64 batch = batchStart; batch < batchEnd; batch++)
+					{
+						auto index = math::random<uint64>(batchStart, batchEnd - 1);
+						backward(m_Data[index].first, m_Data[index].second);
+					}
+
+					if (config.batchSize != -1)
+					{
+						batchStart += config.batchSize;
+						batchEnd += config.batchSize;
+
+						if (batchStart > )
+					}
+				}
+			}
+
 			inline ndarray::Array<t> constructVectorFromNames(const std::unordered_map<std::string, ndarray::Array<t>> &nodes, bool input = true)
 			{
 				std::unordered_map<std::string, uint64> &params = input ? m_Config.inputs : m_Config.outputs;
@@ -358,10 +405,12 @@ namespace rapid
 			bool m_Built = false;
 
 			bool m_HasConfig = false;
-			Config<t> m_Config;
+			NetworkConfig<t> m_Config;
 
 			std::vector<layers::Layer<t> *> m_Layers;
 			std::vector<std::pair<ndarray::Array<t>, ndarray::Array<t>>> m_Data;
+
+			uint64 m_BatchStart = -1, m_BatchEnd = -1;
 		};
 	}
 }

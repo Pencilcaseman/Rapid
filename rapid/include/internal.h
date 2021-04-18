@@ -240,6 +240,12 @@ using float64 = double;
 #define RAPID_NO_AMP
 #endif
 
+#ifndef RAPID_OS_WINDOWS
+#ifndef RAPID_NO_AMP
+#define RAPID_NO_AMP
+#endif
+#endif
+
 #ifndef RAPID_NO_AMP
 #include <amp.h>
 #endif
