@@ -371,7 +371,7 @@ namespace rapid
 						batchStart += config.batchSize;
 						batchEnd += config.batchSize;
 
-						if (batchStart > )
+						// if (batchStart > )
 					}
 				}
 			}
