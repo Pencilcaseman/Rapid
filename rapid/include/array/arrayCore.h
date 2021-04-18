@@ -221,7 +221,7 @@ namespace rapid
 					// Parallel execution on CPU
 					long index = 0;
 
-				#pragma omp parallel for shared(size, a, b, c) private(index) default(none)
+				#pragma omp parallel for shared(size, a, b, c, func) private(index) default(none)
 					for (index = 0; index < size; ++index)
 						c.dataStart[index] = func(a.dataStart[index], b.dataStart[index]);
 				}
@@ -274,7 +274,7 @@ namespace rapid
 					// Parallel execution on CPU
 					long index = 0;
 
-				#pragma omp parallel for shared(size, a, b, c) private(index) default(none)
+				#pragma omp parallel for shared(size, a, b, c, func) private(index) default(none)
 					for (index = 0; index < size; ++index)
 						c.dataStart[index] = func(a.dataStart[index], b);
 				}
@@ -327,7 +327,7 @@ namespace rapid
 					// Parallel execution on CPU
 					long index = 0;
 
-				#pragma omp parallel for shared(size, a, b, c) private(index) default(none)
+				#pragma omp parallel for shared(size, a, b, c, func) private(index) default(none)
 					for (index = 0; index < size; ++index)
 						c.dataStart[index] = func(a, b.dataStart[index]);
 				}
@@ -376,7 +376,7 @@ namespace rapid
 					// Parallel execution on CPU
 					long index = 0;
 
-				#pragma omp parallel for shared(size, a, b) private(index) default(none)
+				#pragma omp parallel for shared(size, a, b, func) private(index) default(none)
 					for (index = 0; index < size; ++index)
 						b.dataStart[index] = func(a.dataStart[index]);
 				}
