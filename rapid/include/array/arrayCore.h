@@ -2870,7 +2870,10 @@ namespace rapid
 							}
 					}
 				#else
+				#ifndef RAPID_NO_AMP
 					using namespace concurrency;
+				#endif
+
 					switch (dims)
 					{
 						case 1:
