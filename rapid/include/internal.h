@@ -359,7 +359,7 @@ namespace rapid
 	class RapidTimer
 	{
 	public:
-		std::chrono::time_point<std::chrono::steady_clock> start, end;
+		double start, end;
 		uint64 loops;
 		bool finished = false;
 
@@ -382,20 +382,20 @@ namespace rapid
 
 		inline void startTimer()
 		{
-			start = std::chrono::high_resolution_clock::now();
+			start = TIME * 1000000000;
 		}
 
 		inline void endTimer()
 		{
-			end = std::chrono::high_resolution_clock::now();
+			end = TIME * 1000000000;
 
 			if (finished)
 				return;
 
 			finished = true;
 
-			auto delta = (float64) std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (float64) loops;
-			auto elapsed = (float64) std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+			auto delta = (end - start) / loops;
+			auto elapsed = end - start;
 			std::string unit = "ns";
 			std::string unitElapsed = "ns";
 

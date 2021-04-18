@@ -12,7 +12,7 @@ int main()
 	using dtype = float;
 
 	// Create the neural network config
-	Config<dtype> config{
+	NetworkConfig<dtype> config{
 		{{"x1", 1},       // Input 1
 		 {"x2", 1}},      // Input 2
 
