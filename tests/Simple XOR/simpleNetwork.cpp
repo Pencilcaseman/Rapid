@@ -13,16 +13,16 @@ int main()
 
 	// Create the neural network config
 	NetworkConfig<dtype> config{
-		{{"x1", 1},       // Input 1
-		 {"x2", 1}},      // Input 2
+		{{"x1", 1},       // Input 1 = one node
+		 {"x2", 1}},      // Input 2 = one node
 
-		{{"y", 1}},       // Output
+		{{"y", 2}},       // Output = one node
 
 		{3},              // Hidden layer nodes
 
 		{"LeakyRelu"},    // Activation functions
 		{"ADAM"},         // Optimizers
-		{0.1}             // Learning rates
+		{0.05}           // Learning rates
 	};
 
 	// Create the network from the config
@@ -33,47 +33,64 @@ int main()
 	// the config for the network
 
 	// Inputs for XOR
-	std::vector<NetworkInput<float>> input = {
-		{{"x1", fromScalar<float>(0)},
-		 {"x2", fromScalar<float>(0)}},
+	std::vector<NetworkInput<dtype>> input = {
+		{{"x1", fromScalar<dtype>(0)},
+		 {"x2", fromScalar<dtype>(0)}},
 
-		{{"x1", fromScalar<float>(0)},
-		 {"x2", fromScalar<float>(1)}},
+		{{"x1", fromScalar<dtype>(0)},
+		 {"x2", fromScalar<dtype>(1)}},
 
-		{{"x1", fromScalar<float>(1)},
-		 {"x2", fromScalar<float>(0)}},
+		{{"x1", fromScalar<dtype>(1)},
+		 {"x2", fromScalar<dtype>(0)}},
 
-		{{"x1", fromScalar<float>(1)},
-		 {"x2", fromScalar<float>(1)}}
+		{{"x1", fromScalar<dtype>(1)},
+		 {"x2", fromScalar<dtype>(1)}}
 	};
 
 	// Targets for XOR
-	std::vector<NetworkOutput<float>> output = {
-		{{"y", fromScalar<float>(0)}},
-
-		{{"y", fromScalar<float>(1)}},
-
-		{{"y", fromScalar<float>(1)}},
-
-		{{"y", fromScalar<float>(0)}}
+	std::vector<NetworkOutput<dtype>> output = {
+		{{"y", fromData<dtype>({0, 0})}},
+			   				   
+		{{"y", fromData<dtype>({1, 1})}},
+			   				  
+		{{"y", fromData<dtype>({1, 1})}},
+			   				  
+		{{"y", fromData<dtype>({0, 1})}}
 	};
 
+	// Add the data to the network
+	network.addData(input, output);
+
 	// Compile the network
+	// Note: This does not necessarily need to be
+	//       called after adding the data, though
+	//       in future updates, this may construct
+	//       the network to be a particular size
+	//       or with different activations if they
+	//       have not already been specified
 	network.compile();
 
-	// Train the network
-	std::cout << "Train\n";
-	START_TIMER(0, 5000);
-	auto index = random<int>(0, 3);
-	network.backward(input[index], output[index]);
-	END_TIMER(0);
+	// Fit the network to the data
+	std::cout << "Training\n";
+	network.fit(TrainConfig(1, 1000));
 
 	// Test the accuracy of the network by printing
 	// it's output compared to the labeled output
+	// std::cout.precision(3);
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)
-		std::cout << (int) input[i]["x1"] << "^" << (int) input[i]["x1"] << " => "
-		<< network.forward(input[i])["y"][0][0] << " (Correct: " << output[i]["y"] << ")" << "\n\n";
+	{
+		std::cout << "Input: ";
+		std::cout << (int) input[i]["x1"] << "^" << (int) input[i]["x2"];
+
+		std::cout << " => ";
+		
+		auto netOut = network.forward(input[i]);
+		std::cout << round((dtype) netOut["y"][0][0], 3) << ", ";
+		std::cout << round((dtype) netOut["y"][1][0], 3);
+
+		std::cout << "   | Correct = " << output[i]["y"] << " |\n";
+	}
 
 	return 0;
 }

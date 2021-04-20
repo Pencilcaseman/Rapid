@@ -206,14 +206,16 @@ namespace rapid
 		template<typename t>
 		inline t round(const t &numToRound, uint64 dp = 0)
 		{
-			t remainder = fmod(abs(numToRound), 1. * pow(10, -((t) dp)));
+			auto num = abs(numToRound);
+
+			t remainder = fmod(abs(num), 1. * pow(10, -((t) dp)));
 			if (remainder == 0)
-				return numToRound;
+				return num;
 
 			if (remainder < 0.4999999999 * pow(10, -((t) dp)))
-				return numToRound - remainder;
+				return num - remainder;
 
-			return numToRound + (1. * pow(10, -((t) dp))) - remainder;
+			return (num + (1. * pow(10, -((t) dp))) - remainder) * (numToRound > 0 ? 1 : -1);
 		}
 
 		/// <summary>

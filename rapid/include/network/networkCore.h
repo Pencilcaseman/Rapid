@@ -129,6 +129,10 @@ namespace rapid
 		{
 			uint64 batchSize;
 			uint64 epochs;
+
+			TrainConfig(uint64 batch = -1, uint64 epoch = -1)
+				: batchSize(batch), epochs(epoch)
+			{}
 		};
 
 		template<typename t = float32>
@@ -169,17 +173,19 @@ namespace rapid
 				m_Data.emplace_back(std::make_pair(x, y));
 			}
 
-			void addData(const std::vector<std::pair<ndarray::Array<t>, ndarray::Array<t>>> &data)
+			void addData(const std::vector<NetworkInput<t>> &x, const std::vector<NetworkOutput<t>> &y)
 			{
-				for (const auto &elem : data)
-					addData(elem.first, elem.second);
+				rapidAssert(x.size() == y.size(), "Input data and labeled data must be the same size");
+
+				for (uint64 i = 0; i < x.size(); i++)
+					m_Data.emplace_back(std::make_pair(x[i], y[i]));
 			}
 
 			inline std::pair<uint64, uint64> getBatchRange()
 			{
 				return {m_BatchStart, m_BatchEnd};
 			}
-			
+
 			inline void setBatchRange(uint64 start = -1, uint64 end = -1)
 			{
 				m_BatchStart = start, m_BatchEnd = end;
@@ -193,20 +199,28 @@ namespace rapid
 
 					uint64 activationIndex = 0;
 					uint64 optimizerIndex = 0;
+					uint64 lrIndex = 0;
 
 					uint64 activationCount = m_Config.activations.size();
-					if (activationCount != 0 && activationCount != 1 && activationCount != m_Config.hidden.size() + 2)
+					if (activationCount != 0 && activationCount != 1 && activationCount != m_Config.hidden.size() + 1)
 						message::RapidError("Neural Network Error", "Invalid number of activations provided. Expected 0, 1 or "
-											+ std::to_string(m_Config.hidden.size() + 2)).display();
+											+ std::to_string(m_Config.hidden.size() + 1)).display();
 
 					uint64 optimCount = m_Config.activations.size();
-					if (optimCount != 0 && optimCount != 1 && optimCount != m_Config.hidden.size() + 2)
+					if (optimCount != 0 && optimCount != 1 && optimCount != m_Config.hidden.size() + 1)
 						message::RapidError("Neural Network Error", "Invalid number of optimizers. Expected 0, 1 or "
-											+ std::to_string(m_Config.hidden.size() + 2)).display();
+											+ std::to_string(m_Config.hidden.size() + 1)).display();
+
+					uint64 lrCount = m_Config.learningRates.size();
+					if (lrCount != 0 && lrCount != 1 && lrCount != m_Config.hidden.size() + 1)
+						message::RapidError("Neural Network Error", "Invalid number of optimizers. Expected 0, 1 or "
+											+ std::to_string(m_Config.hidden.size() + 1)).display();
 
 					addLayer(new layers::Input<t>(utils::sumNodes(m_Config.inputs)));
 
 					std::string activation, optimizer;
+					t lr;
+
 					for (const auto &nodes : m_Config.hidden)
 					{
 						if (activationCount < 2) activation = activationCount == 0 ? "Sigmoid" : m_Config.activations[0];
@@ -215,7 +229,10 @@ namespace rapid
 						if (optimCount < 2) optimizer = optimCount == 0 ? "SGD" : m_Config.optimizers[0];
 						else optimizer = m_Config.optimizers[optimizerIndex++];
 
-						addLayer(new layers::Affine<t>(nodes, utils::newActivation<t>(activation), utils::newOptimizer<t>(optimizer, 0.01)));
+						if (lrCount < 2) lr = lrCount == 0 ? -1 : m_Config.learningRates[0];
+						else lr = m_Config.learningRates[lrIndex++];
+
+						addLayer(new layers::Affine<t>(nodes, utils::newActivation<t>(activation), utils::newOptimizer<t>(optimizer, lr)));
 					}
 
 					if (activationCount < 2) activation = activationCount == 0 ? "Sigmoid" : m_Config.activations[0];
@@ -224,7 +241,10 @@ namespace rapid
 					if (optimCount < 2) optimizer = optimCount == 0 ? "SGD" : m_Config.optimizers[0];
 					else optimizer = m_Config.optimizers[optimizerIndex++];
 
-					addLayer(new layers::Affine<t>(m_Config.outputs.size(), utils::newActivation<t>(activation), utils::newOptimizer<t>(optimizer, 0.01)));
+					if (lrCount < 2) lr = lrCount == 0 ? -1 : m_Config.learningRates[0];
+					else lr = m_Config.learningRates[lrIndex++];
+
+					addLayer(new layers::Affine<t>(utils::sumNodes(m_Config.outputs), utils::newActivation<t>(activation), utils::newOptimizer<t>(optimizer, lr)));
 				}
 
 				for (uint64 i = 0; i < m_Layers.size(); i++)
@@ -322,6 +342,41 @@ namespace rapid
 				return backward(constructVectorFromNames(inputs, true), constructVectorFromNames(targets, false));
 			}
 
+			// Fit the network to the training data using provided epoch and batch size parameters
+			inline void fit(const TrainConfig &config = {-1, -1})
+			{
+				uint64 batchStart, batchEnd;
+
+				if (m_BatchStart != -1) batchStart = math::min(m_BatchStart, m_Data.size() - 1);
+				else batchStart = 0;
+
+				if (m_BatchEnd != -1) batchEnd = math::min(m_BatchEnd, m_Data.size());
+				else batchEnd = m_Data.size();
+
+				uint64 batchSize = batchEnd - batchStart;
+
+				if (config.epochs == -1)
+					message::RapidError("Neural Network Error", "Please specify a number of training epochs").display();
+
+				for (uint64 epoch = 0; epoch < config.epochs; epoch++)
+				{
+					while (batchEnd < m_Data.size() + 1)
+					{
+						for (uint64 batch = batchStart; batch < batchEnd; batch++)
+						{
+							auto index = math::random<uint64>(batchStart, batchEnd - 1);
+							backward(m_Data[index].first, m_Data[index].second);
+						}
+
+						batchStart += batchSize;
+						batchEnd += batchSize;
+					}
+
+					batchStart = 0;
+					batchEnd = batchSize;
+				}
+			}
+
 			inline ndarray::Array<t> validateArray(const ndarray::Array<t> &input, bool x = true, uint64 nodes = 0) const
 			{
 				uint64 index = x ? 0 : m_Layers.size() - 1;
@@ -345,35 +400,9 @@ namespace rapid
 				return ndarray::Array<t>();
 			}
 
-			// Fit the network to the training data using provided epoch and batch size parameters
-			inline void fit(const TrainConfig &config = {-1, -1})
+			inline void fit(uint64 batchSize = -1, uint64 epochs = -1)
 			{
-				if (m_BatchEnd == -1) m_BatchEnd = config.batchSize;
-
-				uint64 batchStart, batchEnd;
-
-				if (m_BatchStart != -1) batchStart = math::min(batchStart, m_Data.size() - 1);
-				else batchStart = 0;
-
-				if (m_BatchEnd != -1) batchEnd = math::min(batchEnd, m_Data.size());
-				else batchEnd = m_Data.size();
-
-				for (uint64 epoch = 0; epoch < config.epochs; epoch++)
-				{
-					for (uint64 batch = batchStart; batch < batchEnd; batch++)
-					{
-						auto index = math::random<uint64>(batchStart, batchEnd - 1);
-						backward(m_Data[index].first, m_Data[index].second);
-					}
-
-					if (config.batchSize != -1)
-					{
-						batchStart += config.batchSize;
-						batchEnd += config.batchSize;
-
-						// if (batchStart > )
-					}
-				}
+				fit({batchSize, epochs});
 			}
 
 			inline ndarray::Array<t> constructVectorFromNames(const std::unordered_map<std::string, ndarray::Array<t>> &nodes, bool input = true)
@@ -408,7 +437,7 @@ namespace rapid
 			NetworkConfig<t> m_Config;
 
 			std::vector<layers::Layer<t> *> m_Layers;
-			std::vector<std::pair<ndarray::Array<t>, ndarray::Array<t>>> m_Data;
+			std::vector<std::pair<std::unordered_map<std::string, ndarray::Array<t>>, std::unordered_map<std::string, ndarray::Array<t>>>> m_Data;
 
 			uint64 m_BatchStart = -1, m_BatchEnd = -1;
 		};

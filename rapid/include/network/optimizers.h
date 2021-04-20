@@ -28,8 +28,14 @@ namespace rapid
 			class SGD : public Optimizer<t>
 			{
 			public:
-				SGD(const t learningRate = 1e-2) : m_LearningRate(learningRate)
-				{}
+				SGD(const t learningRate = 1e-2) : m_LearningRate(learningRate == -1 ? 1e-2 : learningRate)
+				{
+				#ifdef RAPID_DEBUG
+					if (learningRate <= 0)
+						message::RapidError("Optimizer Error", "The learning " + std::to_string(learningRate) +
+											" rate less than or equal to zero is not allowed").display();
+				#endif
+				}
 
 				inline ndarray::Array<t> apply(const ndarray::Array<t> &w, const ndarray::Array<t> &dw)
 				{
@@ -76,8 +82,14 @@ namespace rapid
 			{
 			public:
 				SGDMomentum(t learningRate = 1e-2, t momentum = 0.9, const ndarray::Array<t> &velocity = ndarray::Array<t>())
-					: m_LearningRate(learningRate), m_Momentum(momentum), m_Velocity(velocity)
-				{}
+					: m_LearningRate(learningRate == -1 ? 1e-2 : learningRate), m_Momentum(momentum), m_Velocity(velocity)
+				{
+				#ifdef RAPID_DEBUG
+					if (learningRate <= 0)
+						message::RapidError("Optimizer Error", "The learning " + std::to_string(learningRate) +
+											" rate less than or equal to zero is not allowed").display();
+				#endif
+				}
 
 				inline ndarray::Array<t> apply(const ndarray::Array<t> &w, const ndarray::Array<t> &dw) override
 				{
@@ -159,8 +171,14 @@ namespace rapid
 			{
 			public:
 				RMSProp(t learningRate = 1e-2, t decayRate = 0.99, t epsilon = 1e-8, const ndarray::Array<t> &cache = ndarray::Array<t>()) 
-					: m_LearningRate(learningRate), m_DecayRate(decayRate), m_Epsilon(epsilon), m_Cache(cache)
-				{}
+					: m_LearningRate(learningRate == -1 ? 1e-2 : learningRate), m_DecayRate(decayRate), m_Epsilon(epsilon), m_Cache(cache)
+				{
+				#ifdef RAPID_DEBUG
+					if (learningRate <= 0)
+						message::RapidError("Optimizer Error", "The learning " + std::to_string(learningRate) +
+											" rate less than or equal to zero is not allowed").display();
+				#endif
+				}
 
 				inline ndarray::Array<t> apply(const ndarray::Array<t> &x, const ndarray::Array<t> &dx) override
 				{
@@ -258,8 +276,14 @@ namespace rapid
 			{
 			public:
 				ADAM(t learningRate = 1e-3, t beta1 = 0.9, t beta2 = 0.999, t epsilon = 1e-8, const ndarray::Array<t> &m = ndarray::Array<t>(), const ndarray::Array<t> &v = ndarray::Array<t>(), int64 time = 0) 
-					: m_LearningRate(learningRate), m_Beta1(beta1), m_Beta2(beta2), m_Epsilon(epsilon), m_M(m), m_V(v), m_Time(time)
-				{}
+					: m_LearningRate(learningRate == -1 ? 1e-3 : learningRate), m_Beta1(beta1), m_Beta2(beta2), m_Epsilon(epsilon), m_M(m), m_V(v), m_Time(time)
+				{
+				#ifdef RAPID_DEBUG
+					if (learningRate <= 0)
+						message::RapidError("Optimizer Error", "The learning " + std::to_string(learningRate) +
+											" rate less than or equal to zero is not allowed").display();
+				#endif
+				}
 
 				inline ndarray::Array<t> apply(const ndarray::Array<t> &x, const ndarray::Array<t> &dx) override
 				{
