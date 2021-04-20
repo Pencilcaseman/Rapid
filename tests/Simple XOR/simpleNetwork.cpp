@@ -18,11 +18,11 @@ int main()
 
 		{{"y", 2}},       // Output = one node
 
-		{3},              // Hidden layer nodes
+		{3, 3},           // Hidden layer nodes
 
 		{"LeakyRelu"},    // Activation functions
 		{"ADAM"},         // Optimizers
-		{0.05}           // Learning rates
+		{0.1}             // Learning rates
 	};
 
 	// Create the network from the config
@@ -72,7 +72,10 @@ int main()
 
 	// Fit the network to the data
 	std::cout << "Training\n";
+	auto s = TIME;
 	network.fit(TrainConfig(1, 1000));
+	auto e = TIME;
+	std::cout << e - s << "\n";
 
 	// Test the accuracy of the network by printing
 	// it's output compared to the labeled output
@@ -81,7 +84,8 @@ int main()
 	for (int i = 0; i < 4; i++)
 	{
 		std::cout << "Input: ";
-		std::cout << (int) input[i]["x1"] << "^" << (int) input[i]["x2"];
+		std::cout << (int) input[i]["x1"] << "^" << (int) input[i]["x2"] << ", ";
+		std::cout << (int) input[i]["x1"] << "|" << (int) input[i]["x2"];
 
 		std::cout << " => ";
 		
@@ -89,7 +93,7 @@ int main()
 		std::cout << round((dtype) netOut["y"][0][0], 3) << ", ";
 		std::cout << round((dtype) netOut["y"][1][0], 3);
 
-		std::cout << "   | Correct = " << output[i]["y"] << " |\n";
+		std::cout << " (3 s.f.)  | Correct = " << output[i]["y"] << " |\n";
 	}
 
 	return 0;
