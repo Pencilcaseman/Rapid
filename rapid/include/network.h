@@ -5,3 +5,4 @@
 #include "network/layers/affine.h"
 #include "network/optimizers.h"
 #include "network/networkCore.h"
+#include "network/netVis.h"

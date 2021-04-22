@@ -238,8 +238,8 @@ public:
 					nvgBeginPath(vg);
 
 					float x, y, w, h;
-					x = ((float) i / 20.f) * width + 10;
-					y = ((float) j / 20.f) * width + 10;
+					x = ((float) i / 20.f) *width + 10;
+					y = ((float) j / 20.f) *width + 10;
 					w = 10;
 					h = 10;
 
@@ -250,8 +250,9 @@ public:
 					s = 0.5f;
 					l = 0.5f;
 					a = 255;
-
+					
 					nvgFillColor(vg, nvgHSLA(h, s, l, a));
+
 					nvgFill(vg);
 				}
 			}

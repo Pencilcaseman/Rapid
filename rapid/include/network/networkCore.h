@@ -135,11 +135,17 @@ namespace rapid
 			{}
 		};
 
+		template<typename t>
+		class NetVis;
+
 		template<typename t = float32>
 		class Network
 		{
 		public:
-			Network() = default;
+			friend NetVis<t>;
+
+			Network()
+			{}
 
 			Network(const std::vector<layers::Layer<t> *> &layers) : m_Layers(layers)
 			{}
@@ -147,6 +153,14 @@ namespace rapid
 			Network(const NetworkConfig<t> &config)
 			{
 				m_HasConfig = true;
+
+				if (config.inputs.empty())
+					message::RapidError("Neural Network Error", "Neural network must take at least one input").display();
+				else if (config.inputs.size() == 1)
+					m_HasNamedParams = false;
+				else
+					m_HasNamedParams = true;
+
 				m_Config = config;
 			}
 
@@ -168,13 +182,38 @@ namespace rapid
 					addLayer(layer);
 			}
 
+			// TODO: Add checks for data size compared to network size
+
 			void addData(const ndarray::Array<t> &x, const ndarray::Array<t> &y)
 			{
-				m_Data.emplace_back(std::make_pair(x, y));
+				if (m_HasNamedParams)
+					message::RapidError("Neural Network Error", "This network requires named parameters. Please provide them").display();
+
+				m_Data.emplace_back(std::make_pair(std::make_pair("DefaultInput", x), std::make_pair("DefaultOutput", y)));
+			}
+
+			void addData(const std::vector<ndarray::Array<t>> &x, const std::vector<ndarray::Array<t>> &y)
+			{
+				rapidAssert(x.size() == y.size(), "Input data and labeled data must be the same size");
+
+				for (uint64 i = 0; i < x.size(); i++)
+				{
+					std::unordered_map<std::string, ndarray::Array<t>> inputMap;
+					std::unordered_map<std::string, ndarray::Array<t>> outputMap;
+
+					inputMap["defaultInput"] = x[i];
+					outputMap["defaultOutput"] = y[i];
+
+					m_Data.emplace_back(std::make_pair(inputMap, outputMap));
+				}
 			}
 
 			void addData(const std::vector<NetworkInput<t>> &x, const std::vector<NetworkOutput<t>> &y)
 			{
+				if (!m_HasNamedParams)
+					message::RapidError("Neural Network Error",
+										"This network does not accept named parameters. Please do not provide them").display();
+
 				rapidAssert(x.size() == y.size(), "Input data and labeled data must be the same size");
 
 				for (uint64 i = 0; i < x.size(); i++)
@@ -189,6 +228,38 @@ namespace rapid
 			inline void setBatchRange(uint64 start = -1, uint64 end = -1)
 			{
 				m_BatchStart = start, m_BatchEnd = end;
+			}
+
+			inline void record(const std::string &name)
+			{
+				if (name == "loss")
+					m_TrackLoss = true;
+				else
+					message::RapidError("Neural Network Error", "Unknown request to record '" + name + "'").display();
+			}
+
+			inline void stopRecording(const std::string &name)
+			{
+				if (name == "loss")
+					m_TrackLoss = false;
+
+				message::RapidError("Neural Network Error", "Unknown request to stop recording '" + name + "'").display();
+			}
+
+			inline std::vector<t> getLossRecord() const
+			{
+				if (m_TrackLoss)
+					return m_LossRecord;
+				else
+					message::RapidError("Neural Network Error",
+										"Network is not recording loss values, so you cannot request them").display();
+				return {};
+			}
+
+			inline std::vector<t> getRecord(const std::string &name) const
+			{
+				if (name == "loss")
+					return getLossRecord();
 			}
 
 			void compile()
@@ -325,6 +396,12 @@ namespace rapid
 				auto output = forward(fixedInput, false);
 				auto loss = fixedTarget - output;
 
+				if (m_TrackLoss)
+				{
+					auto tmp = (t) ndarray::mean(loss);
+					m_LossRecord.emplace_back(tmp * tmp);
+				}
+
 				for (int64 i = m_Layers.size() - 1; i >= 0; i--)
 					loss.set(m_Layers[i]->backward(loss));
 
@@ -339,42 +416,28 @@ namespace rapid
 				utils::findMissing<t>(m_Config.outputs, targets, "Backpropagation", "target");
 			#endif
 
-				return backward(constructVectorFromNames(inputs, true), constructVectorFromNames(targets, false));
+				if (m_HasNamedParams)
+					return backward(constructVectorFromNames(inputs, true), constructVectorFromNames(targets, false));
+
+				return backward(inputs.at("defaultInput"), targets.at("defaultOutput"));
 			}
 
 			// Fit the network to the training data using provided epoch and batch size parameters
+			inline void fitWithThread(const TrainConfig &config = {-1, -1})
+			{
+				_fit(config);
+			}
+			
+			// Fit the network to the training data using provided epoch and batch size parameters
 			inline void fit(const TrainConfig &config = {-1, -1})
 			{
-				uint64 batchStart, batchEnd;
+				_fit(config);
+			}
 
-				if (m_BatchStart != -1) batchStart = math::min(m_BatchStart, m_Data.size() - 1);
-				else batchStart = 0;
-
-				if (m_BatchEnd != -1) batchEnd = math::min(m_BatchEnd, m_Data.size());
-				else batchEnd = m_Data.size();
-
-				uint64 batchSize = batchEnd - batchStart;
-
-				if (config.epochs == -1)
-					message::RapidError("Neural Network Error", "Please specify a number of training epochs").display();
-
-				for (uint64 epoch = 0; epoch < config.epochs; epoch++)
-				{
-					while (batchEnd < m_Data.size() + 1)
-					{
-						for (uint64 batch = batchStart; batch < batchEnd; batch++)
-						{
-							auto index = math::random<uint64>(batchStart, batchEnd - 1);
-							backward(m_Data[index].first, m_Data[index].second);
-						}
-
-						batchStart += batchSize;
-						batchEnd += batchSize;
-					}
-
-					batchStart = 0;
-					batchEnd = batchSize;
-				}
+			// Fit the network to the training data using provided epoch and batch size parameters
+			inline void fit(uint64 batchSize = -1, uint64 epochs = -1)
+			{
+				_fit({batchSize, epochs});
 			}
 
 			inline ndarray::Array<t> validateArray(const ndarray::Array<t> &input, bool x = true, uint64 nodes = 0) const
@@ -398,11 +461,6 @@ namespace rapid
 				}
 
 				return ndarray::Array<t>();
-			}
-
-			inline void fit(uint64 batchSize = -1, uint64 epochs = -1)
-			{
-				fit({batchSize, epochs});
 			}
 
 			inline ndarray::Array<t> constructVectorFromNames(const std::unordered_map<std::string, ndarray::Array<t>> &nodes, bool input = true)
@@ -430,8 +488,46 @@ namespace rapid
 				return res;
 			}
 
+			private:
+				inline void _fit(const TrainConfig &config)
+				{
+					uint64 batchStart, batchEnd;
+
+					if (m_BatchStart != -1) batchStart = math::min(m_BatchStart, m_Data.size() - 1);
+					else batchStart = 0;
+
+					if (m_BatchEnd != -1) batchEnd = math::min(m_BatchEnd, m_Data.size());
+					else batchEnd = m_Data.size();
+
+					uint64 batchSize = batchEnd - batchStart;
+
+					if (config.epochs == -1)
+						message::RapidError("Neural Network Error", "Please specify a number of training epochs").display();
+
+					for (m_Epoch = 0; m_Epoch < config.epochs; m_Epoch++)
+					{
+						while (batchEnd < m_Data.size() + 1)
+						{
+							for (uint64 batch = batchStart; batch < batchEnd; batch++)
+							{
+								auto index = math::random<uint64>(batchStart, batchEnd - 1);
+								backward(m_Data[index].first, m_Data[index].second);
+							}
+
+							batchStart += batchSize;
+							batchEnd += batchSize;
+							m_BatchNum++;
+						}
+
+						batchStart = 0;
+						batchEnd = batchSize;
+						m_BatchNum = 0;
+					}
+				}
+
 		private:
 			bool m_Built = false;
+			bool m_HasNamedParams = false;
 
 			bool m_HasConfig = false;
 			NetworkConfig<t> m_Config;
@@ -440,6 +536,13 @@ namespace rapid
 			std::vector<std::pair<std::unordered_map<std::string, ndarray::Array<t>>, std::unordered_map<std::string, ndarray::Array<t>>>> m_Data;
 
 			uint64 m_BatchStart = -1, m_BatchEnd = -1;
+			uint64 m_BatchNum = 0, m_Epoch = 0;
+
+			bool m_TrackLoss = false;
+			std::vector<t> m_LossRecord;
+
+			bool m_Training = false;
+			bool m_StatisticsOpen = true;
 		};
 	}
 }

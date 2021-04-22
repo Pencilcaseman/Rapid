@@ -3,3 +3,4 @@
 add_subdirectory("MahiGui")
 add_subdirectory("Less simple XOR")
 add_subdirectory("Simple XOR")
+add_subdirectory("Neural Network with Graphics")

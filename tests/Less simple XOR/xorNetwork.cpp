@@ -48,15 +48,18 @@ int main()
 		Array<dtype>::fromData({0})
 	};
 
+	network.addData(input, output);
+
 	// Compile the network
 	network.compile();
 
 	// Train the network
 	std::cout << "Train\n";
-	START_TIMER(0, 2000);
-	auto index = random<int>(0, 3);
-	network.backward(input[index], output[index]);
-	END_TIMER(0);
+	// START_TIMER(0, 2000);
+	// auto index = random<int>(0, 3);
+	// network.backward(input[index], output[index]);
+	// END_TIMER(0);
+	network.fit(-1, 2500);
 
 	// Generate predictions from the network (i.e. use it)
 	std::cout << "Predict\n";

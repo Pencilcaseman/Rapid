@@ -10,21 +10,21 @@ int main()
 	using namespace rapid::ndarray;
 	using namespace rapid::math;
 	using dtype = float;
-
+	
 	// Create the neural network config
 	NetworkConfig<dtype> config{
 		{{"x1", 1},       // Input 1 = one node
 		 {"x2", 1}},      // Input 2 = one node
-
+	
 		{{"y", 2}},       // Output = one node
-
+	
 		{3, 3},           // Hidden layer nodes
-
+	
 		{"LeakyRelu"},    // Activation functions
 		{"ADAM"},         // Optimizers
-		{0.05}             // Learning rates
+		{0.0005}             // Learning rates
 	};
-
+	
 	// Create the network from the config
 	auto network = Network<dtype>(config);
 
@@ -50,16 +50,18 @@ int main()
 	// Targets for XOR
 	std::vector<NetworkOutput<dtype>> output = {
 		{{"y", fromData<dtype>({0, 0})}},
-			   				   
+
 		{{"y", fromData<dtype>({1, 1})}},
-			   				  
+
 		{{"y", fromData<dtype>({1, 1})}},
-			   				  
+
 		{{"y", fromData<dtype>({0, 1})}}
 	};
 
 	// Add the data to the network
 	network.addData(input, output);
+
+	network.record("loss");
 
 	// Compile the network
 	// Note: This does not necessarily need to be
@@ -71,11 +73,16 @@ int main()
 	network.compile();
 
 	// Fit the network to the data
+
 	std::cout << "Training\n";
 	auto s = TIME;
-	network.fit(TrainConfig(1, 2500));
+	// network.fit(TrainConfig(1, 1000));
+	auto th = std::thread(&Network<dtype>::fitWithThread, &network, TrainConfig(1, 10000));
 	auto e = TIME;
 	std::cout << e - s << "\n";
+
+	auto vis = rapid::neural::NetVis(&network);
+	vis.run();
 
 	// Test the accuracy of the network by printing
 	// it's output compared to the labeled output
@@ -88,7 +95,7 @@ int main()
 		std::cout << (int) input[i]["x1"] << "|" << (int) input[i]["x2"];
 
 		std::cout << " => ";
-		
+
 		auto netOut = network.forward(input[i]);
 		std::cout << round((dtype) netOut["y"][0][0], 3) << ", ";
 		std::cout << round((dtype) netOut["y"][1][0], 3);
