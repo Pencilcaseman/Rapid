@@ -1,4 +1,6 @@
-﻿#include <iostream>
+﻿#define RAPID_NO_BLAS
+
+#include <iostream>
 #include <rapid.h>
 
 int main()
@@ -10,23 +12,23 @@ int main()
 	using namespace rapid::ndarray;
 	using namespace rapid::math;
 	using dtype = float;
-	
+
 	// Create the neural network config
-	NetworkConfig<dtype> config{
+	NetworkConfig<dtype> config1{
 		{{"x1", 1},       // Input 1 = one node
 		 {"x2", 1}},      // Input 2 = one node
-	
+
 		{{"y", 2}},       // Output = one node
-	
+
 		{3, 3},           // Hidden layer nodes
-	
+
 		{"LeakyRelu"},    // Activation functions
 		{"ADAM"},         // Optimizers
-		{0.0005}             // Learning rates
+		{0.01}            // Learning rates
 	};
-	
+
 	// Create the network from the config
-	auto network = Network<dtype>(config);
+	auto network1 = Network<dtype>(config1);
 
 	// Create the input data and labels for the network.
 	// These are created using the names specified in
@@ -59,9 +61,8 @@ int main()
 	};
 
 	// Add the data to the network
-	network.addData(input, output);
-
-	network.record("loss");
+	network1.addData(input, output);
+	network1.record("loss");
 
 	// Compile the network
 	// Note: This does not necessarily need to be
@@ -70,19 +71,11 @@ int main()
 	//       the network to be a particular size
 	//       or with different activations if they
 	//       have not already been specified
-	network.compile();
+	network1.compile();
 
-	// Fit the network to the data
-
-	std::cout << "Training\n";
-	auto s = TIME;
-	// network.fit(TrainConfig(1, 1000));
-	auto th = std::thread(&Network<dtype>::fitWithThread, &network, TrainConfig(1, 10000));
-	auto e = TIME;
-	std::cout << e - s << "\n";
-
-	auto vis = rapid::neural::NetVis(&network);
-	vis.run();
+	// network1.fit(-1, 2000);
+	NetVis netvis(&network1, TrainConfig(-1, 100000));
+	netvis.run();
 
 	// Test the accuracy of the network by printing
 	// it's output compared to the labeled output
@@ -96,7 +89,7 @@ int main()
 
 		std::cout << " => ";
 
-		auto netOut = network.forward(input[i]);
+		auto netOut = network1.forward(input[i]);
 		std::cout << round((dtype) netOut["y"][0][0], 3) << ", ";
 		std::cout << round((dtype) netOut["y"][1][0], 3);
 

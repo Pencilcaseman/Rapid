@@ -396,16 +396,10 @@ namespace rapid
 				auto output = forward(fixedInput, false);
 				auto loss = fixedTarget - output;
 
-				if (m_TrackLoss)
-				{
-					auto tmp = (t) ndarray::mean(loss);
-					m_LossRecord.emplace_back(tmp * tmp);
-				}
-
 				for (int64 i = m_Layers.size() - 1; i >= 0; i--)
 					loss.set(m_Layers[i]->backward(loss));
 
-				return loss;
+				return fixedTarget - output;
 			}
 
 			inline ndarray::Array<t> backward(const std::unordered_map<std::string, ndarray::Array<t>> &inputs,
@@ -422,12 +416,6 @@ namespace rapid
 				return backward(inputs.at("defaultInput"), targets.at("defaultOutput"));
 			}
 
-			// Fit the network to the training data using provided epoch and batch size parameters
-			inline void fitWithThread(const TrainConfig &config = {-1, -1})
-			{
-				_fit(config);
-			}
-			
 			// Fit the network to the training data using provided epoch and batch size parameters
 			inline void fit(const TrainConfig &config = {-1, -1})
 			{
@@ -488,42 +476,59 @@ namespace rapid
 				return res;
 			}
 
-			private:
-				inline void _fit(const TrainConfig &config)
+		private:
+			inline void _fit(const TrainConfig &config)
+			{
+				m_Training = true;
+
+				uint64 batchStart, batchEnd;
+
+				if (m_BatchStart != -1) batchStart = math::min(m_BatchStart, m_Data.size() - 1);
+				else batchStart = 0;
+
+				if (m_BatchEnd != -1) batchEnd = math::min(m_BatchEnd, m_Data.size());
+				else batchEnd = m_Data.size();
+
+				uint64 batchSize = batchEnd - batchStart;
+
+				if (config.epochs == -1)
+					message::RapidError("Neural Network Error", "Please specify a number of training epochs").display();
+
+				for (; m_Epoch < config.epochs; m_Epoch++)
 				{
-					uint64 batchStart, batchEnd;
+					ndarray::Array<t> totalLoss = ndarray::zeros<t>({m_Layers[m_Layers.size() - 1]->getNodes(), 1});
 
-					if (m_BatchStart != -1) batchStart = math::min(m_BatchStart, m_Data.size() - 1);
-					else batchStart = 0;
-
-					if (m_BatchEnd != -1) batchEnd = math::min(m_BatchEnd, m_Data.size());
-					else batchEnd = m_Data.size();
-
-					uint64 batchSize = batchEnd - batchStart;
-
-					if (config.epochs == -1)
-						message::RapidError("Neural Network Error", "Please specify a number of training epochs").display();
-
-					for (m_Epoch = 0; m_Epoch < config.epochs; m_Epoch++)
+					while (batchEnd < m_Data.size() + 1)
 					{
-						while (batchEnd < m_Data.size() + 1)
+						for (uint64 batch = batchStart; batch < batchEnd; batch++)
 						{
-							for (uint64 batch = batchStart; batch < batchEnd; batch++)
-							{
-								auto index = math::random<uint64>(batchStart, batchEnd - 1);
-								backward(m_Data[index].first, m_Data[index].second);
-							}
+							if (!m_Training)
+								return;
 
-							batchStart += batchSize;
-							batchEnd += batchSize;
-							m_BatchNum++;
+							auto index = math::random<uint64>(batchStart, batchEnd - 1);
+
+							auto loss = backward(m_Data[index].first, m_Data[index].second);
+
+							if (m_TrackLoss)
+								totalLoss += loss;
 						}
 
-						batchStart = 0;
-						batchEnd = batchSize;
-						m_BatchNum = 0;
+						batchStart += batchSize;
+						batchEnd += batchSize;
+						m_BatchNum++;
 					}
+
+					if (m_TrackLoss)
+					{
+						auto meanAvg = ndarray::mean(totalLoss / (t) (batchEnd - batchStart));
+						m_LossRecord.emplace_back(meanAvg * meanAvg);
+					}
+
+					batchStart = 0;
+					batchEnd = batchSize;
+					m_BatchNum = 0;
 				}
+			}
 
 		private:
 			bool m_Built = false;
