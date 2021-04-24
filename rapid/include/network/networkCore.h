@@ -262,6 +262,13 @@ namespace rapid
 					return getLossRecord();
 			}
 
+			inline double getTrainingTime() const
+			{
+				if (m_Training)
+					return m_TimeTotal + (TIME - m_TimeStart);
+				return m_TimeTotal;
+			}
+
 			void compile()
 			{
 				if (m_HasConfig)
@@ -479,6 +486,9 @@ namespace rapid
 		private:
 			inline void _fit(const TrainConfig &config)
 			{
+				m_TimeStart = TIME;
+
+				m_TrainConfig = config;
 				m_Training = true;
 
 				uint64 batchStart, batchEnd;
@@ -496,6 +506,8 @@ namespace rapid
 
 				for (; m_Epoch < config.epochs; m_Epoch++)
 				{
+					std::shuffle(m_Data.begin(), m_Data.end(), m_RandomGenerator);
+
 					ndarray::Array<t> totalLoss = ndarray::zeros<t>({m_Layers[m_Layers.size() - 1]->getNodes(), 1});
 
 					while (batchEnd < m_Data.size() + 1)
@@ -503,11 +515,9 @@ namespace rapid
 						for (uint64 batch = batchStart; batch < batchEnd; batch++)
 						{
 							if (!m_Training)
-								return;
+								goto finish;
 
-							auto index = math::random<uint64>(batchStart, batchEnd - 1);
-
-							auto loss = backward(m_Data[index].first, m_Data[index].second);
+							auto loss = backward(m_Data[batch].first, m_Data[batch].second);
 
 							if (m_TrackLoss)
 								totalLoss += loss;
@@ -528,6 +538,10 @@ namespace rapid
 					batchEnd = batchSize;
 					m_BatchNum = 0;
 				}
+
+			finish:
+				m_Training = false;
+				m_TimeTotal += TIME - m_TimeStart;
 			}
 
 		private:
@@ -536,6 +550,9 @@ namespace rapid
 
 			bool m_HasConfig = false;
 			NetworkConfig<t> m_Config;
+			TrainConfig m_TrainConfig;
+
+			std::mt19937 m_RandomGenerator = std::mt19937();
 
 			std::vector<layers::Layer<t> *> m_Layers;
 			std::vector<std::pair<std::unordered_map<std::string, ndarray::Array<t>>, std::unordered_map<std::string, ndarray::Array<t>>>> m_Data;
@@ -545,6 +562,9 @@ namespace rapid
 
 			bool m_TrackLoss = false;
 			std::vector<t> m_LossRecord;
+
+			double m_TimeStart = 0;
+			double m_TimeTotal = 0;
 
 			bool m_Training = false;
 			bool m_StatisticsOpen = true;
