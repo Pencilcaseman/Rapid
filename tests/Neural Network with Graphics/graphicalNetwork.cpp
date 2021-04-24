@@ -24,7 +24,7 @@ int main()
 
 		{"LeakyRelu"},    // Activation functions
 		{"ADAM"},         // Optimizers
-		{0.003}           // Learning rates
+		{0.005}           // Learning rates
 	};
 
 	// Create the network from the config

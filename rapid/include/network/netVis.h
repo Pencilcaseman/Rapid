@@ -44,9 +44,10 @@ namespace rapid
 
 				ImGui::Begin("Plot", &m_Open);
 
+				uint64 epoch = m_Network->m_Epoch;
 				double maxX = m_Network->m_LossRecord.size();
 				const std::vector<t> data = m_Network->m_LossRecord;
-				auto x = std::vector<t>(data.size());
+				auto x = std::vector<t>(epoch);
 				for (uint64 i = 0; i < x.size(); i++)
 					x[i] = (t) i;
 
@@ -55,7 +56,7 @@ namespace rapid
 
 				if (ImPlot::BeginPlot("Loss vs Epoch", "Epoch", "Loss", ImVec2(-1, ImGui::GetWindowHeight() / 2 - 20), ImPlotFlags_Query))
 				{
-					ImPlot::PlotLine("Loss", x.data(), data.data(), x.size(), 0, sizeof(t));
+					ImPlot::PlotLine("Loss", x.data(), data.data(), epoch, 0, sizeof(t));
 
 					auto [mouseX, mouseY] = ImPlot::GetPlotMousePos();
 					auto range = ImPlot::GetPlotLimits();
@@ -65,7 +66,7 @@ namespace rapid
 					auto windowMaxY = range.Y.Max;
 					auto [width, height] = ImPlot::GetPlotSize();
 
-					auto xPos = math::min(math::max(math::round(mouseX), 0), data.size() - 1);
+					auto xPos = math::min(math::max(math::round(mouseX), 0), epoch - 1);
 
 					if (mouseX > windowMinX && mouseX < windowMaxX &&
 						mouseY > windowMinY && mouseY < windowMaxY &&

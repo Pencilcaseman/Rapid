@@ -520,7 +520,7 @@ namespace rapid
 							auto loss = backward(m_Data[batch].first, m_Data[batch].second);
 
 							if (m_TrackLoss)
-								totalLoss += loss;
+								totalLoss += ndarray::abs(loss);
 						}
 
 						batchStart += batchSize;

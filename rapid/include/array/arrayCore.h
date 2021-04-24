@@ -4068,7 +4068,7 @@ namespace rapid
 
 				Array<t, loc>::unaryOpArray(arr, result, mode, [](t x)
 				{
-					return std::abs(x);
+					return math::abs(x);
 				});
 			}
 		#ifdef RAPID_CUDA
