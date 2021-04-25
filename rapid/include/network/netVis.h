@@ -76,9 +76,10 @@ namespace rapid
 					auto [width, height] = ImPlot::GetPlotSize();
 
 					int lod = 1;
-					if (windowMaxX - windowMinX > 10000) lod = 100;
-					else if (windowMaxX - windowMinX > 1000) lod = 20;
-					else if (windowMaxX - windowMinX > 100) lod = 2;
+					//if (windowMaxX - windowMinX > 10000) lod = 100;
+					//else if (windowMaxX - windowMinX > 1000) lod = 20;
+					//else if (windowMaxX - windowMinX > 100) lod = 2;
+					if (windowMaxX - windowMinX > 100) lod = std::ceil((windowMaxX - windowMinX) * 0.001);
 					
 					ImPlot::PlotLine("Loss", x.data(), data.data(), epoch / lod, 0, sizeof(t) * lod);
 
