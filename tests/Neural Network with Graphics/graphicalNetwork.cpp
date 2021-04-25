@@ -20,11 +20,11 @@ int main()
 
 		{{"y", 2}},       // Output = two nodes
 
-		{3, 3},           // Hidden layer nodes
+		{5, 5, 5},        // Hidden layer nodes
 
 		{"LeakyRelu"},    // Activation functions
-		{"ADAM"},         // Optimizers
-		{0.005}           // Learning rates
+		{"SGD"},          // Optimizers
+		{0.01}            // Learning rates
 	};
 
 	// Create the network from the config
@@ -67,12 +67,11 @@ int main()
 	// Compile the network
 	network.compile();
 
-	NetVis netvis(&network, TrainConfig(-1, 100000));
+	NetVis netvis(&network, TrainConfig(-1, 5000));
 	netvis.run();
 
 	// Test the accuracy of the network by printing
 	// it's output compared to the labeled output
-	// std::cout.precision(3);
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)
 	{

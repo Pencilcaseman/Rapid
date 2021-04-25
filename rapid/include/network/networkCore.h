@@ -493,44 +493,53 @@ namespace rapid
 
 				uint64 batchStart, batchEnd;
 
-				if (m_BatchStart != -1) batchStart = math::min(m_BatchStart, m_Data.size() - 1);
-				else batchStart = 0;
-
-				if (m_BatchEnd != -1) batchEnd = math::min(m_BatchEnd, m_Data.size());
-				else batchEnd = m_Data.size();
+				batchStart = 0;
+				batchEnd = math::min(m_TrainConfig.batchSize, m_Data.size());
 
 				uint64 batchSize = batchEnd - batchStart;
 
 				if (config.epochs == -1)
 					message::RapidError("Neural Network Error", "Please specify a number of training epochs").display();
+				auto startEpoch = m_Epoch;
 
-				for (; m_Epoch < config.epochs; m_Epoch++)
+				for (; m_Epoch < startEpoch + config.epochs; m_Epoch++)
 				{
 					std::shuffle(m_Data.begin(), m_Data.end(), m_RandomGenerator);
 
 					ndarray::Array<t> totalLoss = ndarray::zeros<t>({m_Layers[m_Layers.size() - 1]->getNodes(), 1});
+					uint64 index = 0;
+					bool cont = true;
+					uint64 batchSize = 0;
 
-					while (batchEnd < m_Data.size() + 1)
+					while (cont)
 					{
 						for (uint64 batch = batchStart; batch < batchEnd; batch++)
 						{
 							if (!m_Training)
 								goto finish;
 
-							auto loss = backward(m_Data[batch].first, m_Data[batch].second);
+							auto loss = backward(m_Data[index].first, m_Data[index].second);
+
+							index++;
 
 							if (m_TrackLoss)
 								totalLoss += ndarray::abs(loss);
 						}
 
+						batchSize = batchEnd - batchStart;
 						batchStart += batchSize;
 						batchEnd += batchSize;
+						if (batchEnd >= m_Data.size())
+						{
+							cont = false;
+							batchEnd = m_Data.size();
+						}
 						m_BatchNum++;
 					}
 
 					if (m_TrackLoss)
 					{
-						auto meanAvg = ndarray::mean(totalLoss / (t) (batchEnd - batchStart));
+						auto meanAvg = ndarray::mean(totalLoss / (t) batchSize);
 						m_LossRecord.emplace_back(meanAvg * meanAvg);
 					}
 

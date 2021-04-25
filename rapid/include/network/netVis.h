@@ -11,10 +11,10 @@ namespace rapid
 		class NetVis : public mahi::gui::Application
 		{
 		public:
-			NetVis() : Application() // Application(640, 480, "Rapid NetVis")
+			NetVis() : Application()
 			{}
 
-			NetVis(Network<t> *net, const TrainConfig &config) : Application() // Application(640, 480, "Rapid NetVis")
+			NetVis(Network<t> *net, const TrainConfig &config) : Application()
 			{
 				m_Network = net;
 				m_Config = config;
@@ -40,6 +40,15 @@ namespace rapid
 				std::string format = "Training time: " + rapidCast<std::string>(math::round(m_Network->getTrainingTime(), 3));
 				ImGui::BulletText(format.c_str());
 
+				double percentage = math::round(((double) m_Network->m_Epoch / (double) m_Network->m_TrainConfig.epochs) * 100., 2);
+				std::string percStr = rapidCast<std::string>(percentage);
+				if (percentage < 99.999999) percStr += std::string(5 - percStr.length(), '0');
+				format = "Training " + percStr + "%c complete";
+				ImGui::BulletText(format.c_str(), '%');
+
+				ImGui::BulletText("Epoch: %llu", m_Network->m_Epoch);
+				ImGui::BulletText("Batch number: %llu", m_Network->m_BatchNum);
+
 				ImGui::End();
 
 				ImGui::Begin("Plot", &m_Open);
@@ -54,10 +63,10 @@ namespace rapid
 				ImPlot::SetNextPlotLimitsX(-(m_Network->m_TrainConfig.epochs * 0.1), m_Network->m_TrainConfig.epochs + (m_Network->m_TrainConfig.epochs * 0.1), ImGuiCond_FirstUseEver);
 				ImPlot::SetNextPlotLimitsY(-0.1, 1.1, ImGuiCond_FirstUseEver);
 
-				if (ImPlot::BeginPlot("Loss vs Epoch", "Epoch", "Loss", ImVec2(-1, ImGui::GetWindowHeight() / 2 - 20), ImPlotFlags_Query))
+				if (ImPlot::BeginPlot("Loss vs Epoch", "Epoch", "Loss", ImVec2(-1, -1), ImPlotFlags_Crosshairs))
 				{
-					ImPlot::PlotLine("Loss", x.data(), data.data(), epoch, 0, sizeof(t));
-
+					ImPlot::SetLegendLocation(ImPlotLocation_NorthWest, ImPlotOrientation_Horizontal, false);
+					
 					auto [mouseX, mouseY] = ImPlot::GetPlotMousePos();
 					auto range = ImPlot::GetPlotLimits();
 					auto windowMinX = range.X.Min;
@@ -65,6 +74,13 @@ namespace rapid
 					auto windowMinY = range.Y.Min;
 					auto windowMaxY = range.Y.Max;
 					auto [width, height] = ImPlot::GetPlotSize();
+
+					int lod = 1;
+					if (windowMaxX - windowMinX > 10000) lod = 100;
+					else if (windowMaxX - windowMinX > 1000) lod = 20;
+					else if (windowMaxX - windowMinX > 100) lod = 2;
+					
+					ImPlot::PlotLine("Loss", x.data(), data.data(), epoch / lod, 0, sizeof(t) * lod);
 
 					auto xPos = math::min(math::max(math::round(mouseX), 0), epoch - 1);
 
@@ -82,19 +98,10 @@ namespace rapid
 						if (screenspaceX < 50 + 105) left = false;
 						if (screenspaceY > height - 50 - 20) up = false;
 
-						ImPlot::PlotVLines("##LossLine", &xPos, 1);
+						// ImPlot::PlotVLines("##LossLineY", &xPos, 1);
 						ImPlot::Annotate(xPos, data[(uint64) xPos], ImVec2(left ? -50 : 50, up ? -50 : 50), ImVec4(175, 165, 180, 255), format.c_str());
 					}
 
-					m_Query = ImPlot::GetPlotQuery();
-
-					ImPlot::EndPlot();
-				}
-
-				ImPlot::SetNextPlotLimits(m_Query.X.Min, m_Query.X.Max, m_Query.Y.Min, m_Query.Y.Max, ImGuiCond_Always);
-				if (ImPlot::BeginPlot("##View", "Epoch", "Loss", ImVec2(-1, ImGui::GetWindowHeight() / 2 - 20)))
-				{
-					ImPlot::PlotLine("Loss", x.data(), data.data(), x.size());
 					ImPlot::EndPlot();
 				}
 
@@ -114,7 +121,6 @@ namespace rapid
 			std::thread m_Thread;
 
 			bool m_Open = true;
-			ImPlotLimits m_Query;
 		};
 	}
 }
