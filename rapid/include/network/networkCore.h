@@ -529,11 +529,13 @@ namespace rapid
 						batchSize = batchEnd - batchStart;
 						batchStart += batchSize;
 						batchEnd += batchSize;
+
 						if (batchEnd >= m_Data.size())
-						{
-							cont = false;
 							batchEnd = m_Data.size();
-						}
+
+						if (batchStart >= m_Data.size())
+							cont = false;
+
 						m_BatchNum++;
 					}
 

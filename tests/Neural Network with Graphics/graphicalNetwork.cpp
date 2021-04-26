@@ -1,4 +1,4 @@
-﻿#define RAPID_NO_BLAS
+﻿// #define RAPID_NO_BLAS
 
 #include <iostream>
 #include <rapid.h>
@@ -67,7 +67,7 @@ int main()
 	// Compile the network
 	network.compile();
 
-	NetVis netvis(&network, TrainConfig(-1, 5000));
+	NetVis netvis(&network, TrainConfig(-1, 100000));
 	netvis.run();
 
 	// Test the accuracy of the network by printing

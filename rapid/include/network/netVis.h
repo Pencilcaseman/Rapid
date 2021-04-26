@@ -35,9 +35,29 @@ namespace rapid
 				if (m_Network == nullptr)
 					return;
 
+				auto ct = TIME;
+
+				if (m_PrevTimeStep == 0)
+					m_PrevTimeStep = ct;
+
 				ImGui::Begin("Statistics and Controls");
 
-				std::string format = "Training time: " + rapidCast<std::string>(math::round(m_Network->getTrainingTime(), 3));
+				std::string format = "Elapsed time: " + rapidCast<std::string>(math::round(m_Network->getTrainingTime(), 3));
+				ImGui::BulletText(format.c_str());
+
+				if (m_Network->m_Training && ct - m_PrevTimeStep > 0.75)
+				{
+					// Update remaining time
+					auto deltaT = ct - m_PrevTimeStep;
+					auto deltaE = (double) (m_Network->m_Epoch - m_PrevEpoch);
+
+					auto iterationsPerSecond = (double) deltaE / deltaT;
+					m_TimeRemaining = (double) (m_Network->m_TrainConfig.epochs - m_Network->m_Epoch - 1) / iterationsPerSecond;
+					m_PrevTimeStep = ct;
+					m_PrevEpoch = m_Network->m_Epoch;
+				}
+
+				format = "Remaining time: " + rapidCast<std::string>(math::round(m_TimeRemaining, 0));
 				ImGui::BulletText(format.c_str());
 
 				double percentage = math::round(((double) m_Network->m_Epoch / (double) m_Network->m_TrainConfig.epochs) * 100., 2);
@@ -63,10 +83,10 @@ namespace rapid
 				ImPlot::SetNextPlotLimitsX(-(m_Network->m_TrainConfig.epochs * 0.1), m_Network->m_TrainConfig.epochs + (m_Network->m_TrainConfig.epochs * 0.1), ImGuiCond_FirstUseEver);
 				ImPlot::SetNextPlotLimitsY(-0.1, 1.1, ImGuiCond_FirstUseEver);
 
-				if (ImPlot::BeginPlot("Loss vs Epoch", "Epoch", "Loss", ImVec2(-1, -1), ImPlotFlags_Crosshairs))
+				if (ImPlot::BeginPlot("Loss vs Epoch", "Epoch", "Loss", ImVec2(-1, -1)))
 				{
 					ImPlot::SetLegendLocation(ImPlotLocation_NorthWest, ImPlotOrientation_Horizontal, false);
-					
+
 					auto [mouseX, mouseY] = ImPlot::GetPlotMousePos();
 					auto range = ImPlot::GetPlotLimits();
 					auto windowMinX = range.X.Min;
@@ -76,11 +96,8 @@ namespace rapid
 					auto [width, height] = ImPlot::GetPlotSize();
 
 					int lod = 1;
-					//if (windowMaxX - windowMinX > 10000) lod = 100;
-					//else if (windowMaxX - windowMinX > 1000) lod = 20;
-					//else if (windowMaxX - windowMinX > 100) lod = 2;
 					if (windowMaxX - windowMinX > 100) lod = std::ceil((windowMaxX - windowMinX) * 0.001);
-					
+
 					ImPlot::PlotLine("Loss", x.data(), data.data(), epoch / lod, 0, sizeof(t) * lod);
 
 					auto xPos = math::min(math::max(math::round(mouseX), 0), epoch - 1);
@@ -91,16 +108,18 @@ namespace rapid
 						!ImGui::IsMouseDragging(1) &&
 						!ImGui::IsMouseDragging(2))
 					{
-						std::string format = "Loss: " + std::to_string(data[(uint64) xPos]);
-
 						auto screenspaceX = math::map(xPos, windowMinX, windowMaxX, 0, width);
 						auto screenspaceY = math::map(data[(uint64) xPos], windowMinY, windowMaxY, 0, height);
 						bool left = true, up = true;
 						if (screenspaceX < 50 + 105) left = false;
 						if (screenspaceY > height - 50 - 20) up = false;
 
-						// ImPlot::PlotVLines("##LossLineY", &xPos, 1);
-						ImPlot::Annotate(xPos, data[(uint64) xPos], ImVec2(left ? -50 : 50, up ? -50 : 50), ImVec4(175, 165, 180, 255), format.c_str());
+						ImPlot::PlotVLines("##LossLineY", &xPos, 1);
+
+						std::string format;
+						format += "Epoch: " + std::to_string((uint64) xPos + 1) + "\n";
+						format += "Loss: " + std::to_string(data[(uint64) xPos]);
+						ImPlot::AnnotateClamped(xPos, data[(uint64) xPos], ImVec2(50, -50), ImVec4(0.341, 0.341, 0.341, 255), format.c_str());
 					}
 
 					ImPlot::EndPlot();
@@ -120,6 +139,10 @@ namespace rapid
 			Network<t> *m_Network = nullptr;
 			TrainConfig m_Config;
 			std::thread m_Thread;
+
+			double m_PrevTimeStep = 0;
+			double m_TimeRemaining = 0;
+			uint64 m_PrevEpoch = 0;
 
 			bool m_Open = true;
 		};
