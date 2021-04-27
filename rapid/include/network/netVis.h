@@ -55,7 +55,7 @@ namespace rapid
 
 				// Create a window for statistics and network control
 				ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
-				ImGui::Begin("Statistics and Controls", &m_Open);
+				ImGui::Begin("Network Statistics", &m_Open);
 
 				// Show the elapsed time
 				std::string format = "Elapsed time: " + math::formatSeconds(m_Network->getTrainingTime());
@@ -73,15 +73,11 @@ namespace rapid
 				ImGui::BulletText("Epoch: %llu", m_Network->m_Epoch);
 				ImGui::BulletText("Batch number: %llu", m_Network->m_BatchNum);
 
-				ImGui::NewLine();
-
-				ImGui::Checkbox("Neural network train?", &m_Network->m_Paused);
-
 				ImGui::End();
 
 				// Create the loss graph window
 				ImGui::SetNextWindowSize(ImVec2(1000, 800), ImGuiCond_FirstUseEver);
-				ImGui::Begin("Neural Network Loss", &m_Open);
+				ImGui::Begin("Network Loss", &m_Open);
 
 				uint64 epoch = m_Network->m_Epoch;
 				double maxX = m_Network->m_LossRecord.size();
@@ -125,7 +121,7 @@ namespace rapid
 						if (screenspaceX < 50 + 105) left = false;
 						if (screenspaceY > height - 50 - 20) up = false;
 
-						ImPlot::PlotVLines("##LossLineY", &xPos, 1);
+						ImPlot::PlotVLines("##LossLine", &xPos, 1);
 
 						std::string format;
 						format += "Epoch: " + std::to_string((uint64) xPos + 1) + "\n";
@@ -160,6 +156,7 @@ namespace rapid
 
 				auto iterationsPerSecond = (double) deltaE / deltaT;
 				m_TimeRemaining = (double) (m_Network->m_TrainConfig.epochs - m_Network->m_Epoch - 1) / iterationsPerSecond;
+				
 				// m_PrevTimeStep = m_CurrentTime;
 				// m_PrevEpoch = m_Network->m_Epoch;
 

@@ -264,8 +264,10 @@ namespace rapid
 
 			inline double getTrainingTime() const
 			{
+				if (m_Paused)
+					return TIME - m_PauseTotal - m_TimeStart;
 				if (m_Training)
-					return m_TimeTotal + (TIME - m_TimeStart);
+					return m_TimeTotal + (TIME - m_TimeStart - m_PauseTotal);
 				return m_TimeTotal;
 			}
 
@@ -515,12 +517,14 @@ namespace rapid
 					{
 						for (uint64 batch = batchStart; batch < batchEnd; batch++)
 						{
+							if (m_Paused)
+								goto fit_pause;
+
 							if (!m_Training)
 								goto finish;
 
+							index = batch - batchStart;
 							auto loss = backward(m_Data[index].first, m_Data[index].second);
-
-							index++;
 
 							if (m_TrackLoss)
 								totalLoss += ndarray::abs(loss);
