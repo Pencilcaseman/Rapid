@@ -264,10 +264,8 @@ namespace rapid
 
 			inline double getTrainingTime() const
 			{
-				if (m_Paused)
-					return TIME - m_PauseTotal - m_TimeStart;
 				if (m_Training)
-					return m_TimeTotal + (TIME - m_TimeStart - m_PauseTotal);
+					return m_TimeTotal + (TIME - m_TimeStart);
 				return m_TimeTotal;
 			}
 
