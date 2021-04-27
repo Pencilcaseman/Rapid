@@ -210,12 +210,12 @@ namespace rapid
 
 			t remainder = fmod(abs(num), 1. * pow(10, -((t) dp)));
 			if (remainder == 0)
-				return num * (numToRound > 0 ? 1 : -1);
+				return num * (numToRound >= 0 ? 1 : -1);
 
 			if (remainder < 0.4999999999 * pow(10, -((t) dp)))
-				return (num - remainder) * (numToRound > 0 ? 1 : -1);
+				return (num - remainder) * (numToRound >= 0 ? 1 : -1);
 
-			return (num + (1. * pow(10, -((t) dp))) - remainder) * (numToRound > 0 ? 1 : -1);
+			return (num + (1. * pow(10, -((t) dp))) - remainder) * (numToRound >= 0 ? 1 : -1);
 		}
 
 		/// <summary>

@@ -83,7 +83,7 @@ int main()
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)
 	{
-		std::cout << "Input: ";
+		std::cout << "Calculations: ";
 		std::cout << (int) input[i]["x1"] << "^" << (int) input[i]["x2"] << ", ";
 		std::cout << (int) input[i]["x1"] << "|" << (int) input[i]["x2"];
 

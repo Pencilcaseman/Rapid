@@ -18,11 +18,15 @@ namespace rapid
 			{
 				m_Network = net;
 				m_Config = config;
+
+				// Start the network training process on creation
 				m_Thread = std::thread(&Network<t>::_fit, net, config);
 			}
 
 			~NetVis()
 			{
+				// Close windows and join threads to clean everything up
+
 				if (!m_Open)
 					return;
 
@@ -35,43 +39,39 @@ namespace rapid
 				if (m_Network == nullptr)
 					return;
 
-				auto ct = TIME;
+				m_CurrentTime = TIME;
 
+				// Set the font size to 1 by default (for some reason some devices do not default to this)
 				if (m_PrevTimeStep == 0)
-					m_PrevTimeStep = ct;
+				{
+					auto &io = ImGui::GetIO();
+					io.FontGlobalScale = 1.;
+					m_PrevTimeStep = m_CurrentTime;
+				}
 
-				ImGui::Begin("Statistics and Controls");
+				// Create a window for statistics and network control
+				ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+				ImGui::Begin("Statistics and Controls", &m_Open);
 
+				// Show the elapsed time
 				std::string format = "Elapsed time: " + rapidCast<std::string>(math::round(m_Network->getTrainingTime(), 3));
 				ImGui::BulletText(format.c_str());
 
-				if (m_Network->m_Training && ct - m_PrevTimeStep > 0.75)
-				{
-					// Update remaining time
-					auto deltaT = ct - m_PrevTimeStep;
-					auto deltaE = (double) (m_Network->m_Epoch - m_PrevEpoch);
+				// Show the remaining time
+				ImGui::BulletText(calculateTimeRemaining().c_str());
 
-					auto iterationsPerSecond = (double) deltaE / deltaT;
-					m_TimeRemaining = (double) (m_Network->m_TrainConfig.epochs - m_Network->m_Epoch - 1) / iterationsPerSecond;
-					m_PrevTimeStep = ct;
-					m_PrevEpoch = m_Network->m_Epoch;
-				}
+				// Show the training percentage
+				ImGui::BulletText(calculateTrainingPercentage().c_str());
 
-				format = "Remaining time: " + rapidCast<std::string>(math::round(m_TimeRemaining, 0));
-				ImGui::BulletText(format.c_str());
-
-				double percentage = math::round(((double) m_Network->m_Epoch / (double) m_Network->m_TrainConfig.epochs) * 100., 2);
-				std::string percStr = rapidCast<std::string>(percentage);
-				if (percentage < 99.999999) percStr += std::string(5 - percStr.length(), '0');
-				format = "Training " + percStr + "%c complete";
-				ImGui::BulletText(format.c_str(), '%');
-
+				// Show epoch and batch number
 				ImGui::BulletText("Epoch: %llu", m_Network->m_Epoch);
 				ImGui::BulletText("Batch number: %llu", m_Network->m_BatchNum);
 
 				ImGui::End();
 
-				ImGui::Begin("Plot", &m_Open);
+				// Create the loss graph window
+				ImGui::SetNextWindowSize(ImVec2(1000, 800), ImGuiCond_FirstUseEver);
+				ImGui::Begin("Neural Network Loss", &m_Open);
 
 				uint64 epoch = m_Network->m_Epoch;
 				double maxX = m_Network->m_LossRecord.size();
@@ -87,6 +87,7 @@ namespace rapid
 				{
 					ImPlot::SetLegendLocation(ImPlotLocation_NorthWest, ImPlotOrientation_Horizontal, false);
 
+					// Important values for plotting things
 					auto [mouseX, mouseY] = ImPlot::GetPlotMousePos();
 					auto range = ImPlot::GetPlotLimits();
 					auto windowMinX = range.X.Min;
@@ -136,10 +137,45 @@ namespace rapid
 			}
 
 		private:
+
+			inline std::string calculateTimeRemaining()
+			{
+				// Update remaining time
+
+				if (m_CurrentTime - m_PrevTimeStep < 0.5)
+					goto time_end;
+
+				auto deltaT = m_CurrentTime - m_PrevTimeStep;
+				auto deltaE = (double) (m_Network->m_Epoch - m_PrevEpoch);
+
+				auto iterationsPerSecond = (double) deltaE / deltaT;
+				m_TimeRemaining = (double) (m_Network->m_TrainConfig.epochs - m_Network->m_Epoch - 1) / iterationsPerSecond;
+				m_PrevTimeStep = m_CurrentTime;
+				m_PrevEpoch = m_Network->m_Epoch;
+
+				if (m_Network->m_Epoch == m_Network->m_TrainConfig.epochs)
+					m_TimeRemaining = 0;
+
+			time_end:
+
+				return "Remaining time: " + rapidCast<std::string>(math::round(m_TimeRemaining, 0));
+			}
+
+			inline std::string calculateTrainingPercentage() const
+			{
+				// Find the training progress as a percentage
+				double percentage = math::round(((double) m_Network->m_Epoch / (double) m_Network->m_TrainConfig.epochs) * 100., 2);
+				std::string percStr = rapidCast<std::string>(percentage);
+				if (percentage < 99.999999) percStr += std::string(5 - percStr.length(), '0');
+				return "Training " + percStr + "%% complete";
+			}
+
+		private:
 			Network<t> *m_Network = nullptr;
 			TrainConfig m_Config;
 			std::thread m_Thread;
 
+			double m_CurrentTime = 1;
 			double m_PrevTimeStep = 0;
 			double m_TimeRemaining = 0;
 			uint64 m_PrevEpoch = 0;

@@ -1,4 +1,4 @@
-﻿// #define RAPID_NO_BLAS
+﻿#define RAPID_NO_BLAS
 
 #include <iostream>
 #include <rapid.h>
@@ -67,7 +67,7 @@ int main()
 	// Compile the network
 	network.compile();
 
-	NetVis netvis(&network, TrainConfig(-1, 100000));
+	NetVis netvis(&network, TrainConfig(-1, 2000));
 	netvis.run();
 
 	// Test the accuracy of the network by printing
@@ -75,7 +75,7 @@ int main()
 	std::cout << "Predict\n";
 	for (int i = 0; i < 4; i++)
 	{
-		std::cout << "Input: ";
+		std::cout << "Calculations: ";
 		std::cout << (int) input[i]["x1"] << "^" << (int) input[i]["x2"] << ", ";
 		std::cout << (int) input[i]["x1"] << "|" << (int) input[i]["x2"];
 
