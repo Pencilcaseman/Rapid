@@ -577,6 +577,7 @@ namespace rapid
 			double m_TimeStart = 0;
 			double m_TimeTotal = 0;
 
+			bool m_Paused = false;
 			bool m_Training = false;
 			bool m_StatisticsOpen = true;
 		};

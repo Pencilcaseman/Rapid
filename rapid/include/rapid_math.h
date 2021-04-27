@@ -232,5 +232,26 @@ namespace rapid
 				res *= val;
 			return res;
 		}
+
+		template<typename t>
+		inline std::string formatSeconds(const t sec)
+		{
+			// convert to milliseconds
+			int64 millis = (int64) (sec * 1000.);
+
+			int64 hours = millis / (1000 * 60 * 60);
+			millis -= hours * (1000 * 60 * 60);
+
+			int64 minutes = millis / (1000 * 60);
+			millis -= minutes * (1000 * 60);
+
+			int64 seconds = millis / 1000;
+			millis -= seconds * 1000;
+
+			std::stringstream stream;
+			stream << std::setfill('0') << std::setw(2) << hours << ':' << std::setw(2) << minutes
+				<< ':' << std::setw(2) << seconds << '.' << std::setw(3) << millis;
+			return stream.str();
+		}
 	}
 }

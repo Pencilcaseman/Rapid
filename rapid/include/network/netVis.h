@@ -18,9 +18,6 @@ namespace rapid
 			{
 				m_Network = net;
 				m_Config = config;
-
-				// Start the network training process on creation
-				m_Thread = std::thread(&Network<t>::_fit, net, config);
 			}
 
 			~NetVis()
@@ -32,6 +29,13 @@ namespace rapid
 
 				m_Thread.join();
 				quit();
+			}
+
+			inline void start()
+			{
+				// Start the network training process
+				m_Thread = std::thread(&Network<t>::_fit, m_Network, m_Config);
+				run();
 			}
 
 			void update() override
@@ -54,11 +58,13 @@ namespace rapid
 				ImGui::Begin("Statistics and Controls", &m_Open);
 
 				// Show the elapsed time
-				std::string format = "Elapsed time: " + rapidCast<std::string>(math::round(m_Network->getTrainingTime(), 3));
+				std::string format = "Elapsed time: " + math::formatSeconds(m_Network->getTrainingTime());
 				ImGui::BulletText(format.c_str());
 
 				// Show the remaining time
-				ImGui::BulletText(calculateTimeRemaining().c_str());
+				auto remaining = calculateTimeRemaining();
+				// auto rounded = math::round(m_TimeRemaining, 0);
+				ImGui::BulletText(("Remaining time: " + math::formatSeconds(remaining)).c_str());
 
 				// Show the training percentage
 				ImGui::BulletText(calculateTrainingPercentage().c_str());
@@ -66,6 +72,10 @@ namespace rapid
 				// Show epoch and batch number
 				ImGui::BulletText("Epoch: %llu", m_Network->m_Epoch);
 				ImGui::BulletText("Batch number: %llu", m_Network->m_BatchNum);
+
+				ImGui::NewLine();
+
+				ImGui::Checkbox("Neural network train?", &m_Network->m_Paused);
 
 				ImGui::End();
 
@@ -138,27 +148,27 @@ namespace rapid
 
 		private:
 
-			inline std::string calculateTimeRemaining()
+			inline double calculateTimeRemaining()
 			{
 				// Update remaining time
 
-				if (m_CurrentTime - m_PrevTimeStep < 0.5)
-					goto time_end;
+				// if (m_CurrentTime - m_PrevTimeStep < 0.5)
+				// 	goto time_end;
 
 				auto deltaT = m_CurrentTime - m_PrevTimeStep;
 				auto deltaE = (double) (m_Network->m_Epoch - m_PrevEpoch);
 
 				auto iterationsPerSecond = (double) deltaE / deltaT;
 				m_TimeRemaining = (double) (m_Network->m_TrainConfig.epochs - m_Network->m_Epoch - 1) / iterationsPerSecond;
-				m_PrevTimeStep = m_CurrentTime;
-				m_PrevEpoch = m_Network->m_Epoch;
+				// m_PrevTimeStep = m_CurrentTime;
+				// m_PrevEpoch = m_Network->m_Epoch;
 
 				if (m_Network->m_Epoch == m_Network->m_TrainConfig.epochs)
 					m_TimeRemaining = 0;
 
 			time_end:
 
-				return "Remaining time: " + rapidCast<std::string>(math::round(m_TimeRemaining, 0));
+				return m_TimeRemaining;
 			}
 
 			inline std::string calculateTrainingPercentage() const

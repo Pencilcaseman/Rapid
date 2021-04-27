@@ -11,7 +11,7 @@ int main()
 	using namespace rapid::neural;
 	using namespace rapid::ndarray;
 	using namespace rapid::math;
-	using dtype = float;
+	using dtype = double;
 
 	// Create the neural network config
 	NetworkConfig<dtype> config{
@@ -67,8 +67,8 @@ int main()
 	// Compile the network
 	network.compile();
 
-	NetVis netvis(&network, TrainConfig(-1, 2000));
-	netvis.run();
+	NetVis netvis(&network, TrainConfig(-1, 1000000));
+	netvis.start();
 
 	// Test the accuracy of the network by printing
 	// it's output compared to the labeled output
