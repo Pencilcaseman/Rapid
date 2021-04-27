@@ -517,9 +517,6 @@ namespace rapid
 					{
 						for (uint64 batch = batchStart; batch < batchEnd; batch++)
 						{
-							if (m_Paused)
-								goto fit_pause;
-
 							if (!m_Training)
 								goto finish;
 
