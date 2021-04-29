@@ -1,7 +1,4 @@
-﻿#define RAPID_NO_BLAS
-// #define RAPID_NO_AMP
-
-#include <iostream>
+﻿#include <iostream>
 #include <rapid.h>
 
 int main()
