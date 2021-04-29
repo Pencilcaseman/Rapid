@@ -1,5 +1,4 @@
 ﻿#define RAPID_NO_BLAS
-// #define RAPID_NO_AMP
 
 #include <iostream>
 #include <rapid.h>
@@ -89,19 +88,13 @@ int main()
 		std::cout << " (3 s.f.)  | Correct = " << output[i]["y"] << " |\n";
 	}
 
-	const char *tmp = "Hello, World\0";
-	uint64 outLen;
-	uint64 origLen;
-	std::cout << "Original: '" << tmp << "'\n";
-	auto b64 = rapid::io::base64Encode((unsigned char *) tmp, strlen(tmp) + 1, &outLen);
-	std::cout << "Base 64: '" << b64 << "'\n";
-	auto old = rapid::io::base64Decode(b64, outLen, &origLen);
-	std::cout << "Decoded: '" << old << "'\n";
-
-	auto arr = rapid::ndarray::Array<float>({500, 500});
-	START_TIMER(0, 1000);
-	auto res = arr.dot(arr);
-	END_TIMER(0);
+	// std::string testStr = "Hello, World\n";
+	// uint64 newLen = 0;
+	// uint64 oldLen = 0;
+	// auto b64 = rapid::io::base64Encode((unsigned char *) testStr.c_str(), testStr.length(), &newLen);
+	// std::cout << "Base 64: '" << b64 << "'\n";
+	// auto resStr = rapid::io::base64Decode(b64, newLen, &oldLen);
+	// std::cout << "Decoded: '" << resStr << "'\n";
 
 	return 0;
 }

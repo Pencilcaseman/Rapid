@@ -26,6 +26,11 @@
 #include <stack>
 #include <unordered_map>
 
+#include <thread>
+
+// Doesn't work for unknown reasons
+#define RAPID_NO_AMP
+
 #ifdef _DEBUG
 #define RAPID_DEBUG
 #else

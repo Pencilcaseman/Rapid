@@ -706,9 +706,9 @@ namespace rapid
 						cudaSafeCall(cudaMemcpy(dataStart, other.dataStart, math::prod(shape) * sizeof(arrayType), cudaMemcpyDeviceToDevice));
 					}
 				#endif
-						dataOrigin = dataStart;
-						originCount = new uint64;
-						(*originCount) = 1;
+					dataOrigin = dataStart;
+					originCount = new uint64;
+					(*originCount) = 1;
 				}
 
 				isZeroDim = other.isZeroDim;
@@ -1000,10 +1000,10 @@ namespace rapid
 				if (!isZeroDim)
 					rapidAssert(isZeroDim, "Cannot cast multidimensional array to scalar value");
 			#endif
-			
+
 				if (location == CPU)
 					return (t) (dataStart[0]);
-			
+
 			#ifdef RAPID_CUDA
 				if (location == GPU)
 				{
@@ -2975,6 +2975,7 @@ namespace rapid
 																			  math::roundUp(shape[1], (uint64) TS)});
 									const auto resizedOther = internal_resized({math::roundUp(other.shape[0], (uint64) TS),
 																			   math::roundUp(other.shape[1], (uint64) TS)});
+
 									res.internal_resize({math::roundUp(shape[0], (uint64) TS),
 														math::roundUp(other.shape[1], (uint64) TS)});
 
@@ -2982,9 +2983,17 @@ namespace rapid
 									auto N = (unsigned int) resizedThis.shape[1];
 									auto K = (unsigned int) res.shape[1];
 
-									array_view<const arrayType, 2> a(M, N, resizedThis.dataStart);
-									array_view<const arrayType, 2> b(N, K, resizedOther.dataStart);
-									array_view<arrayType, 2> product(M, K, res.dataStart);
+									std::vector<arrayType> thisVector(math::prod(resizedThis.shape));
+									std::vector<arrayType> otherVector(math::prod(resizedOther.shape));
+									std::vector<arrayType> resVector(math::prod(res.shape));
+
+									memcpy(thisVector.data(), resizedThis.dataStart, sizeof(arrayType) * math::prod(resizedThis.shape));
+									memcpy(otherVector.data(), resizedOther.dataStart, sizeof(arrayType) * math::prod(resizedOther.shape));
+									memcpy(resVector.data(), res.dataStart, sizeof(arrayType) * math::prod(res.shape));
+
+									array_view<const arrayType, 2> a(M, N, thisVector);
+									array_view<const arrayType, 2> b(N, K, otherVector);
+									array_view<arrayType, 2> product(M, K, resVector);
 
 									parallel_for_each(product.extent.tile<TS, TS>(), [=](tiled_index<TS, TS> t_idx) restrict(amp)
 									{
@@ -3016,6 +3025,7 @@ namespace rapid
 
 									product.synchronize();
 
+									memcpy(res.dataStart, resVector.data(), sizeof(arrayType) * math::prod(res.shape));
 									res.internal_resize({shape[0], other.shape[1]});
 								}
 							#endif
