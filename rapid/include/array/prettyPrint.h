@@ -177,25 +177,14 @@ namespace rapid
 			}
 		}
 
-		template<typename t, ArrayLocation loc>
-		std::string Array<t, loc>::toString(uint64 startDepth) const
+		template<typename t>
+		std::string Array<t>::toString(uint64 startDepth) const
 		{
 			if (!isInitialized())
 				return "[NONE]";
 
 			if (isZeroDim)
-			{
-				if (loc == CPU)
-				{
-					return utils::formatNumerical(dataStart[0]).str;
-				}
-			#ifdef RAPID_CUDA
-				else if (loc == GPU)
-				{
-					return utils::formatNumerical((t) (*this)).str;
-				}
-			#endif
-			}
+				return utils::formatNumerical(dataStart[0]).str;
 
 			std::vector<utils::strContainer> formatted(math::prod(shape), {"", 0});
 			uint64 longestIntegral = 0;
@@ -213,20 +202,7 @@ namespace rapid
 			std::vector<uint64> currentIndex(shape.size(), 0);
 			currentIndex[currentIndex.size() - 1] = (uint64) -1;
 
-			t *arrayData = nullptr;
-			if (loc == CPU)
-			{
-				arrayData = dataStart;
-			}
-		#ifdef RAPID_CUDA
-			else if (loc == GPU)
-			{
-				cudaSafeCall(cudaDeviceSynchronize());
-
-				arrayData = new t[math::prod(shape)];
-				cudaSafeCall(cudaMemcpy(arrayData, dataStart, sizeof(t) * math::prod(shape), cudaMemcpyDeviceToHost));
-			}
-		#endif
+			auto arrayData = dataStart;
 
 			if (arrayData == nullptr)
 				message::RapidError("Printing Error", "Unable to print array due to invalid location or nullptr data").display();
@@ -257,11 +233,6 @@ namespace rapid
 				}
 			}
 
-		#ifdef RAPID_CUDA
-			if (loc == GPU)
-				delete[] arrayData;
-		#endif
-
 			std::vector<std::string> adjusted(formatted.size(), "");
 
 			for (uint64 i = 0; i < formatted.size(); i++)
@@ -276,11 +247,7 @@ namespace rapid
 				adjusted[i] = tmp;
 			}
 
-		#ifdef RAPID_CUDA
-			auto res = utils::toString(adjusted, shape, 1 + startDepth, stripMiddle, loc == GPU);
-		#else
 			auto res = utils::toString(adjusted, shape, 1 + startDepth, stripMiddle, false);
-		#endif
 
 			return res;
 		}

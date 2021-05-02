@@ -23,23 +23,23 @@ namespace rapid
 		#define D_LEAKY_RELU(y) ((y) > 0 ? 1 : 0.2)
 
 			// Base activation class
-			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
+			template<typename t>
 			class Activation
 			{
 			public:
 				inline virtual void construct(uint64 prevNodes) = 0;
 
-				inline virtual ndarray::Array<t, loc> f(const ndarray::Array<t, loc> &arr) const = 0;
-				inline virtual ndarray::Array<t, loc> df(const ndarray::Array<t, loc> &arr) const = 0;
-				inline virtual ndarray::Array<t, loc> weight(const std::vector<uint64> &shape) const = 0;
+				inline virtual ndarray::Array<t> f(const ndarray::Array<t> &arr) const = 0;
+				inline virtual ndarray::Array<t> df(const ndarray::Array<t> &arr) const = 0;
+				inline virtual ndarray::Array<t> weight(const std::vector<uint64> &shape) const = 0;
 			};
 
 			/***************/
 			/* Activations */
 			/***************/
 
-			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
-			class LeakyRelu : public Activation<t, loc>
+			template<typename t>
+			class LeakyRelu : public Activation<t>
 			{
 			public:
 				inline void construct(uint64 prevNodes) override
@@ -47,7 +47,7 @@ namespace rapid
 					m_PrevNodes = prevNodes;
 				}
 
-				ndarray::Array<t, loc> f(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> f(const ndarray::Array<t> &arr) const override
 				{
 					return arr.mapped([](t x)
 					{
@@ -55,7 +55,7 @@ namespace rapid
 					});
 				}
 
-				ndarray::Array<t, loc> df(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> df(const ndarray::Array<t> &arr) const override
 				{
 					return arr.mapped([](t x)
 					{
@@ -63,10 +63,10 @@ namespace rapid
 					});
 				}
 
-				ndarray::Array<t, loc> weight(const std::vector<uint64> &shape) const override
+				ndarray::Array<t> weight(const std::vector<uint64> &shape) const override
 				{
 					auto std = std::sqrt(2. / (t) m_PrevNodes);
-					auto res = ndarray::Array<t, loc>(shape);
+					auto res = ndarray::Array<t>(shape);
 					res.fillRandom();
 					return res * std;
 				}
@@ -75,8 +75,8 @@ namespace rapid
 				uint64 m_PrevNodes = 0;
 			};
 
-			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
-			class Relu : public Activation<t, loc>
+			template<typename t>
+			class Relu : public Activation<t>
 			{
 			public:
 				inline void construct(uint64 prevNodes) override
@@ -84,20 +84,20 @@ namespace rapid
 					m_PrevNodes = prevNodes;
 				}
 
-				ndarray::Array<t, loc> f(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> f(const ndarray::Array<t> &arr) const override
 				{
 					return ndarray::maximum(arr, 0);
 				}
 
-				ndarray::Array<t, loc> df(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> df(const ndarray::Array<t> &arr) const override
 				{
 					return ndarray::greater(arr, 0);
 				}
 
-				ndarray::Array<t, loc> weight(const std::vector<uint64> &shape) const override
+				ndarray::Array<t> weight(const std::vector<uint64> &shape) const override
 				{
 					auto std = std::sqrt(2. / (t) m_PrevNodes);
-					auto res = ndarray::Array<t, loc>(shape);
+					auto res = ndarray::Array<t>(shape);
 					res.fillRandom();
 					return res * std;
 				}
@@ -106,8 +106,8 @@ namespace rapid
 				uint64 m_PrevNodes = 0;
 			};
 
-			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
-			class Tanh : public Activation<t, loc>
+			template<typename t>
+			class Tanh : public Activation<t>
 			{
 			public:
 				inline void construct(uint64 prevNodes) override
@@ -115,21 +115,21 @@ namespace rapid
 					m_PrevNodes = prevNodes;
 				}
 
-				ndarray::Array<t, loc> f(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> f(const ndarray::Array<t> &arr) const override
 				{
 					return ndarray::tanh(arr);
 				}
 
-				ndarray::Array<t, loc> df(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> df(const ndarray::Array<t> &arr) const override
 				{
 					return 1. - (arr * arr);
 				}
 
-				ndarray::Array<t, loc> weight(const std::vector<uint64> &shape) const override
+				ndarray::Array<t> weight(const std::vector<uint64> &shape) const override
 				{
 					auto lower = -1. / std::sqrt((t) m_PrevNodes);
 					auto upper = 1. / std::sqrt((t) m_PrevNodes);
-					auto res = ndarray::Array<t, loc>(shape);
+					auto res = ndarray::Array<t>(shape);
 					res.fillRandom(lower, upper);
 					return lower + res * (upper - lower);
 				}
@@ -138,8 +138,8 @@ namespace rapid
 				uint64 m_PrevNodes = 0;
 			};
 
-			template<typename t, ndarray::ArrayLocation loc = ndarray::CPU>
-			class Sigmoid : public Activation<t, loc>
+			template<typename t>
+			class Sigmoid : public Activation<t>
 			{
 			public:
 				inline void construct(uint64 prevNodes) override
@@ -147,21 +147,21 @@ namespace rapid
 					m_PrevNodes = prevNodes;
 				}
 
-				ndarray::Array<t, loc> f(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> f(const ndarray::Array<t> &arr) const override
 				{
 					return 1. / (1. + ndarray::exp(-arr));
 				}
 
-				ndarray::Array<t, loc> df(const ndarray::Array<t, loc> &arr) const override
+				ndarray::Array<t> df(const ndarray::Array<t> &arr) const override
 				{
 					return arr * (1. - arr);
 				}
 
-				ndarray::Array<t, loc> weight(const std::vector<uint64> &shape) const override
+				ndarray::Array<t> weight(const std::vector<uint64> &shape) const override
 				{
 					auto lower = -1 / std::sqrt((t) m_PrevNodes);
 					auto upper = 1 / std::sqrt((t) m_PrevNodes);
-					auto res = ndarray::Array<t, loc>(shape);
+					auto res = ndarray::Array<t>(shape);
 					res.fillRandom(lower, upper);
 					return lower + res * (upper - lower);
 				}
